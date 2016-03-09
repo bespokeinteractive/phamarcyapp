@@ -78,6 +78,24 @@
 				<scope>provided</scope>
 				
 			</dependency>
+
+			<dependency>
+
+				<groupId>org.openmrs.module</groupId>
+				<artifactId>hospitalcore-api</artifactId>
+				<version>1.5.3-SNAPSHOT</version>
+				<scope>provided</scope>
+
+			</dependency>
+
+            <dependency>
+                <groupId>org.openmrs.module</groupId>
+                <artifactId>inventory-api</artifactId>
+                <version>2.0.12-SNAPSHOT</version>
+                <type>jar</type>
+                <scope>compile</scope>
+            </dependency>
+
 						
 			<!-- End OpenMRS modules -->
 			
