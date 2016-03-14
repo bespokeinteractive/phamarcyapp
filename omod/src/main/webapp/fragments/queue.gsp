@@ -2,11 +2,11 @@
     def props = ["fullname", "identifier", "age", "gender"]
 %>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.0/moment.js"></script>
-
 <script>
     jq(function () {
         jq("#get-orders").on("click", function () {
+			console.log('Started');
+			
             var date = jq("#referred-date-field").val();
             var phrase = jq("#phrase").val();
             jq.getJSON('${ui.actionLink("pharmacyapp", "Queue", "searchPatient")}',
@@ -25,10 +25,8 @@
         });
 
     });
-</script>
-
-<script>
-    //update the queue table
+	
+	//update the queue table
     function updateQueueTable(tests) {
         var jq = jQuery;
         jq('#patient-search-results-table > tbody > tr').remove();
@@ -54,51 +52,80 @@
         }
     }
 </script>
+
 <div>
-    <form>
-        <fieldset>
-            ${ui.includeFragment("uicommons", "field/datetimepicker", [id: 'referred-date', label: 'Date Ordered', formFieldName: 'referredDate', useTime: false, defaultToday: true])}
-            <label for="phrase">Patient Identifier/Name</label>
-            <input id="phrase"/>
-            <br/>
-            <input type="button" value="Get patients" id="get-orders"/>
-        </fieldset>
-    </form>
+	<h2 style="display: inline-block;">Patients Queue</h2>
+						
+	<a class="button confirm" id="get-orders" style="float: right; margin: 8px 5px 0 0;">
+		Get Patients
+	</a>
+	
+	<div class="formfactor onerow">
+		<div class="first-col">
+			<label for="referred-date-display"> Date </label><br/>
+			${ui.includeFragment("uicommons", "field/datetimepicker", [id: 'referred-date', label: 'Date Ordered', formFieldName: 'referredDate', useTime: false, defaultToday: true])}
+		</div>
+		
+		<div class="second-col">
+			<label for="phrase">Filter Patient in Queue:</label><br/>
+			<input id ="phrase" type="text" name="phrase" placeholder="Enter Patient Name/ID:">
+		</div>
+	</div>
+	
+	<div id="patient-search-results" style="display: block; margin-top:3px;">
+		<div role="grid" class="dataTables_wrapper" id="patient-search-results-table_wrapper">
+			<table id="patient-search-results-table" class="dataTable" aria-describedby="patient-search-results-table_info">
+				<thead>
+					<tr role="row">
+						<th class="ui-state-default" role="columnheader" style="width:200px;">
+							<div class="DataTables_sort_wrapper">
+								<span>Patient ID</span>
+								<span class="DataTables_sort_icon"></span>
+							</div>
+						</th>
+
+						<th class="ui-state-default" role="columnheader">
+							<div class="DataTables_sort_wrapper">
+								<span>Given name</span>
+								<span class="DataTables_sort_icon"></span>
+							</div>
+						</th>
+
+						<th class="ui-state-default" role="columnheader" style="width: 50px;">
+							<div class="DataTables_sort_wrapper">
+								<span>Age</span>
+								<span class="DataTables_sort_icon"></span>
+							</div>
+						</th>
+
+						<th class="ui-state-default" role="columnheader" style="width:60px;">
+							<div class="DataTables_sort_wrapper">
+								<span>Gender</span>
+								<span class="DataTables_sort_icon"></span>
+							</div>
+						</th>
+
+						<th class="ui-state-default" role="columnheader" style="width: 60px;">
+							<div class="DataTables_sort_wrapper">
+								<span>Actions</span>
+								<span class="DataTables_sort_icon"></span>
+							</div>
+						</th>
+					</tr>
+				</thead>
+
+				<tbody role="alert" aria-live="polite" aria-relevant="all">
+				<tr align="center">
+					<td colspan="6">No patients found</td>
+				</tr>
+				</tbody>
+			</table>
+
+		</div>
+	</div>	
+	
 </div>
-<div id="patient-search-results" style="display: block; margin-top:3px;">
-    <div role="grid" class="dataTables_wrapper" id="patient-search-results-table_wrapper">
-        <table id="patient-search-results-table" class="dataTable" aria-describedby="patient-search-results-table_info">
-            <thead>
-            <tr role="row">
-                <th class="ui-state-default" role="columnheader">
-                    <div class="DataTables_sort_wrapper">patientIdentifier<span class="DataTables_sort_icon"></span>
-                    </div>
-                </th>
 
-                <th class="ui-state-default" role="columnheader" style="width:60px;">
-                    <div class="DataTables_sort_wrapper">patientName<span class="DataTables_sort_icon"></span></div>
-                </th>
 
-                <th class="ui-state-default" role="columnheader" style="width: 60px;">
-                    <div class="DataTables_sort_wrapper">Age<span class="DataTables_sort_icon"></span></div>
-                </th>
 
-                <th class="ui-state-default" role="columnheader" style="width:120px;">
-                    <div class="DataTables_sort_wrapper">gender<span class="DataTables_sort_icon"></span></div>
-                </th>
 
-                <th class="ui-state-default" role="columnheader" style="width: 60px;">
-                    <div class="DataTables_sort_wrapper">action<span class="DataTables_sort_icon"></span></div>
-                </th>
-            </tr>
-            </thead>
-
-            <tbody role="alert" aria-live="polite" aria-relevant="all">
-            <tr align="center">
-                <td colspan="6">No patients found</td>
-            </tr>
-            </tbody>
-        </table>
-
-    </div>
-</div>

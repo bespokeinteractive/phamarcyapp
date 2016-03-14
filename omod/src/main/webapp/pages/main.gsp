@@ -118,7 +118,8 @@
 			width: 166px;
 		}
 
-		#lastDayOfVisit label {
+		#lastDayOfVisit label, 
+		#referred-date label{
 			display: none;
 		}
 
@@ -183,9 +184,7 @@
 			overflow: hidden;
 			width: 600px;
 		}
-		#datetime label{
-			display: none;
-		}
+		
 		.formfactor .lone-col input,
 		.formfactor .first-col input,
 		.formfactor .second-col input{
@@ -237,23 +236,26 @@
 			
 			<div id="tabs" style="margin-top: 40px!important;">
 				<ul id="inline-tabs">
-					<li><a href="#queue">Queue</a></li>
-					<li><a href="#tabs-2">Tab 2</a></li>
+					<li><a href="#queues">Queue</a></li>
+					<li><a href="#manage">Manage</a></li>
+					<li><a href="#report">Reports</a></li>
 				</ul>
-			
-			
+				
+				<div id="queues">
+					${ ui.includeFragment("pharmacyapp", "queue") }
+				</div>
+				
+				<div id="manage">
+					<h2 style="display: inline-block;">Manage User Drugs</h2>
+					<div>More Info to come Here</div>
+				</div>
+				
+				<div id="report">
+					<h2 style="display: inline-block;">Report Module</h2>
+					<div>More Info to come Here</div>
+				</div>
 			</div>
 		
 		</div>
 	</div>
 </body>
-
-<div class="lab-tabs">
-    <ul>
-        <li><a href="#queue">queue</a></li>
-    </ul>
-
-    <div id="queue">
-        ${ ui.includeFragment("pharmacyapp", "queue") }
-    </div>
-</div>
