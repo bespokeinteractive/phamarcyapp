@@ -234,6 +234,15 @@
 				<em>&nbsp; &nbsp; Current Time:</em>
 				<span>${currentTime}</span>
 			</div>
+			
+			<div id="tabs" style="margin-top: 40px!important;">
+				<ul id="inline-tabs">
+					<li><a href="#queue">Queue</a></li>
+					<li><a href="#tabs-2">Tab 2</a></li>
+				</ul>
+			
+			
+			</div>
 		
 		</div>
 	</div>
