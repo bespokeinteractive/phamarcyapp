@@ -7,7 +7,7 @@
         "id": "phamarcyapp.radiologyAppHomepageLink",
         "extensionPointId": "org.openmrs.referenceapplication.homepageLink",
         "type": "link",
-        "label": "Phamarcy",        // text or message code (this is shown to the user)
+        "label": "Pharmacy",        // text or message code (this is shown to the user)
         "url": "pharmacyapp/main.page",        // clicking on the app icon goes to this link,
         "order": 8,
         "icon": "icon-tasks",        // see the uicommons style guide icons
