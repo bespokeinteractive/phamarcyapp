@@ -1,12 +1,10 @@
 <%
-    def props = ["fullname", "identifier", "age", "gender"]
+    def props = ["fullname", "identifier", "age", "gender","action"]
 %>
 
 <script>
     jq(function () {
-        jq("#get-orders").on("click", function () {
-			console.log('Started');
-			
+        jq("#getOrders").on("click", function () {
             var date = jq("#referred-date-field").val();
             var phrase = jq("#phrase").val();
             jq.getJSON('${ui.actionLink("pharmacyapp", "Queue", "searchPatient")}',
@@ -14,27 +12,26 @@
                         "date": moment(date).format('DD/MM/YYYY'),
                         "phrase": phrase,
                         "currentPage": 1
-                    } ).success(function (data) {
+                    }).success(function (data) {
                         if (data.length === 0) {
                             jq().toastmessage('showNoticeToast', "No match found!");
                         } else {
-                            updateQueueTable(data)
+                            updatePharmacyTable(data)
                         }
-            });
-
+                    });
         });
 
     });
-	
-	//update the queue table
-    function updateQueueTable(tests) {
-        var jq = jQuery;
-        jq('#patient-search-results-table > tbody > tr').remove();
-        var tbody = jq('#patient-search-results-table > tbody');
-        var row = '<tr>';
-        for (index in tests) {
-            var item = tests[index];
 
+    //update the queue table
+    function updatePharmacyTable(tests) {
+        var jq = jQuery;
+        jq('#pharmacyPatientSearch > tbody > tr').remove();
+        var tbody = jq('#pharmacyPatientSearch > tbody');
+
+        for (index in tests) {
+            var row = '<tr>';
+            var item = tests[index];
             <% props.each {
               if(it == props.last()){
                   def pageLinkEdit = ui.pageLink("", "");
@@ -54,76 +51,77 @@
 </script>
 
 <div>
-	<h2 style="display: inline-block;">Patients Queue</h2>
-						
-	<a class="button confirm" id="get-orders" style="float: right; margin: 8px 5px 0 0;">
-		Get Patients
-	</a>
-	
-	<div class="formfactor onerow">
-		<div class="first-col">
-			<label for="referred-date-display"> Date </label><br/>
-			${ui.includeFragment("uicommons", "field/datetimepicker", [id: 'referred-date', label: 'Date Ordered', formFieldName: 'referredDate', useTime: false, defaultToday: true])}
-		</div>
-		
-		<div class="second-col">
-			<label for="phrase">Filter Patient in Queue:</label><br/>
-			<input id ="phrase" type="text" name="phrase" placeholder="Enter Patient Name/ID:">
-		</div>
-	</div>
-	
-	<div id="patient-search-results" style="display: block; margin-top:3px;">
-		<div role="grid" class="dataTables_wrapper" id="patient-search-results-table_wrapper">
-			<table id="patient-search-results-table" class="dataTable" aria-describedby="patient-search-results-table_info">
-				<thead>
-					<tr role="row">
-						<th class="ui-state-default" role="columnheader" style="width:200px;">
-							<div class="DataTables_sort_wrapper">
-								<span>Patient ID</span>
-								<span class="DataTables_sort_icon"></span>
-							</div>
-						</th>
+    <h2 style="display: inline-block;">Patients Queue</h2>
 
-						<th class="ui-state-default" role="columnheader">
-							<div class="DataTables_sort_wrapper">
-								<span>Given name</span>
-								<span class="DataTables_sort_icon"></span>
-							</div>
-						</th>
+    <a class="button confirm" id="getOrders" style="float: right; margin: 8px 5px 0 0;">
+        Get Patients
+    </a>
 
-						<th class="ui-state-default" role="columnheader" style="width: 50px;">
-							<div class="DataTables_sort_wrapper">
-								<span>Age</span>
-								<span class="DataTables_sort_icon"></span>
-							</div>
-						</th>
+    <div class="formfactor onerow">
+        <div class="first-col">
+            <label for="referred-date-display">Date</label><br/>
+            ${ui.includeFragment("uicommons", "field/datetimepicker", [id: 'referred-date', label: 'Date Ordered', formFieldName: 'referredDate', useTime: false, defaultToday: true])}
+        </div>
 
-						<th class="ui-state-default" role="columnheader" style="width:60px;">
-							<div class="DataTables_sort_wrapper">
-								<span>Gender</span>
-								<span class="DataTables_sort_icon"></span>
-							</div>
-						</th>
+        <div class="second-col">
+            <label for="phrase">Filter Patient in Queue:</label><br/>
+            <input id="phrase" type="text" name="phrase" placeholder="Enter Patient Name/ID:">
+        </div>
+    </div>
 
-						<th class="ui-state-default" role="columnheader" style="width: 60px;">
-							<div class="DataTables_sort_wrapper">
-								<span>Actions</span>
-								<span class="DataTables_sort_icon"></span>
-							</div>
-						</th>
-					</tr>
-				</thead>
+    <div id="patient-search-results" style="display: block; margin-top:3px;">
+        <div role="grid" class="dataTables_wrapper" id="patient-search-results-table_wrapper">
+            <table id="pharmacyPatientSearch" class="dataTable"
+                   aria-describedby="patient-search-results-table_info">
+                <thead>
+                <tr role="row">
+                    <th class="ui-state-default" role="columnheader" style="width:200px;">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Patient ID</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
 
-				<tbody role="alert" aria-live="polite" aria-relevant="all">
-				<tr align="center">
-					<td colspan="6">No patients found</td>
-				</tr>
-				</tbody>
-			</table>
+                    <th class="ui-state-default" role="columnheader">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Given name</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
 
-		</div>
-	</div>	
-	
+                    <th class="ui-state-default" role="columnheader" style="width: 50px;">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Age</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+
+                    <th class="ui-state-default" role="columnheader" style="width:60px;">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Gender</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+
+                    <th class="ui-state-default" role="columnheader" style="width: 60px;">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Actions</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+                </tr>
+                </thead>
+
+                <tbody role="alert" aria-live="polite" aria-relevant="all">
+                <tr align="center">
+                    <td colspan="6">No patients found</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
 </div>
 
 
