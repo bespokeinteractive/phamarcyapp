@@ -237,7 +237,7 @@
 			<div id="tabs" style="margin-top: 40px!important;">
 				<ul id="inline-tabs">
 					<li><a href="#queues">Queue</a></li>
-					<li><a href="#manage">Manage</a></li>
+					<li><a href="#manage">Indent Drugs</a></li>
 					<li><a href="#report">Reports</a></li>
 				</ul>
 				
@@ -246,8 +246,7 @@
 				</div>
 				
 				<div id="manage">
-					<h2 style="display: inline-block;">Manage User Drugs</h2>
-					<div>More Info to come Here</div>
+					<div>${ ui.includeFragment("pharmacyapp", "indentDrugList") }</div>
 				</div>
 				
 				<div id="report">
