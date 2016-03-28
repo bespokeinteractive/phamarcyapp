@@ -85,7 +85,7 @@ public class IndentDrugListFragmentController {
         List<InventoryStoreDrugIndent> listIndent = inventoryService.listSubStoreIndent(subStore.getId(), indentName, statusId, fromDate, toDate, pagingUtil.getStartPos(), pagingUtil.getPageSize());
         List<Action> listSubStoreStatus = ActionValue.getListIndentSubStore();
 
-        return SimpleObject.fromCollection(listIndent,uiUtils,"name","createdOn","transaction.description");
+        return SimpleObject.fromCollection(listIndent,uiUtils,"name","createdOn","transaction.description","subStoreStatus","subStoreStatusName");
     }
 
 }
