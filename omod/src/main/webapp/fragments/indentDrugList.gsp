@@ -1,5 +1,5 @@
 <%
-    def props = ["name","createdOn","action"]
+    def props = ["name","createdOn","subStoreStatusName","action"]
 %>
 <script>
     jq(function () {
@@ -65,6 +65,13 @@
                     <th class="ui-state-default" role="columnheader" style="width: 50px;">
                         <div class="DataTables_sort_wrapper">
                             <span>createdOn</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+
+                    <th class="ui-state-default" role="columnheader" style="width: 50px;">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Status</span>
                             <span class="DataTables_sort_icon"></span>
                         </div>
                     </th>
