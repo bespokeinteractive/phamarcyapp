@@ -29,6 +29,7 @@
             var item = tests[index];
             var row = '<tr>';
 
+
              var item = tests[index];
 
             <% props.each {
