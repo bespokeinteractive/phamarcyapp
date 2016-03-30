@@ -238,7 +238,7 @@
 				<ul id="inline-tabs">
 					<li><a href="#queues">Queue</a></li>
 					<li><a href="#manage">Indent Drugs</a></li>
-					<li><a href="#report">Reports</a></li>
+					<li><a href="#report">Issue drug to Account</a></li>
 				</ul>
 				
 				<div id="queues">
@@ -250,8 +250,7 @@
 				</div>
 				
 				<div id="report">
-					<h2 style="display: inline-block;">Report Module</h2>
-					<div>More Info to come Here</div>
+					<div>${ ui.includeFragment("pharmacyapp", "issueDrugAccountList") }</div>
 				</div>
 			</div>
 		
