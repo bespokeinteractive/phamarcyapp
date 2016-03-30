@@ -239,6 +239,8 @@
 					<li><a href="#queues">Queue</a></li>
 					<li><a href="#manage">Indent Drugs</a></li>
 					<li><a href="#report">Issue drug to Account</a></li>
+
+					<li><a href="#stock">View Drug Stock </a></li>
 				</ul>
 				
 				<div id="queues">
@@ -251,6 +253,11 @@
 				
 				<div id="report">
 					<div>${ ui.includeFragment("pharmacyapp", "issueDrugAccountList") }</div>
+
+				</div>
+
+				<div id="stock">
+					<div>${ui.includeFragment("pharmacyapp","viewDrugStock")} </div>
 				</div>
 			</div>
 		
