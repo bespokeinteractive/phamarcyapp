@@ -31,6 +31,11 @@
 
         for (index in tests) {
             var row = '<tr>';
+            var c = parseInt(index) + 1;
+
+            row += '<td>' + c + '</td>'
+
+
             var item = tests[index];
             <% props.each {
               if(it == props.last()){
@@ -61,6 +66,14 @@
                    aria-describedby="issued-drugs-table_info">
                 <thead>
                 <tr role="row">
+
+                    <th class="ui-state-default" role="columnheader" style="width:10px;">
+                        <div class="DataTables_sort_wrapper">
+                            <span>#</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+
                     <th class="ui-state-default" role="columnheader" style="width:200px;">
                         <div class="DataTables_sort_wrapper">
                             <span>Receipt N0</span>

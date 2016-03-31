@@ -22,9 +22,11 @@
         var tbody = jq('#stock-list-table > tbody');
         for (index in tests) {
             var row = '<tr>';
+            var c = parseInt(index) + 1;
+
             var item = tests[index];
 
-
+            row += '<td>' + c + '</td>'
             row += '<td>'+ item.drug.name +'</td>';
             row += '<td>'+ item.drug.category.name +'</td>';
             row += '<td>'+ item.formulation.name+"-"+item.formulation.dozage +'</td>';
@@ -53,6 +55,13 @@
         <div role="grid" class="dataTables_wrapper" id="stock-list-table_wrapper">
             <table id="stock-list-table" class="dataTable" aria-describedby="stock-list-table_info">
                 <thead>
+                <th class="ui-state-default" role="columnheader" style="width:10px;">
+                    <div class="DataTables_sort_wrapper">
+                        <span>#</span>
+                        <span class="DataTables_sort_icon"></span>
+                    </div>
+                </th>
+
                 <th class="ui-state-default" role="columnheader" style="width:100px;">
                     <div class="DataTables_sort_wrapper">
                         <span>Drug Name</span>
