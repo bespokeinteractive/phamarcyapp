@@ -248,6 +248,7 @@
 				</div>
 				
 				<div id="manage">
+
 					<div>${ ui.includeFragment("pharmacyapp", "indentDrugList") }</div>
 				</div>
 				
