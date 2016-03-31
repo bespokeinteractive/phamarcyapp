@@ -146,22 +146,22 @@ form label, .form label {
 
 <div class="clear"></div>
 <div id="content">
-	<div class="example">
-		<ul id="breadcrumbs">
-			<li>
-				<a href="${ui.pageLink('referenceapplication','home')}">
-<i class="icon-home small"></i></a>
-			</li>
-<li>
-    <i class="icon-chevron-right link"></i>
-    <a href="${ui.pageLink('pharmacyapp','opdQueue', [app:'pharmacyapp.main'])}">PHARMACY</a>
-</li>
-<li>
-    <i class="icon-chevron-right link"></i>
-    LIST OF ORDER
-</li>
-</ul>
-</div>
+    <div class="example">
+        <ul id="breadcrumbs">
+            <li>
+                <a href="${ui.pageLink('referenceapplication','home')}">
+                    <i class="icon-home small"></i></a>
+            </li>
+            <li>
+                <i class="icon-chevron-right link"></i>
+                <a href="${ui.pageLink('pharmacyapp','opdQueue', [app:'pharmacyapp.main'])}">PHARMACY</a>
+            </li>
+            <li>
+                <i class="icon-chevron-right link"></i>
+                LIST OF ORDER
+            </li>
+        </ul>
+    </div>
     <div class="patient-header new-patient-header">
         <div class="demographics">
             <h1 class="name">
@@ -215,49 +215,64 @@ form label, .form label {
 
                     <th class="ui-state-default" role="columnheader">
                         <div class="DataTables_sort_wrapper">
-                            <span>Order Id</span>
+                            <span>Drug Name</span>
                             <span class="DataTables_sort_icon"></span>
                         </div>
                     </th>
 
                     <th class="ui-state-default" role="columnheader">
                         <div class="DataTables_sort_wrapper">
-                            <span>Date</span>
+                            <span>Formulation</span>
                             <span class="DataTables_sort_icon"></span>
                         </div>
                     </th>
 
                     <th class="ui-state-default" role="columnheader">
                         <div class="DataTables_sort_wrapper">
-                            <span>Sent From</span>
+                            <span>Frequency</span>
                             <span class="DataTables_sort_icon"></span>
                         </div>
                     </th>
 
+                    <th class="ui-state-default" role="columnheader">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Days</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+
+                    <th class="ui-state-default" role="columnheader">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Comments</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+                    <th class="ui-state-default" role="columnheader">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Actions</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
                 </tr>
                 </thead>
-                ${date}
 
                 <tbody role="alert" aria-live="polite" aria-relevant="all">
-                <% if (listOfOrders != null || listOfOrders != "") { %>
-                    <% listOfOrders.eachWithIndex { order , idx->  %>
-                        <tr>
-                            <td>${idx+1}</td>
-                            <td>
-                                <a href="drugOrder.page?patientId=${patientId}&encounterId=${order.encounter.encounterId}&patientType=${patientType}&date=${date}">
-                                    ${order.encounter.encounterId}</a></td>
-                            <td>${ui.formatDatePretty(order.createdOn)}</td>
-                            <td>
-                                <% if (order.referralWardName != null && order.referralWardName != "" && order.referralWardName != "null") { %>
-                                    ${order.referralWardName}
-                                <%}%>
-                            </td>
-                        </tr>
-                    <%}%>
+                <% if (drugOrderList != null || drugOrderList != "") { %>
+                <% drugOrderList.eachWithIndex { drug , idx->  %>
+                <tr>
+                    <td>${idx+1}</td>
+                    <td>${drug.inventoryDrug.name}</td>
+                    <td>${drug.inventoryDrugFormulation.name}-${drug.inventoryDrugFormulation.dozage}</td>
+                    <td>${drug.frequency.name}</td>
+                    <td>${drug.noOfDays}</td>
+                    <td>${drug.comments}</td>
+                    <td></td>
+                </tr>
+                <%}%>
                 <%}else{%>
-                    <tr align="center">
-                        <td colspan="6">No order found</td>
-                    </tr>
+                <tr align="center">
+                    <td colspan="6">No Drugs Found</td>
+                </tr>
                 <%}%>
                 </tbody>
             </table>
