@@ -67,21 +67,30 @@
             var item = tests[index];
 
             row += '<td>' + c + '</td>'
-            <% props.each {
-              if(it == props.last()){
-                  def pageLinkEdit = ui.pageLink("", "");
-                      %>
-            row += '<td> <a title="" href="?patientId=' +
-                    item.patientIdentifier + '&revisit=true"><i class="icon-folder-open  small" ></i></a>';
-
-            <% } else {%>
-
-            row += '<td>' + item.${ it } + '</td>';
-            <% }
-              } %>
+            row += '<td><a href="#" >' + item.name + '<a/></td>'
+            row += '<td>' + item.createdOn + '</td>'
+            row += '<td>' + item.subStoreStatusName + '</td>'
+            var link = "";
+            if (item.subStoreStatus == 1) {
+                link += '<a href="#" title="Send Indent" onclick="processSendIndent(' + item.id + ');" >Send Indent</a>';
+            }else if(item.subStoreStatus == 3){
+                link += '<a href="#" title="Process Indent" onclick="processDrugIndent(' + item.id + ');" >Process Indent</a>';
+            }
+            row += '<td><a href="#" >' + link + '<a/></td>'
             row += '</tr>';
             tbody.append(row);
         }
+    }
+
+    function processDrugIndent(indentId) {
+        window.location.href = emr.pageLink("pharmacyapp", "subStoreDrugProcessIndent", {
+            "indentId": indentId
+        });
+    }
+    function processSendIndent(indentId) {
+        window.location.href = emr.pageLink("pharmacyapp", "subStoreDrugProcessIndent", {
+            "indentId": indentId
+        });
     }
 </script>
 
