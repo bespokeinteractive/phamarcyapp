@@ -39,10 +39,8 @@
               if(it == props.last()){
                   def pageLinkEdit = ui.pageLink("", "");
                       %>
-            row += '<td> <a title="Patient Revisit" href="?patientId=' +
-                    item.patientIdentifier + '&revisit=true"><i class="icon-user-md small" ></i></a>';
-
-            row += '<a title="Prescriptions" href="listOfOrder.page?patientId=' +
+            
+            row += '<td> <a title="Prescriptions" href="listOfOrder.page?patientId=' +
                     item.patientId + '&date= '+moment(date).format('DD/MM/YYYY')+'"><i class="icon-stethoscope small" ></i></a>';
 
             <% } else {%>
