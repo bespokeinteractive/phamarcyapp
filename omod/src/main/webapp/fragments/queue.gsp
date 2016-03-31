@@ -4,8 +4,9 @@
 
 <script>
     jq(function () {
+        var dateField = jq("#referred-date-field");
         jq("#getOrders").on("click", function () {
-            var date = jq("#referred-date-field").val();
+            var date = dateField.val();
             var phrase = jq("#phrase").val();
             jq.getJSON('${ui.actionLink("pharmacyapp", "Queue", "searchPatient")}',
                     {
@@ -26,8 +27,10 @@
     //update the queue table
     function updatePharmacyTable(tests) {
         var jq = jQuery;
+        var dateField = jq("#referred-date-field");
         jq('#pharmacyPatientSearch > tbody > tr').remove();
         var tbody = jq('#pharmacyPatientSearch > tbody');
+        var date = dateField.val();
 
         for (index in tests) {
             var row = '<tr>';
@@ -38,6 +41,9 @@
                       %>
             row += '<td> <a title="Patient Revisit" href="?patientId=' +
                     item.patientIdentifier + '&revisit=true"><i class="icon-user-md small" ></i></a>';
+
+            row += '<a title="Prescriptions" href="listOfOrder.page?patientId=' +
+                    item.patientId + '&date= '+moment(date).format('DD/MM/YYYY')+'"><i class="icon-stethoscope small" ></i></a>';
 
             <% } else {%>
 
