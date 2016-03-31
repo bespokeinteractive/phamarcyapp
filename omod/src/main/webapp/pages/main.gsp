@@ -241,6 +241,7 @@
 					<li><a href="#report">Issue drug to Account</a></li>
 					<li><a href="#stock">View Drug Stock </a></li>
                     <li><a href="#expiry">View Expired Drugs </a></li>
+                    <li><a href="#issued"> View Drug Issued To Patient</a></li>
 				</ul>
 				
 				<div id="queues">
@@ -262,6 +263,10 @@
 
                 <div id="expiry">
                     <div>${ui.includeFragment("pharmacyapp","viewExpiredDrugs")}</div>
+                </div>
+
+                <div id="issued">
+                    <div>${ui.includeFragment("pharmacyapp","viewDrugIssuedPatient")}</div>
                 </div>
 
 			</div>
