@@ -26,8 +26,10 @@
         var tbody = jq('#issue-drug-account-list-table > tbody');
         for (index in tests) {
             var row = '<tr>';
+            var v = parseInt(index) + 1;
+
             var item = tests[index];
-            var row = '<tr>';
+            row += '<td>' + v + '</td>'
 
 
              var item = tests[index];
@@ -56,6 +58,14 @@
         <div role="grid" class="dataTables_wrapper" id="issue-drug-account-list-table_wrapper">
             <table id="issue-drug-account-list-table" class="dataTable" aria-describedby="issue-drug-account-list-table_info">
                 <thead>
+                <th class="ui-state-default" role="columnheader" style="width:10px;">
+                    <div class="DataTables_sort_wrapper">
+                        <span>#</span>
+                        <span class="DataTables_sort_icon"></span>
+                    </div>
+                </th>
+
+
                     <th class="ui-state-default" role="columnheader" style="width:100px;">
                         <div class="DataTables_sort_wrapper">
                             <span>Account</span>
