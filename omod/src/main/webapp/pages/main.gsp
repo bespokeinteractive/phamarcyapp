@@ -13,6 +13,8 @@
 	<script>
         jq(function () {
             jq("#tabs").tabs();
+			var index = jq('#tabs a[href="#${tabId}"]').parent().index();
+			jq('#tabs').tabs('select', index);
 			
         });
     </script>

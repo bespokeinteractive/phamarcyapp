@@ -65,6 +65,7 @@
             var row = '<tr>';
             var c = parseInt(index) + 1;
             var item = tests[index];
+            console.log(item);
 
             row += '<td>' + c + '</td>'
             row += '<td><a href="#" >' + item.name + '<a/></td>'
@@ -88,7 +89,7 @@
         });
     }
     function processSendIndent(indentId) {
-        window.location.href = emr.pageLink("pharmacyapp", "subStoreDrugProcessIndent", {
+        window.location.href = emr.pageLink("pharmacyapp", "sendDrugIndentToMainStore", {
             "indentId": indentId
         });
     }

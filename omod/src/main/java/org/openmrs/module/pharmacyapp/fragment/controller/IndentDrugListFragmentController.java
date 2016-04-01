@@ -23,69 +23,70 @@ import java.util.List;
  * Created by ngarivictor on 3/22/2016.
  */
 public class IndentDrugListFragmentController {
-    public void controller(){
+    public void controller() {
 
     }
+
     public List<SimpleObject> showList(
-            @RequestParam(value="statusId",required=false)  Integer statusId,
-            @RequestParam(value="indentName",required=false)  String indentName,
-            @RequestParam(value="fromDate",required=false)  String fromDate,
-            @RequestParam(value="toDate",required=false)  String toDate,
-            @RequestParam(value="pageSize",required=false)  Integer pageSize,
-            @RequestParam(value="currentPage",required=false)  Integer currentPage,
-           UiUtils uiUtils,
+            @RequestParam(value = "statusId", required = false) Integer statusId,
+            @RequestParam(value = "indentName", required = false) String indentName,
+            @RequestParam(value = "fromDate", required = false) String fromDate,
+            @RequestParam(value = "toDate", required = false) String toDate,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "currentPage", required = false) Integer currentPage,
+            UiUtils uiUtils,
             HttpServletRequest request
     ) {
         InventoryService inventoryService = Context.getService(InventoryService.class);
 
-        List<Role> role=new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
+        List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
 
-        InventoryStoreRoleRelation storeRoleRelation=null;
+        InventoryStoreRoleRelation storeRoleRelation = null;
         Role rolePerson = null;
-        for(Role roleUser: role){
-            if(inventoryService.getStoreRoleByName(roleUser.toString())!=null){
+        for (Role roleUser : role) {
+            if (inventoryService.getStoreRoleByName(roleUser.toString()) != null) {
                 storeRoleRelation = inventoryService.getStoreRoleByName(roleUser.toString());
-                rolePerson=roleUser;
+                rolePerson = roleUser;
             }
         }
-        InventoryStore subStore =null;
-        if(storeRoleRelation!=null){
+        InventoryStore subStore = null;
+        if (storeRoleRelation != null) {
             subStore = inventoryService.getStoreById(storeRoleRelation.getStoreid());
 
         }
         int total = inventoryService.countSubStoreIndent(subStore.getId(), indentName, statusId, fromDate, toDate);
 
         String temp = "";
-        if(!StringUtils.isBlank(indentName)){
-            temp = "?indentName="+indentName;
+        if (!StringUtils.isBlank(indentName)) {
+            temp = "?indentName=" + indentName;
         }
 
-        if(statusId != null){
-            if(StringUtils.isBlank(temp)){
-                temp = "?statusId="+statusId;
-            }else{
-                temp +="&statusId="+statusId;
+        if (statusId != null) {
+            if (StringUtils.isBlank(temp)) {
+                temp = "?statusId=" + statusId;
+            } else {
+                temp += "&statusId=" + statusId;
             }
         }
-        if(!StringUtils.isBlank(fromDate)){
-            if(StringUtils.isBlank(temp)){
-                temp = "?fromDate="+fromDate;
-            }else{
-                temp +="&fromDate="+fromDate;
+        if (!StringUtils.isBlank(fromDate)) {
+            if (StringUtils.isBlank(temp)) {
+                temp = "?fromDate=" + fromDate;
+            } else {
+                temp += "&fromDate=" + fromDate;
             }
         }
-        if(!StringUtils.isBlank(toDate)){
-            if(StringUtils.isBlank(temp)){
-                temp = "?toDate="+toDate;
-            }else{
-                temp +="&toDate="+toDate;
+        if (!StringUtils.isBlank(toDate)) {
+            if (StringUtils.isBlank(temp)) {
+                temp = "?toDate=" + toDate;
+            } else {
+                temp += "&toDate=" + toDate;
             }
         }
-        PagingUtil pagingUtil = new PagingUtil( RequestUtil.getCurrentLink(request)+temp , pageSize, currentPage, total );
+        PagingUtil pagingUtil = new PagingUtil(RequestUtil.getCurrentLink(request) + temp, pageSize, currentPage, total);
         List<InventoryStoreDrugIndent> listIndent = inventoryService.listSubStoreIndent(subStore.getId(), indentName, statusId, fromDate, toDate, pagingUtil.getStartPos(), pagingUtil.getPageSize());
         List<Action> listSubStoreStatus = ActionValue.getListIndentSubStore();
 
-        return SimpleObject.fromCollection(listIndent,uiUtils,"name","createdOn","transaction.description","subStoreStatus","subStoreStatusName");
+        return SimpleObject.fromCollection(listIndent, uiUtils, "id", "name", "createdOn", "transaction.description", "subStoreStatus", "subStoreStatusName");
     }
 
 }
