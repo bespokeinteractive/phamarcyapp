@@ -65,7 +65,6 @@
             var row = '<tr>';
             var c = parseInt(index) + 1;
             var item = tests[index];
-            console.log(item);
 
             row += '<td>' + c + '</td>'
             row += '<td><a href="#" >' + item.name + '<a/></td>'
@@ -93,6 +92,12 @@
             "indentId": indentId
         });
     }
+    function subStoreIndentDrug() {
+        window.location.href = emr.pageLink("pharmacyapp", "subStoreIndentDrug");
+    }
+
+
+
 </script>
 
 <div>
@@ -102,6 +107,7 @@
                 <i class="icon-external-link"></i>
 
                 <h3>Indent</h3>
+                <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" value="Add Indent Slip" style="float: right" onclick="subStoreIndentDrug();"/>
             </div>
         </div>
     </div>
