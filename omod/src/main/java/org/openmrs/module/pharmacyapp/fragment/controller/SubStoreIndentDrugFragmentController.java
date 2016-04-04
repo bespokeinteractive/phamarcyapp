@@ -12,7 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 public class SubStoreIndentDrugFragmentController {
 
     public void saveIndentSlip(PageModel pageModel, UiUtils uiUtils,HttpServletRequest request){
-        System.out.println(request.getParameter("drugOrder"));
+        String requestJson = request.getParameter("drugOrder");
+        System.out.println(requestJson);
+
+
 
     }
 

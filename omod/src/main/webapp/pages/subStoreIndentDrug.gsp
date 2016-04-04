@@ -4,20 +4,27 @@
 
 <script>
     jq(function () {
+        var cleared = false;
         var drugOrder = [];
+        var indentName = [];
         var adddrugdialog = emr.setupConfirmationDialog({
             selector: '#addDrugDialog',
             actions: {
                 confirm: function () {
                     if (jq("#drugCategory").val() == 0) {
                         jq().toastmessage('showNoticeToast', "Select a Drug Category!");
-                    }else if (jq("#drugName").val() == 0) {
+                    } else if (jq("#drugName").val() == 0) {
                         jq().toastmessage('showNoticeToast', "Select a Drug Name!");
-                    }else if (jq("#drugFormulation").val() == 0) {
+                    } else if (jq("#drugFormulation").val() == 0) {
                         jq().toastmessage('showNoticeToast', "Select a Formulation!");
-                    }else if (isNaN(parseInt(jq("#quantity").val()))) {
+                    } else if (isNaN(parseInt(jq("#quantity").val()))) {
                         jq().toastmessage('showNoticeToast', "Enter correct quantity!");
                     } else {
+                        if (cleared) {
+                            jq('#addDrugsTable > tbody > tr').remove();
+                            var tbody = jq('#addDrugsTable > tbody');
+                            cleared = false;
+                        }
                         var tbody = jq('#addDrugsTable').children('tbody');
                         var table = tbody.length ? tbody : jq('#addDrugsTable');
                         var index = drugOrder.length + 1;
@@ -39,8 +46,68 @@
             }
         });
 
+        var addnameforindentslipdialog = emr.setupConfirmationDialog({
+            selector: '#addNameForIndentSlip',
+            actions: {
+                confirm: function () {
+                    if (jq("#indentName").val() == '') {
+                        jq().toastmessage('showNoticeToast', "Enter Indent Name!");
+                    } else if (jq("#mainstore").val() == 0) {
+                        jq().toastmessage('showNoticeToast', "Select a Main Store!");
+                    } else {
+                        indentName.push(
+                                {
+                                    indentName: jq("#indentName").val(),
+                                    mainstore: jq("#mainstore").children(":selected").attr("id")
+                                }
+                        );
+                        drugOrder = JSON.stringify(drugOrder);
+                        indentName = JSON.stringify(indentName);
+
+                        var addDrugsData = {
+                            'drugOrder': drugOrder,
+                            'indentName': indentName
+                        };
+                        jq.getJSON('${ ui.actionLink("pharmacyapp", "subStoreIndentDrug", "saveIndentSlip") }', addDrugsData)
+                                .success(function (data) {
+                                    jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+                                    window.location.href = emr.pageLink("pharmacyapp", "main", {
+                                        "tabId": "manage"
+                                    });
+
+                                })
+                                .error(function (xhr, status, err) {
+                                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                                })
+                        addnameforindentslipdialog.close();
+                    }
+                },
+                cancel: function () {
+                    addnameforindentslipdialog.close();
+                }
+            }
+        });
+
+
         jq("#addDrugsButton").on("click", function (e) {
             adddrugdialog.show();
+        });
+        jq("#clearIndent").on("click", function (e) {
+            if (confirm("Are you sure about this?")) {
+                drugOrder = [];
+                jq('#addDrugsTable > tbody > tr').remove();
+                var tbody = jq('#addDrugsTable > tbody');
+                var row = '<tr align="center"><td colspan="5">No Drugs Listed</td></tr>';
+                tbody.append(row);
+                cleared = true;
+            } else {
+                return false;
+            }
+        });
+        jq("#returnToDrugList").on("click", function (e) {
+            window.location.href = emr.pageLink("pharmacyapp", "main", {
+                "tabId": "manage"
+            });
         });
         jq("#drugCategory").on("change", function (e) {
             var categoryId = jq(this).children(":selected").attr("id");
@@ -100,18 +167,7 @@
         });
 
         jq("#addDrugsSubmitButton").click(function (event) {
-            drugOrder = JSON.stringify(drugOrder);
-            var addDrugsData = {
-                'drugOrder': drugOrder
-            };
-
-            jq.getJSON('${ ui.actionLink("pharmacyapp", "subStoreIndentDrug", "saveIndentSlip") }', addDrugsData)
-                    .success(function (data) {
-                        jq().toastmessage('showNoticeToast', "Save Indent Successful!");
-                    })
-                    .error(function (xhr, status, err) {
-                        jq().toastmessage('showNoticeToast', "AJAX error!" + err);
-                    })
+            addnameforindentslipdialog.show();
 
         });
 
@@ -178,10 +234,18 @@
                 </tbody>
             </table>
 
-            <input type="button" value="Add" class="button confirm" name="addDrugsButton" id="addDrugsButton"
+            <input type="button" value="Clear Indent" class="button cancel" name="clearIndent" id="clearIndent"
+                   style="float: right; margin-top:20px;">
+
+
+            <input type="button" value="Add Drug" class="button confirm" name="addDrugsButton" id="addDrugsButton"
                    style="margin-top:20px;">
-            <input type="button" value="Submit" class="button confirm" name="addDrugsSubmitButton"
+            <input type="button" value="Save and Send" class="button confirm" name="addDrugsSubmitButton"
                    id="addDrugsSubmitButton" style="margin-top:20px;">
+            <input type="button" value="Back To Drug List" class="button confirm" name="returnToDrugList"
+                   id="returnToDrugList" style="margin-top:20px;">
+            <input type="button" value="Print" class="button confirm" name="printIndent"
+                   id="printIndent" style="margin-top:20px;">
         </div>
 
     </div>
@@ -196,12 +260,12 @@
         <div class="dialog-content">
             <ul>
                 <li>
-                    <lable for="drugCategory">Drug Category</lable>
+                    <label for="drugCategory">Drug Category</label>
                     <select name="drugCategory" id="drugCategory">
                         <option value="0">Select Category</option>
                         <% if (listCategory != null || listCategory != "") { %>
                         <% listCategory.each { drugCategory -> %>
-                        <option id="${drugCategory.id}">${drugCategory.name}</option>
+                        <option id="${drugCategory.id}" value="${drugCategory.id}">${drugCategory.name}</option>
                         <% } %>
                         <% } %>
                     </select>
@@ -224,6 +288,37 @@
                     <input name="quantity" id="quantity" type="text">
                 </li>
 
+            </ul>
+
+            <span class="button confirm right">Confirm</span>
+            <span class="button cancel">Cancel</span>
+        </div>
+    </div>
+
+    <div id="addNameForIndentSlip" class="dialog">
+        <div class="dialog-header">
+            <i class="icon-folder-open"></i>
+
+            <h3>Add Name For Indent Slip</h3>
+        </div>
+
+        <div class="dialog-content">
+            <ul>
+                <li>
+                    <lable for="indentName">Name</lable>
+                    <input type="text" name="indentName" id="indentName"/>
+                </li>
+                <li>
+                    <label for="mainstore">Select Main Store Indent</label>
+                    <select name="mainstore" id="mainstore">
+                        <option value="0">Select Store</option>
+                        <% if (store != null || store != "") { %>
+                        <% store.parentStores.each { vparent -> %>
+                        <option id="${vparent.id}">${vparent.name}</option>
+                        <% } %>
+                        <% } %>
+                    </select>
+                </li>
             </ul>
 
             <span class="button confirm right">Confirm</span>
