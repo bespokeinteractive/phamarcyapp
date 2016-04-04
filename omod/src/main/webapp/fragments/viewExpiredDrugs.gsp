@@ -26,8 +26,8 @@
             var item = tests[index];
 
             row += '<td>' + c + '</td>'
+            row += '<td><a href="#" >' + item.drug.name + '<a/></td>'
 
-            row += '<td>'+ item.drug.name +'</td>';
             row += '<td>'+ item.drug.category.name +'</td>';
             row += '<td>'+ item.formulation.name+"-"+item.formulation.dozage +'</td>';
             row += '<td>'+ item.currentQuantity +'</td>';
@@ -55,14 +55,14 @@
             <table id="expiry-list-table" class="dataTable" aria-describedby="expiry-list-table_info">
                 <thead>
 
-                <th class="ui-state-default" role="columnheader" style="width:100px;">
+                <th class="ui-state-default" role="columnheader" style="width:10px;">
                     <div class="DataTables_sort_wrapper">
                         <span>#</span>
                         <span class="DataTables_sort_icon"></span>
                     </div>
                 </th>
 
-                <th class="ui-state-default" role="columnheader" style="width:100px;">
+                <th class="ui-state-default" role="columnheader" style="width:10px;">
                     <div class="DataTables_sort_wrapper">
                         <span>Drug Name</span>
                         <span class="DataTables_sort_icon"></span>

@@ -74,7 +74,7 @@
                         </div>
                     </th>
 
-                    <th class="ui-state-default" role="columnheader" style="width:200px;">
+                    <th class="ui-state-default" role="columnheader" style="width:60px;">
                         <div class="DataTables_sort_wrapper">
                             <span>Receipt N0</span>
                             <span class="DataTables_sort_icon"></span>
@@ -112,6 +112,13 @@
                     <th class="ui-state-default" role="columnheader" style="width: 60px;">
                         <div class="DataTables_sort_wrapper">
                             <span>Issued Date</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+
+                    <th class="ui-state-default" role="columnheader" style="width: 60px;">
+                        <div class="DataTables_sort_wrapper">
+                            <span>view/print</span>
                             <span class="DataTables_sort_icon"></span>
                         </div>
                     </th>
