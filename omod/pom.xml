@@ -65,7 +65,11 @@
         </dependency>
 						
 		<!-- End OpenMRS modules -->
-		
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20160212</version>
+		</dependency>
 
 		<!-- Begin OpenMRS core -->
 
@@ -74,6 +78,7 @@
 			<artifactId>openmrs-api</artifactId>
 			<type>jar</type>
 		</dependency>
+
 
 		<dependency>
 			<groupId>org.openmrs.web</groupId>

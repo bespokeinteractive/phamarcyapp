@@ -66,7 +66,10 @@
 
                         var addDrugsData = {
                             'drugOrder': drugOrder,
-                            'indentName': indentName
+                            'indentName': indentName,
+                            'send': 1,
+                            'action': 2,
+                            'keepThis': false
                         };
                         jq.getJSON('${ ui.actionLink("pharmacyapp", "subStoreIndentDrug", "saveIndentSlip") }', addDrugsData)
                                 .success(function (data) {
@@ -167,8 +170,11 @@
         });
 
         jq("#addDrugsSubmitButton").click(function (event) {
-            addnameforindentslipdialog.show();
-
+            if (drugOrder.length < 1) {
+                jq().toastmessage('showNoticeToast', "Indent List has no Drug!");
+            } else {
+                addnameforindentslipdialog.show();
+            }
         });
 
     });//end of doc ready
