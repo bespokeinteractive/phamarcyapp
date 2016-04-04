@@ -96,8 +96,6 @@
         window.location.href = emr.pageLink("pharmacyapp", "subStoreIndentDrug");
     }
 
-
-
 </script>
 
 <div>
