@@ -27,7 +27,7 @@
             var item = tests[index];
 
             row += '<td>' + c + '</td>'
-            row += '<td>'+ item.drug.name +'</td>';
+            row += '<td><a href="#" >' + item.drug.name + '<a/></td>'
             row += '<td>'+ item.drug.category.name +'</td>';
             row += '<td>'+ item.formulation.name+"-"+item.formulation.dozage +'</td>';
             row += '<td>'+ item.currentQuantity +'</td>';

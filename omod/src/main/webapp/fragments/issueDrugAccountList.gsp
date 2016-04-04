@@ -1,5 +1,5 @@
 <%
-    def props = ["name","createdOn","action"]
+    def props = ["createdOn","action"]
 %>
 <script>
     jq(function () {
@@ -30,9 +30,11 @@
 
             var item = tests[index];
             row += '<td>' + v + '</td>'
+            row += '<td><a href="#" >' + item.name + '<a/></td>'
 
 
-             var item = tests[index];
+
+            var item = tests[index];
 
             <% props.each {
               if(it == props.last()){
