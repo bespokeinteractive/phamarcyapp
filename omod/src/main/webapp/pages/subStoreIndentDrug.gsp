@@ -9,19 +9,29 @@
             selector: '#addDrugDialog',
             actions: {
                 confirm: function () {
-                    var tbody = jq('#addDrugsTable').children('tbody');
-                    var table = tbody.length ? tbody : jq('#addDrugsTable');
-                    var index = drugOrder.length + 1;
-                    table.append('<tr><td>' + index + '</td><td>' + jq("#drugCategory").val() + '</td><td>' + jq("#drugName").val() + '</td><td>' + jq("#drugFormulation option:selected").text() + '</td><td>' + jq("#quantity").val() + '</td></tr>');
-                    drugOrder.push(
-                            {
-                                drugCategoryId: jq("#drugCategory").children(":selected").attr("id"),
-                                drugId: jq("#drugName").children(":selected").attr("id"),
-                                drugFormulationId: jq("#drugFormulation").children(":selected").attr("id"),
-                                quantity: jq("#quantity").val()
-                            }
-                    );
-                    adddrugdialog.close();
+                    if (jq("#drugCategory").val() == 0) {
+                        jq().toastmessage('showNoticeToast', "Select a Drug Category!");
+                    }else if (jq("#drugName").val() == 0) {
+                        jq().toastmessage('showNoticeToast', "Select a Drug Name!");
+                    }else if (jq("#drugFormulation").val() == 0) {
+                        jq().toastmessage('showNoticeToast', "Select a Formulation!");
+                    }else if (isNaN(parseInt(jq("#quantity").val()))) {
+                        jq().toastmessage('showNoticeToast', "Enter correct quantity!");
+                    } else {
+                        var tbody = jq('#addDrugsTable').children('tbody');
+                        var table = tbody.length ? tbody : jq('#addDrugsTable');
+                        var index = drugOrder.length + 1;
+                        table.append('<tr><td>' + index + '</td><td>' + jq("#drugCategory").val() + '</td><td>' + jq("#drugName").val() + '</td><td>' + jq("#drugFormulation option:selected").text() + '</td><td>' + jq("#quantity").val() + '</td></tr>');
+                        drugOrder.push(
+                                {
+                                    drugCategoryId: jq("#drugCategory").children(":selected").attr("id"),
+                                    drugId: jq("#drugName").children(":selected").attr("id"),
+                                    drugFormulationId: jq("#drugFormulation").children(":selected").attr("id"),
+                                    quantity: jq("#quantity").val()
+                                }
+                        );
+                        adddrugdialog.close();
+                    }
                 },
                 cancel: function () {
                     adddrugdialog.close();
@@ -32,36 +42,77 @@
         jq("#addDrugsButton").on("click", function (e) {
             adddrugdialog.show();
         });
-        jq("#drugCategory").on("change",function(e){
+        jq("#drugCategory").on("change", function (e) {
             var categoryId = jq(this).children(":selected").attr("id");
-            var drugNameData ="";
-            jq.getJSON('${ ui.actionLink("inventoryapp", "AddReceiptsToStore", "fetchDrugNames") }',{
-                categoryId:categoryId
-            })
-                    .success(function(data) {
+            var drugNameData = "";
+            jq.getJSON('${ ui.actionLink("inventoryapp", "addReceiptsToStore", "fetchDrugNames") }', {
+                categoryId: categoryId
+            }).success(function (data) {
 
-                        for (var key in data) {
-                            if (data.hasOwnProperty(key)) {
-                                var val = data[key];
-                                for (var i in val) {
-                                    if (val.hasOwnProperty(i)) {
-                                        var j = val[i];
-                                        if(i=="id")
-                                        {
-                                            drugNameData=drugNameData + '<option id="'+j+'"';
-                                        }
-                                        else{
-                                            drugNameData=drugNameData+ 'name="' +j+ '">' + j+'</option>';
-                                        }
-                                    }
+                for (var key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        var val = data[key];
+                        for (var i in val) {
+                            if (val.hasOwnProperty(i)) {
+                                var j = val[i];
+                                if (i == "id") {
+                                    drugNameData = drugNameData + '<option id="' + j + '"';
+                                }
+                                else {
+                                    drugNameData = drugNameData + 'name="' + j + '">' + j + '</option>';
                                 }
                             }
                         }
-                        jq(drugNameData).appendTo("#drugName");
+                    }
+                }
+                jq(drugNameData).appendTo("#drugName");
+            }).error(function (xhr, status, err) {
+                jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+            });
+        });
+
+        jq("#drugName").on("change", function (e) {
+            var drugName = jq(this).children(":selected").attr("name");
+            var drugFormulationData = "";
+            jq.getJSON('${ ui.actionLink("inventoryapp", "addReceiptsToStore", "getFormulationByDrugName") }', {
+                drugName: drugName
+            }).success(function (data) {
+                for (var key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        var val = data[key];
+                        for (var i in val) {
+                            if (val.hasOwnProperty(i)) {
+                                var j = val[i];
+                                if (i == "id") {
+                                    drugFormulationData = drugFormulationData + '<option id="' + j + '">';
+                                }
+                                else {
+                                    drugFormulationData = drugFormulationData + j + '</option>';
+                                }
+                            }
+                        }
+                    }
+                }
+                jq(drugFormulationData).appendTo("#drugFormulation");
+            }).error(function (xhr, status, err) {
+                jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+            });
+        });
+
+        jq("#addDrugsSubmitButton").click(function (event) {
+            drugOrder = JSON.stringify(drugOrder);
+            var addDrugsData = {
+                'drugOrder': drugOrder
+            };
+
+            jq.getJSON('${ ui.actionLink("pharmacyapp", "subStoreIndentDrug", "saveIndentSlip") }', addDrugsData)
+                    .success(function (data) {
+                        jq().toastmessage('showNoticeToast', "Save Indent Successful!");
                     })
-                    .error(function(xhr, status, err) {
-                        alert('AJAX error ' + err);
-                    });
+                    .error(function (xhr, status, err) {
+                        jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                    })
+
         });
 
     });//end of doc ready
@@ -147,7 +198,7 @@
                 <li>
                     <lable for="drugCategory">Drug Category</lable>
                     <select name="drugCategory" id="drugCategory">
-                        <option>Select Category</option>
+                        <option value="0">Select Category</option>
                         <% if (listCategory != null || listCategory != "") { %>
                         <% listCategory.each { drugCategory -> %>
                         <option id="${drugCategory.id}">${drugCategory.name}</option>
@@ -158,13 +209,13 @@
                 <li>
                     <label for="drugName">Drug Name</label>
                     <select name="drugName" id="drugName">
-                        <option>Select Drug</option>
+                        <option value="0">Select Drug</option>
                     </select>
                 </li>
                 <li>
                     <lable for="drugFormulation">Formulation</lable>
                     <select name="drugFormulation" id="drugFormulation">
-                        <option>Select Formulation</option>
+                        <option value="0">Select Formulation</option>
                     </select>
                 </li>
 
