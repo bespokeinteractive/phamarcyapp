@@ -34,7 +34,10 @@
                                     drugCategoryId: jq("#drugCategory").children(":selected").attr("id"),
                                     drugId: jq("#drugName").children(":selected").attr("id"),
                                     drugFormulationId: jq("#drugFormulation").children(":selected").attr("id"),
-                                    quantity: jq("#quantity").val()
+                                    quantity: jq("#quantity").val(),
+                                    drugCategoryName: jq('#drugCategory :selected').text(),
+                                    drugName: jq('#drugName :selected').text(),
+                                    drugFormulationName: jq('#drugFormulation :selected').text()
                                 }
                         );
                         adddrugdialog.close();
@@ -96,21 +99,50 @@
             adddrugdialog.show();
         });
         jq("#clearIndent").on("click", function (e) {
-            if (confirm("Are you sure about this?")) {
-                drugOrder = [];
-                jq('#addDrugsTable > tbody > tr').remove();
-                var tbody = jq('#addDrugsTable > tbody');
-                var row = '<tr align="center"><td colspan="5">No Drugs Listed</td></tr>';
-                tbody.append(row);
-                cleared = true;
+            if (drugOrder.length === 0) {
+                jq().toastmessage('showNoticeToast', "Indent List has no Drug!");
             } else {
-                return false;
+                if (confirm("Are you sure about this?")) {
+                    drugOrder = [];
+                    jq('#addDrugsTable > tbody > tr').remove();
+                    var tbody = jq('#addDrugsTable > tbody');
+                    var row = '<tr align="center"><td colspan="5">No Drugs Listed</td></tr>';
+                    tbody.append(row);
+                    cleared = true;
+                } else {
+                    return false;
+                }
             }
+
         });
         jq("#returnToDrugList").on("click", function (e) {
             window.location.href = emr.pageLink("pharmacyapp", "main", {
                 "tabId": "manage"
             });
+        });
+
+        jq("#printIndent").on("click", function (e) {
+            if (drugOrder.length === 0) {
+                jq().toastmessage('showErrorToast', "Indent List has no Drug!");
+            } else {
+                jq('#printList > tbody > tr').remove();
+                var tbody = jq('#printList > tbody');
+
+                jq.each(drugOrder, function (index, value) {
+                    tbody.append('<tr><td>' + (index+1) + '</td><td>' + value.drugCategoryName + '</td><td>' + value.drugName + '</td><td>' + value.drugFormulationName + '</td><td>' + value.quantity + '</td></tr>');
+                });
+
+
+                var printDiv = jQuery("#printDiv").html();
+                var printWindow = window.open('', '', 'height=400,width=800');
+                printWindow.document.write('<html><head><title>Indent Slip :-Support by KenyaEHRS</title>');
+                printWindow.document.write('</head>');
+                printWindow.document.write(printDiv);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+            }
+
         });
         jq("#drugCategory").on("change", function (e) {
             var categoryId = jq(this).children(":selected").attr("id");
@@ -331,4 +363,39 @@
             <span class="button cancel">Cancel</span>
         </div>
     </div>
+
+    <!-- PRINT DIV -->
+    <div id="printDiv" style="display: none;">
+        <div style="margin: 10px auto; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
+            <br/>
+            <br/>
+            <center style="float:center;font-size: 2.2em">Indent From ${store.name}</center>
+            <br/>
+            <br/>
+            <span style="float:right;font-size: 1.7em">Date: ${date}</span>
+            <br/>
+            <br/>
+            <table border="1" id="printList">
+                <thead>
+                <tr role="row">
+                    <th style="width: 5%">S.No</th>
+                    <th style="width: 5%">Drug Category</th>
+                    <th style="width: 5%">Drug Name</th>
+                    <th style="width: 5%">Formulation</th>
+                    <th style="width: 5%">Quantity</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                </tbody>
+
+            </table>
+            <br/><br/><br/><br/><br/><br/>
+            <span style="float:left;font-size: 1.5em">Signature of sub-store/ Stamp</span><span
+                style="float:right;font-size: 1.5em">Signature of inventory clerk/ Stamp</span>
+            <br/><br/><br/><br/><br/><br/>
+            <span style="margin-left: 13em;font-size: 1.5em">Signature of Medical Superintendent/ Stamp</span>
+        </div>
+    </div>
+    <!-- END PRINT DIV -->
 </div>
