@@ -2,6 +2,8 @@
     def props = ["id","identifier","name","patient.age","patient.gender","createdOn","action"]
 %>
 <script>
+    var tests;
+
     jq(function () {
         var dateField = jq("#referred-date-field");
             var date = dateField.val();
@@ -15,12 +17,12 @@
                         if (data.length === 0) {
                             jq().toastmessage('showNoticeToast', "No match found!");
                         } else {
-                            issuedDrugs(data)
+                            issuedDrugs(data);
                         }
                     });
 
-
     });
+
 
     function issuedDrugs(tests) {
         var jq = jQuery;
@@ -28,32 +30,53 @@
         jq('#issued-drugs-table > tbody > tr').remove();
         var tbody = jq('#issued-drugs-table > tbody');
         var date = dateField.val();
-
         for (index in tests) {
             var row = '<tr>';
             var c = parseInt(index) + 1;
-
-            row += '<td>' + c + '</td>'
-
-
+            row += '<td>' + c + '</td>';
             var item = tests[index];
+
             <% props.each {
               if(it == props.last()){
                   def pageLinkEdit = ui.pageLink("", "");
                       %>
-
-
-            row += '<td> <a title="Details" href="listOfOrder.page?patientId=' +
-                    item.patientId + '&date= '+moment(date).format('DD/MM/YYYY')+'"><i class="icon-stethoscope small" ></i></a>';
-
+            row += '<td> <a title="Print" onclick="displayPrintArea('+item.id+')"><i class="icon-print small" ></i></a>';
             <% } else {%>
-
             row += '<td>' + item.${ it } + '</td>';
             <% }
               } %>
             row += '</tr>';
             tbody.append(row);
         }
+    }
+
+    function searchData()
+    {
+
+    }
+
+    function displayPrintArea(id) {
+        alert(id);
+        jq.getJSON('${ui.actionLink("pharmacyapp", "ViewDrugIssuedPatient", "fetchDrugIssuedData")}',
+                {
+                    "id": id
+                }).success(function (data) {
+            if (data.length === 0) {
+                jq().toastmessage('showNoticeToast', "No match found!");
+            } else {
+
+            }
+        });
+
+      /*  jq("#dialog-message").append("<p>This is a test Test</p>");
+        jq("#dialog-message" ).dialog({
+            modal: true,
+            buttons: {
+                Print: function() {
+                    jq( this ).dialog( "close" );
+                }
+            }
+        });*/
     }
 </script>
 
@@ -133,6 +156,10 @@
             </table>
 
         </div>
+    </div>
+
+    <div id="dialog-message" title="Detail Issue">
+
     </div>
 
 </div>

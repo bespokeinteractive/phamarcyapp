@@ -5,6 +5,7 @@ import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.model.InventoryStore;
 import org.openmrs.module.hospitalcore.model.InventoryStoreDrugPatient;
+import org.openmrs.module.hospitalcore.model.InventoryStoreDrugPatientDetail;
 import org.openmrs.module.hospitalcore.model.InventoryStoreRoleRelation;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.util.PagingUtil;
@@ -108,6 +109,12 @@ public class ViewDrugIssuedPatientFragmentController {
         }
         return SimpleObject.fromCollection(listIssue,uiUtils,"id","patient","identifier","patient.age","patient.gender","createdOn","name");
 
+    }
+
+    public void fetchDrugIssuedData(int id)
+    {
+        InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
+        List<InventoryStoreDrugPatientDetail> inv = inventoryService.listStoreDrugPatientDetail(id);
     }
 
 }
