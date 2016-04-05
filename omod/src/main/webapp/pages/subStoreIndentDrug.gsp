@@ -3,9 +3,10 @@
 %>
 
 <script>
+    var drugOrder = [];
     jq(function () {
         var cleared = false;
-        var drugOrder = [];
+
         var indentName = [];
         var adddrugdialog = emr.setupConfirmationDialog({
             selector: '#addDrugDialog',
@@ -28,7 +29,9 @@
                         var tbody = jq('#addDrugsTable').children('tbody');
                         var table = tbody.length ? tbody : jq('#addDrugsTable');
                         var index = drugOrder.length + 1;
-                        table.append('<tr><td>' + index + '</td><td>' + jq("#drugCategory").val() + '</td><td>' + jq("#drugName").val() + '</td><td>' + jq("#drugFormulation option:selected").text() + '</td><td>' + jq("#quantity").val() + '</td></tr>');
+                        table.append('<tr><td>' + index + '</td><td>' + jq("#drugCategory :selected").text() + '</td><td>' + jq("#drugName").val() +
+                                '</td><td>' + jq("#drugFormulation option:selected").text() + '</td><td>' + jq("#quantity").val() +
+                                '</td><td>' + '<a class="remover" href="#" onclick="removeListItem(' + index + ');"><i class="icon-remove small" style="color:red"></i></a>' + '</td></tr>');
                         drugOrder.push(
                                 {
                                     drugCategoryId: jq("#drugCategory").children(":selected").attr("id"),
@@ -40,14 +43,17 @@
                                     drugFormulationName: jq('#drugFormulation :selected').text()
                                 }
                         );
+
                         adddrugdialog.close();
                     }
+
                 },
                 cancel: function () {
                     adddrugdialog.close();
                 }
             }
         });
+
 
         var addnameforindentslipdialog = emr.setupConfirmationDialog({
             selector: '#addNameForIndentSlip',
@@ -86,9 +92,11 @@
                                     jq().toastmessage('showNoticeToast', "AJAX error!" + err);
                                 })
                         addnameforindentslipdialog.close();
+                        jq("#dialogForm").reset();
                     }
                 },
                 cancel: function () {
+                    jq("#dialogForm").reset();
                     addnameforindentslipdialog.close();
                 }
             }
@@ -96,6 +104,7 @@
 
 
         jq("#addDrugsButton").on("click", function (e) {
+            jq('#drugCategory option').eq(0).prop('selected', true).change();
             adddrugdialog.show();
         });
         jq("#clearIndent").on("click", function (e) {
@@ -129,7 +138,7 @@
                 var tbody = jq('#printList > tbody');
 
                 jq.each(drugOrder, function (index, value) {
-                    tbody.append('<tr><td>' + (index+1) + '</td><td>' + value.drugCategoryName + '</td><td>' + value.drugName + '</td><td>' + value.drugFormulationName + '</td><td>' + value.quantity + '</td></tr>');
+                    tbody.append('<tr><td>' + (index + 1) + '</td><td>' + value.drugCategoryName + '</td><td>' + value.drugName + '</td><td>' + value.drugFormulationName + '</td><td>' + value.quantity + '</td></tr>');
                 });
 
 
@@ -144,61 +153,82 @@
             }
 
         });
-        jq("#drugCategory").on("change", function (e) {
-            var categoryId = jq(this).children(":selected").attr("id");
-            var drugNameData = "";
-            jq.getJSON('${ ui.actionLink("inventoryapp", "addReceiptsToStore", "fetchDrugNames") }', {
-                categoryId: categoryId
-            }).success(function (data) {
 
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        var val = data[key];
-                        for (var i in val) {
-                            if (val.hasOwnProperty(i)) {
-                                var j = val[i];
-                                if (i == "id") {
-                                    drugNameData = drugNameData + '<option id="' + j + '"';
-                                }
-                                else {
-                                    drugNameData = drugNameData + 'name="' + j + '">' + j + '</option>';
+        jq("#drugCategory").on("change", function (e) {
+            var categoryId = jq(this).children(":selected").attr("value");
+            var drugNameData = "";
+            jq('#drugName').empty();
+
+            if (categoryId === "0") {
+                jq('<option value="">Select Drug</option>').appendTo("#drugName");
+                jq('#drugName').change();
+
+            } else {
+                jq.getJSON('${ ui.actionLink("inventoryapp", "addReceiptsToStore", "fetchDrugNames") }', {
+                    categoryId: categoryId
+                }).success(function (data) {
+
+
+                    for (var key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            var val = data[key];
+                            for (var i in val) {
+                                if (val.hasOwnProperty(i)) {
+                                    var j = val[i];
+                                    if (i == "id") {
+                                        drugNameData = drugNameData + '<option id="' + j + '"';
+                                    }
+                                    else {
+                                        drugNameData = drugNameData + 'name="' + j + '">' + j + '</option>';
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                jq(drugNameData).appendTo("#drugName");
-            }).error(function (xhr, status, err) {
-                jq().toastmessage('showNoticeToast', "AJAX error!" + err);
-            });
+
+                    jq(drugNameData).appendTo("#drugName");
+                    jq('#drugName').change();
+                }).error(function (xhr, status, err) {
+                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                });
+
+            }
+
         });
 
         jq("#drugName").on("change", function (e) {
             var drugName = jq(this).children(":selected").attr("name");
             var drugFormulationData = "";
-            jq.getJSON('${ ui.actionLink("inventoryapp", "addReceiptsToStore", "getFormulationByDrugName") }', {
-                drugName: drugName
-            }).success(function (data) {
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        var val = data[key];
-                        for (var i in val) {
-                            if (val.hasOwnProperty(i)) {
-                                var j = val[i];
-                                if (i == "id") {
-                                    drugFormulationData = drugFormulationData + '<option id="' + j + '">';
-                                }
-                                else {
-                                    drugFormulationData = drugFormulationData + j + '</option>';
+            jq('#drugFormulation').empty();
+
+            if (jq(this).children(":selected").attr("value") === "") {
+                jq('<option value="">Select Formulation</option>').appendTo("#drugFormulation");
+            } else {
+                jq.getJSON('${ ui.actionLink("inventoryapp", "addReceiptsToStore", "getFormulationByDrugName") }', {
+                    drugName: drugName
+                }).success(function (data) {
+                    for (var key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            var val = data[key];
+                            for (var i in val) {
+                                if (val.hasOwnProperty(i)) {
+                                    var j = val[i];
+                                    if (i == "id") {
+                                        drugFormulationData = drugFormulationData + '<option id="' + j + '">';
+                                    }
+                                    else {
+                                        drugFormulationData = drugFormulationData + j + '</option>';
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                jq(drugFormulationData).appendTo("#drugFormulation");
-            }).error(function (xhr, status, err) {
-                jq().toastmessage('showNoticeToast', "AJAX error!" + err);
-            });
+                    jq(drugFormulationData).appendTo("#drugFormulation");
+                }).error(function (xhr, status, err) {
+                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                });
+            }
+
         });
 
         jq("#addDrugsSubmitButton").click(function (event) {
@@ -210,6 +240,26 @@
         });
 
     });//end of doc ready
+
+    function removeListItem(index) {
+        if (confirm("Are you sure about this?")) {
+            drugOrder.splice(index, 1);
+            jq('#addDrugsTable > tbody > tr').remove();
+            var tbody = jq('#addDrugsTable > tbody');
+            var table = tbody.length ? tbody : jq('#addDrugsTable');
+            jq.each(drugOrder, function (counter, item) {
+                console.log(item);
+                table.append('<tr><td>' + (counter + 1) + '</td><td>' + item.drugCategoryName + '</td><td>' + item.drugName +
+                        '</td><td>' + item.drugFormulationName + '</td><td>' + item.quantity +
+                        '</td><td>' + '<a class="remover" href="#" onclick="removeListItem(' + counter + ');"><i class="icon-remove small" style="color:red"></i></a>' + '</td></tr>');
+
+            });
+
+        } else {
+            return false;
+        }
+
+    }
 
 </script>
 
@@ -265,6 +315,9 @@
                     <th class="ui-state-default">
                         <div class="DataTables_sort_wrapper">Quantity<span class="DataTables_sort_icon"></span></div>
                     </th>
+                    <th class="ui-state-default">
+
+                    </th>
                 </tr>
                 </thead>
 
@@ -295,42 +348,45 @@
             <h3>Drug Information</h3>
         </div>
 
-        <div class="dialog-content">
-            <ul>
-                <li>
-                    <label for="drugCategory">Drug Category</label>
-                    <select name="drugCategory" id="drugCategory">
-                        <option value="0">Select Category</option>
-                        <% if (listCategory != null || listCategory != "") { %>
-                        <% listCategory.each { drugCategory -> %>
-                        <option id="${drugCategory.id}" value="${drugCategory.id}">${drugCategory.name}</option>
-                        <% } %>
-                        <% } %>
-                    </select>
-                </li>
-                <li>
-                    <label for="drugName">Drug Name</label>
-                    <select name="drugName" id="drugName">
-                        <option value="0">Select Drug</option>
-                    </select>
-                </li>
-                <li>
-                    <lable for="drugFormulation">Formulation</lable>
-                    <select name="drugFormulation" id="drugFormulation">
-                        <option value="0">Select Formulation</option>
-                    </select>
-                </li>
+        <form id="dialogForm">
 
-                <li>
-                    <label for="quantity">Quantity</label>
-                    <input name="quantity" id="quantity" type="text">
-                </li>
+            <div class="dialog-content">
+                <ul>
+                    <li>
+                        <label for="drugCategory">Drug Category</label>
+                        <select name="drugCategory" id="drugCategory">
+                            <option value="0">Select Category</option>
+                            <% if (listCategory != null || listCategory != "") { %>
+                            <% listCategory.each { drugCategory -> %>
+                            <option id="${drugCategory.id}" value="${drugCategory.id}">${drugCategory.name}</option>
+                            <% } %>
+                            <% } %>
+                        </select>
+                    </li>
+                    <li>
+                        <label for="drugName">Drug Name</label>
+                        <select name="drugName" id="drugName">
+                            <option value="0">Select Drug</option>
+                        </select>
+                    </li>
+                    <li>
+                        <lable for="drugFormulation">Formulation</lable>
+                        <select name="drugFormulation" id="drugFormulation">
+                            <option value="0">Select Formulation</option>
+                        </select>
+                    </li>
 
-            </ul>
+                    <li>
+                        <label for="quantity">Quantity</label>
+                        <input name="quantity" id="quantity" type="text">
+                    </li>
 
-            <span class="button confirm right">Confirm</span>
-            <span class="button cancel">Cancel</span>
-        </div>
+                </ul>
+
+                <span class="button confirm right">Confirm</span>
+                <span class="button cancel">Cancel</span>
+            </div>
+        </form>
     </div>
 
     <div id="addNameForIndentSlip" class="dialog">
@@ -369,7 +425,7 @@
         <div style="margin: 10px auto; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
             <br/>
             <br/>
-            <center style="float:center;font-size: 2.2em">Indent From ${store.name}</center>
+            <center style="font-size: 2.2em">Indent From ${store.name}</center>
             <br/>
             <br/>
             <span style="float:right;font-size: 1.7em">Date: ${date}</span>
