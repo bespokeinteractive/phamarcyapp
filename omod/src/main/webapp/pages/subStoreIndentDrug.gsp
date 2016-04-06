@@ -422,6 +422,7 @@
         </div>
     </div>
 
+
     <!-- PRINT DIV -->
     <div id="printDiv" style="display: none;">
         <div style="margin: 10px auto; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">

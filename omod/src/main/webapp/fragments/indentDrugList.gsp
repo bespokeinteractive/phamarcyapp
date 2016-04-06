@@ -17,15 +17,21 @@
             reloadList();
         });
 
-        function reloadList(){
+        function reloadList() {
             var statusId = jq("#statusId").val();
             var indentName = jq("#indentName").val();
             var fromDate = jq("#fromDate").val();
-            var toDate=jq("#toDate").val();
-            getIndentList( statusId, indentName, fromDate, toDate);
+            var toDate = jq("#toDate").val();
+            getIndentList(statusId, indentName, fromDate, toDate);
         }
+    });//end of doc ready
 
-    });
+
+    function detailDrugIndentPrint(indentId) {
+        window.location.href = emr.pageLink("pharmacyapp", "indentDrugDetail", {
+            "indentId": indentId
+        });
+    }
 
 
     function getIndentList(statusId, indentName, fromDate, toDate) {
@@ -55,7 +61,6 @@
     }
 
 
-
     //update the queue table
     function updateQueueTable(tests) {
         var jq = jQuery;
@@ -67,13 +72,13 @@
             var item = tests[index];
 
             row += '<td>' + c + '</td>'
-            row += '<td><a href="#" >' + item.name + '<a/></td>'
+            row += '<td><a  href="#" onclick="detailDrugIndentPrint(' + item.id + ');">' + item.name + ' </a></td>'
             row += '<td>' + item.createdOn + '</td>'
             row += '<td>' + item.subStoreStatusName + '</td>'
             var link = "";
             if (item.subStoreStatus == 1) {
                 link += '<a href="#" title="Send Indent" onclick="processSendIndent(' + item.id + ');" >Send Indent</a>';
-            }else if(item.subStoreStatus == 3){
+            } else if (item.subStoreStatus == 3) {
                 link += '<a href="#" title="Process Indent" onclick="processDrugIndent(' + item.id + ');" >Process Indent</a>';
             }
             row += '<td><a href="#" >' + link + '<a/></td>'
@@ -105,7 +110,8 @@
                 <i class="icon-external-link"></i>
 
                 <h3>Indent</h3>
-                <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" value="Add Indent Slip" style="float: right" onclick="subStoreIndentDrug();"/>
+                <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" value="Add Indent Slip"
+                       style="float: right" onclick="subStoreIndentDrug();"/>
             </div>
         </div>
     </div>
@@ -137,20 +143,20 @@
                 <tr role="row">
                     <th class="ui-state-default" role="columnheader">
                         <div class="DataTables_sort_wrapper">
-                            <span>S. No.</span>
+                            <span>S.No.</span>
                             <span class="DataTables_sort_icon"></span>
                         </div>
                     </th>
                     <th class="ui-state-default" role="columnheader">
                         <div class="DataTables_sort_wrapper">
-                            <span>name</span>
+                            <span>Drug Name</span>
                             <span class="DataTables_sort_icon"></span>
                         </div>
                     </th>
 
                     <th class="ui-state-default" role="columnheader">
                         <div class="DataTables_sort_wrapper">
-                            <span>createdOn</span>
+                            <span>Date Created</span>
                             <span class="DataTables_sort_icon"></span>
                         </div>
                     </th>
@@ -164,7 +170,7 @@
 
                     <th class="ui-state-default" role="columnheader">
                         <div class="DataTables_sort_wrapper">
-                            <span>action</span>
+                            <span>Action</span>
                             <span class="DataTables_sort_icon"></span>
                         </div>
                     </th>
@@ -181,5 +187,4 @@
 
         </div>
     </div>
-
 </div>
