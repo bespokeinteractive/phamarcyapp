@@ -241,9 +241,12 @@
 
     });//end of doc ready
 
-    function removeListItem(index) {
+    function removeListItem(counter) {
         if (confirm("Are you sure about this?")) {
-            drugOrder.splice(index, 1);
+//            drugOrder.splice(index, 1);
+            drugOrder = jq.grep(drugOrder, function (item, index) {
+                return (counter !== index);
+            });
             jq('#addDrugsTable > tbody > tr').remove();
             var tbody = jq('#addDrugsTable > tbody');
             var table = tbody.length ? tbody : jq('#addDrugsTable');
@@ -252,7 +255,6 @@
                 table.append('<tr><td>' + (counter + 1) + '</td><td>' + item.drugCategoryName + '</td><td>' + item.drugName +
                         '</td><td>' + item.drugFormulationName + '</td><td>' + item.quantity +
                         '</td><td>' + '<a class="remover" href="#" onclick="removeListItem(' + counter + ');"><i class="icon-remove small" style="color:red"></i></a>' + '</td></tr>');
-
             });
 
         } else {
