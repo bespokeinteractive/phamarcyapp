@@ -265,7 +265,7 @@ form label, .form label {
                     <td>${drug.inventoryDrugFormulation.name}-${drug.inventoryDrugFormulation.dozage}</td>
                     <td>${drug.frequency.name}</td>
                     <td>${drug.noOfDays}</td>
-                    <td>${drug.comments}</td>
+                    <td>${drug?.comments ?: ""}</td>
                     <td></td>
                 </tr>
                 <%}%>
