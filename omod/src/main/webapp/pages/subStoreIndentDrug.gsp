@@ -164,7 +164,7 @@
                 jq('#drugName').change();
 
             } else {
-                jq.getJSON('${ ui.actionLink("inventoryapp", "addReceiptsToStore", "fetchDrugNames") }', {
+                jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "fetchDrugNames") }', {
                     categoryId: categoryId
                 }).success(function (data) {
 
@@ -204,20 +204,25 @@
             if (jq(this).children(":selected").attr("value") === "") {
                 jq('<option value="">Select Formulation</option>').appendTo("#drugFormulation");
             } else {
-                jq.getJSON('${ ui.actionLink("inventoryapp", "addReceiptsToStore", "getFormulationByDrugName") }', {
+                jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "getFormulationByDrugName") }', {
                     drugName: drugName
                 }).success(function (data) {
                     for (var key in data) {
                         if (data.hasOwnProperty(key)) {
                             var val = data[key];
+                            console.log(val);
                             for (var i in val) {
+                                var name, dozage;
                                 if (val.hasOwnProperty(i)) {
                                     var j = val[i];
                                     if (i == "id") {
                                         drugFormulationData = drugFormulationData + '<option id="' + j + '">';
+                                    } else if (i == "name") {
+                                        name = j;
                                     }
                                     else {
-                                        drugFormulationData = drugFormulationData + j + '</option>';
+                                        dozage = j;
+                                        drugFormulationData = drugFormulationData + (name + "-" + dozage) + '</option>';
                                     }
                                 }
                             }
