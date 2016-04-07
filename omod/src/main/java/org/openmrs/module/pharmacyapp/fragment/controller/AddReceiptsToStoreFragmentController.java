@@ -14,37 +14,40 @@ import java.util.List;
 
 /**
  * @author Stanslaus Odhiambo
- * Created on 4/7/2016.
+ *         Created on 4/7/2016.
  */
 public class AddReceiptsToStoreFragmentController {
 
-    public List<SimpleObject> fetchDrugNames(@RequestParam(value = "categoryId") int categoryId, UiUtils uiUtils)
-    {
+    public List<SimpleObject> fetchDrugNames(@RequestParam(value = "categoryId") int categoryId, UiUtils uiUtils) {
         List<SimpleObject> drugNames = null;
         InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
-        if(categoryId > 0){
+        if (categoryId > 0) {
             List<InventoryDrug> drugs = inventoryService.findDrug(categoryId, null);
-            drugNames = SimpleObject.fromCollection(drugs,uiUtils,"id","name");
+            drugNames = SimpleObject.fromCollection(drugs, uiUtils, "id", "name");
         }
         return drugNames;
     }
 
-    public List<SimpleObject> getFormulationByDrugName(@RequestParam(value="drugName") String drugName,UiUtils ui)
-    {
+    public List<SimpleObject> getFormulationByDrugName(@RequestParam(value = "drugName") String drugName, UiUtils ui) {
 
         InventoryCommonService inventoryCommonService = (InventoryCommonService) Context.getService(InventoryCommonService.class);
         InventoryDrug drug = inventoryCommonService.getDrugByName(drugName);
 
         List<SimpleObject> formulationsList = null;
 
-        if(drug != null){
+        if (drug != null) {
             List<InventoryDrugFormulation> formulations = new ArrayList<InventoryDrugFormulation>(drug.getFormulations());
-            formulationsList = SimpleObject.fromCollection(formulations, ui, "id", "name","dozage");
+            formulationsList = SimpleObject.fromCollection(formulations, ui, "id", "name", "dozage");
         }
 
         return formulationsList;
     }
 
+    public List<SimpleObject> fetchDrugListByName(@RequestParam(value = "searchPhrase") String searchPhrase, UiUtils ui) {
+        InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
+        List<InventoryDrug> drugs = inventoryService.findDrug(null, searchPhrase);
+        return SimpleObject.fromCollection(drugs,ui,"id","name","category");
+    }
 
 
 }

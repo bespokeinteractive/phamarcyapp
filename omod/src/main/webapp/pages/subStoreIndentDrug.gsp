@@ -28,8 +28,8 @@
                         }
                         var tbody = jq('#addDrugsTable').children('tbody');
                         var table = tbody.length ? tbody : jq('#addDrugsTable');
-                        var index = drugOrder.length + 1;
-                        table.append('<tr><td>' + index + '</td><td>' + jq("#drugCategory :selected").text() + '</td><td>' + jq("#drugName").val() +
+                        var index = drugOrder.length;
+                        table.append('<tr><td>' + (index+1) + '</td><td>' + jq("#drugCategory :selected").text() + '</td><td>' + jq("#drugName").val() +
                                 '</td><td>' + jq("#drugFormulation option:selected").text() + '</td><td>' + jq("#quantity").val() +
                                 '</td><td>' + '<a class="remover" href="#" onclick="removeListItem(' + index + ');"><i class="icon-remove small" style="color:red"></i></a>' + '</td></tr>');
                         drugOrder.push(
@@ -212,7 +212,6 @@
                     for (var key in data) {
                         if (data.hasOwnProperty(key)) {
                             var val = data[key];
-                            console.log(val);
                             for (var i in val) {
                                 var name, dozage;
                                 if (val.hasOwnProperty(i)) {
@@ -256,10 +255,9 @@
             });
             jq('#addDrugsTable > tbody > tr').remove();
             var tbody = jq('#addDrugsTable > tbody');
-            var table = tbody.length ? tbody : jq('#addDrugsTable');
+//            var table = tbody.length ? tbody : jq('#addDrugsTable');
             jq.each(drugOrder, function (counter, item) {
-                console.log(item);
-                table.append('<tr><td>' + (counter + 1) + '</td><td>' + item.drugCategoryName + '</td><td>' + item.drugName +
+                tbody.append('<tr><td>' + (counter + 1) + '</td><td>' + item.drugCategoryName + '</td><td>' + item.drugName +
                         '</td><td>' + item.drugFormulationName + '</td><td>' + item.quantity +
                         '</td><td>' + '<a class="remover" href="#" onclick="removeListItem(' + counter + ');"><i class="icon-remove small" style="color:red"></i></a>' + '</td></tr>');
             });
