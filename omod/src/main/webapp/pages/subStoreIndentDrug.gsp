@@ -96,7 +96,7 @@
                     }
                 },
                 cancel: function () {
-                    jq("#dialogForm").reset();
+//                    jq("#dialogForm").reset();
                     addnameforindentslipdialog.close();
                 }
             }
