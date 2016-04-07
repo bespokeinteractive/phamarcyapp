@@ -44,11 +44,13 @@
                                 }
                         );
 
+                        jq("#quantity").val('');
                         adddrugdialog.close();
                     }
 
                 },
                 cancel: function () {
+                    jq("#quantity").val('');
                     adddrugdialog.close();
                 }
             }
