@@ -46,7 +46,7 @@ public class AddReceiptsToStoreFragmentController {
     public List<SimpleObject> fetchDrugListByName(@RequestParam(value = "searchPhrase") String searchPhrase, UiUtils ui) {
         InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
         List<InventoryDrug> drugs = inventoryService.findDrug(null, searchPhrase);
-        return SimpleObject.fromCollection(drugs,ui,"id","name","category");
+        return SimpleObject.fromCollection(drugs,ui,"id","name","category.id");
     }
 
 

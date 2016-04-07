@@ -6,6 +6,7 @@
     var drugOrder = [];
     jq(function () {
         var cleared = false;
+        jq("#drugSelection").hide();
 
         var indentName = [];
         var adddrugdialog = emr.setupConfirmationDialog({
@@ -29,7 +30,7 @@
                         var tbody = jq('#addDrugsTable').children('tbody');
                         var table = tbody.length ? tbody : jq('#addDrugsTable');
                         var index = drugOrder.length;
-                        table.append('<tr><td>' + (index+1) + '</td><td>' + jq("#drugCategory :selected").text() + '</td><td>' + jq("#drugName").val() +
+                        table.append('<tr><td>' + (index + 1) + '</td><td>' + jq("#drugCategory :selected").text() + '</td><td>' + jq("#drugName").val() +
                                 '</td><td>' + jq("#drugFormulation option:selected").text() + '</td><td>' + jq("#quantity").val() +
                                 '</td><td>' + '<a class="remover" href="#" onclick="removeListItem(' + index + ');"><i class="icon-remove small" style="color:red"></i></a>' + '</td></tr>');
                         drugOrder.push(
@@ -45,12 +46,16 @@
                         );
 
                         jq("#quantity").val('');
+                        jQuery("#drugKey").show();
+                        jQuery("#drugSelection").hide();
                         adddrugdialog.close();
                     }
 
                 },
                 cancel: function () {
                     jq("#quantity").val('');
+                    jQuery("#drugKey").show();
+                    jQuery("#drugSelection").hide();
                     adddrugdialog.close();
                 }
             }
@@ -169,6 +174,8 @@
                 jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "fetchDrugNames") }', {
                     categoryId: categoryId
                 }).success(function (data) {
+                    jQuery("#drugKey").hide();
+                    jQuery("#drugSelection").show();
 
 
                     for (var key in data) {
@@ -178,7 +185,7 @@
                                 if (val.hasOwnProperty(i)) {
                                     var j = val[i];
                                     if (i == "id") {
-                                        drugNameData = drugNameData + '<option id="' + j + '"';
+                                        drugNameData = drugNameData + '<option id="' + j + '"' + ' value="' + j + '"';
                                     }
                                     else {
                                         drugNameData = drugNameData + 'name="' + j + '">' + j + '</option>';
@@ -237,6 +244,82 @@
 
         });
 
+        jq("#searchPhrase").autocomplete({
+            minLength: 3,
+            source: function (request, response) {
+                jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "fetchDrugListByName") }',
+                        {
+                            searchPhrase: request.term
+                        }
+                ).success(function (data) {
+                            var results = [];
+                            for (var i in data) {
+                                var result = {label: data[i].name, value: data[i]};
+                                results.push(result);
+                            }
+                            response(results);
+                        });
+            },
+            focus: function (event, ui) {
+                jq("#searchPhrase").val(ui.item.value.name);
+                return false;
+            },
+            select: function (event, ui) {
+                event.preventDefault();
+                jQuery("#searchPhrase").val(ui.item.value.name);
+
+                //set parent category
+                var catId = ui.item.value.category.id;
+                var drgId = ui.item.value.id;
+                console.log(drgId);
+                jq("#drugCategory").val(catId);
+                jq("#drugCategory").change();
+                //set background drug name - frusemide
+
+
+            }
+        });
+
+        jq("#searchPhrase").on("change", function (e) {
+            var drugName = jq(this).val();
+            var drugFormulationData = "";
+            jq('#drugFormulation').empty();
+
+            if (drugName === "") {
+                jq('<option value="">Select Formulation</option>').appendTo("#drugFormulation");
+            } else {
+                jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "getFormulationByDrugName") }', {
+                    drugName: drugName
+                }).success(function (data) {
+                    for (var key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            var val = data[key];
+                            for (var i in val) {
+                                var name, dozage;
+                                if (val.hasOwnProperty(i)) {
+                                    var j = val[i];
+                                    if (i == "id") {
+                                        drugFormulationData = drugFormulationData + '<option id="' + j + '">';
+                                    } else if (i == "name") {
+                                        name = j;
+                                    }
+                                    else {
+                                        dozage = j;
+                                        drugFormulationData = drugFormulationData + (name + "-" + dozage) + '</option>';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    jq(drugFormulationData).appendTo("#drugFormulation");
+                }).error(function (xhr, status, err) {
+                    jq('<option value="">Select Formulation</option>').appendTo("#drugFormulation");
+                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                });
+            }
+
+        });
+
         jq("#addDrugsSubmitButton").click(function (event) {
             if (drugOrder.length < 1) {
                 jq().toastmessage('showNoticeToast', "Indent List has no Drug!");
@@ -265,6 +348,10 @@
         } else {
             return false;
         }
+
+    }
+
+    function loadDrugFormulations() {
 
     }
 
@@ -371,10 +458,17 @@
                         </select>
                     </li>
                     <li>
-                        <label for="drugName">Drug Name</label>
-                        <select name="drugName" id="drugName">
-                            <option value="0">Select Drug</option>
-                        </select>
+                        <div id="drugKey">
+                            <label for="searchPhrase">Drug Name</label>
+                            <input id="searchPhrase" name="searchPhrase" onblur="loadDrugFormulations();"/>
+                        </div>
+
+                        <div id="drugSelection">
+                            <label for="drugName">Drug Name</label>
+                            <select name="drugName" id="drugName">
+                                <option value="0">Select Drug</option>
+                            </select>
+                        </div>
                     </li>
                     <li>
                         <lable for="drugFormulation">Formulation</lable>
