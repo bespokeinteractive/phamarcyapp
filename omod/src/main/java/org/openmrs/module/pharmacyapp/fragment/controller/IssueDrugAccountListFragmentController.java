@@ -78,7 +78,7 @@ public class IssueDrugAccountListFragmentController {
         PagingUtil pagingUtil = new PagingUtil( RequestUtil.getCurrentLink(request)+temp , pageSize, currentPage, total );
         List<InventoryStoreDrugAccount> listIssue = inventoryService.listStoreDrugAccount(store.getId(), issueName,fromDate, toDate, pagingUtil.getStartPos(), pagingUtil.getPageSize());
 
-        return SimpleObject.fromCollection(listIssue,uiUtils,"name","createdOn");
+        return SimpleObject.fromCollection(listIssue,uiUtils,"id","name","createdOn");
     }
 
 

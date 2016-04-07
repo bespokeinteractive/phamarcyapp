@@ -1,6 +1,3 @@
-<%
-    def props = ["createdOn","action"]
-%>
 <script>
     jq(function () {
         var date = jq("#referred-date-field").val();
@@ -8,14 +5,14 @@
                 {
                     "date": moment(date).format('DD/MM/YYYY'),
                     "currentPage": 1
-                } ).success(function (data) {
+                }).success(function (data) {
                     if (data.length === 0) {
                         jq().toastmessage('showNoticeToast', "No drug found!");
                     } else {
                         QueueTable(data)
-                }
+                    }
 
-        });
+                });
 
     });
 
@@ -30,23 +27,20 @@
 
             var item = tests[index];
             row += '<td>' + v + '</td>'
-            row += '<td><a href="#" >' + item.name + '<a/></td>'
+            row += '<td><a href="#" onclick= accountDetail(' + item.id + ');"' +
+                    'accountDetail(id);' +
+                    '">' + item.name + '  <a/></td>'
+            row += '<td>' + item.createdOn + '</td>'
 
-
-
-            var item = tests[index];
-
-            <% props.each {
-              if(it == props.last()){
-                      %>
-            <% } else {%>
-
-            row += '<td>' + item.${ it } + '</td>';
-            <% }
-              } %>
             row += '</tr>';
             tbody.append(row);
         }
+    }
+
+    function accountDetail(id) {
+        window.location.href = emr.pageLink("pharmacyapp", "issueDrugAccountDetail", {
+            "issueId": id
+        });
     }
 
 
@@ -58,7 +52,8 @@
 
     <div id="issue-drug-account-list" style="display: block; margin-top:3px;">
         <div role="grid" class="dataTables_wrapper" id="issue-drug-account-list-table_wrapper">
-            <table id="issue-drug-account-list-table" class="dataTable" aria-describedby="issue-drug-account-list-table_info">
+            <table id="issue-drug-account-list-table" class="dataTable"
+                   aria-describedby="issue-drug-account-list-table_info">
                 <thead>
                 <th class="ui-state-default" role="columnheader" style="width:10px;">
                     <div class="DataTables_sort_wrapper">
@@ -68,20 +63,20 @@
                 </th>
 
 
-                    <th class="ui-state-default" role="columnheader" style="width:100px;">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Account</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
+                <th class="ui-state-default" role="columnheader" style="width:100px;">
+                    <div class="DataTables_sort_wrapper">
+                        <span>Account</span>
+                        <span class="DataTables_sort_icon"></span>
+                    </div>
+                </th>
 
-                    <th class="ui-state-default" role="columnheader" style="width: 50px;">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Issue Date
-                            </span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
+                <th class="ui-state-default" role="columnheader" style="width: 50px;">
+                    <div class="DataTables_sort_wrapper">
+                        <span>Issue Date
+                        </span>
+                        <span class="DataTables_sort_icon"></span>
+                    </div>
+                </th>
 
                 </tr>
                 </thead>
