@@ -66,5 +66,10 @@
 	</messages>
 	<!-- /Internationalization -->
 
+	<privilege>
+		<name>App: pharmacyapp</name>
+		<description>Able to access the pharmacy app</description>
+	</privilege>
+
 </module>
 
