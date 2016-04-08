@@ -15,7 +15,11 @@
         printWindow.document.write('</body></html>');
         printWindow.document.close();
         printWindow.print();
-
+    }
+    function mainPage() {
+        window.location.href = emr.pageLink("pharmacyapp", "main", {
+            "tabId": "manage"
+        });
     }
 
 </script>
@@ -58,6 +62,8 @@
     } %>
 </table>
 <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" value="Print" onClick="printDiv();"/>
+<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all"
+       value="Back" onClick="mainPage();"/>
 <!-- PRINT DIV -->
 <div id="printDiv" style="display: none;">
     <div style="margin: 10px auto; width: 981px; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
@@ -173,6 +179,8 @@
 </table>
 <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all"
        value="Print" onClick="printDiv();"/>
+<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all"
+       value="Back" onClick="mainPage();"/>
 
 <!-- PRINT DIV -->
 <div id="printDiv" style="display: none;">
