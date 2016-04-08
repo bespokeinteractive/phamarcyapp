@@ -55,7 +55,7 @@
         <td>${pTransaction.transactionDetail.drug.name} </td>
         <td>${pTransaction.transactionDetail.formulation.name}-${pTransaction.transactionDetail.formulation.dozage}</td>
         <td>${pTransaction.transactionDetail.dateExpiry}</td>
-        <td>${pTransaction.transactionDetail.quantity}</td>
+        <td>${pTransaction.quantity}</td>
         <% } %>
         <% } else { %>
         <tr align="center" >
