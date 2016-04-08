@@ -20,8 +20,7 @@ public class DrugOrderPageController {
             @RequestParam("patientId") Integer patientId,
             @RequestParam("encounterId") Integer encounterId,
             @RequestParam(value = "date", required = false) String dateStr,
-            @RequestParam(value = "patientType", required = false) String patientType)
-    {
+            @RequestParam(value = "patientType", required = false) String patientType) {
         InventoryService inventoryService = Context
                 .getService(InventoryService.class);
 
@@ -36,8 +35,6 @@ public class DrugOrderPageController {
         model.addAttribute("patientType", patientType);
         model.addAttribute("date", dateStr);
         model.addAttribute("doctor", drugOrderList.get(0).getCreator().getGivenName());
-
-
         InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
         model.addAttribute("pharmacist", Context.getAuthenticatedUser().getGivenName());
     }
