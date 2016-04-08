@@ -98,7 +98,7 @@ public class ViewDrugStockFragmentController {
         if (stockBalances!=null){
             Collections.sort(stockBalances);
         }
-        return SimpleObject.fromCollection(stockBalances,uiUtils,"drug.name","drug.category.name","formulation.name","formulation.dozage","drug.attribute","currentQuantity","reorderPoint");
+        return SimpleObject.fromCollection(stockBalances,uiUtils,"drug.id","drug.name","drug.category.name","formulation.id","formulation.name","formulation.dozage","drug.attribute","currentQuantity","reorderPoint");
     }
 
 }
