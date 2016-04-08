@@ -35,7 +35,14 @@
         jQuery("#printButton").on("click", function(e){
             print().show();
         });
+        jq("#returnToDrugList").on("click", function (e) {
+            window.location.href = emr.pageLink("pharmacyapp", "main", {
+                "tabId": "report"
+            });
+        });
     });
+
+
 
 </script>
 
@@ -66,4 +73,6 @@
 </div>
 <div>
     <button class="button" type="button" id="printButton">Print</button>
+    <input type="button" value="Back To Drug List" name="returnToDrugList"
+           id="returnToDrugList" style="margin-top:20px;">
 </div>
