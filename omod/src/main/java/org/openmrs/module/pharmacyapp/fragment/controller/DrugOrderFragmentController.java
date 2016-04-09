@@ -115,6 +115,6 @@ public class DrugOrderFragmentController {
 //            model.addAttribute("listOfDrugQuantity", listOfDrugQuantity);
         }
 
-        return SimpleObject.fromCollection(listReceiptDrugReturn, uiUtils, "dateExpiry","dateManufacture","companyNameShort","batchNo","currentQuantity");
+        return SimpleObject.fromCollection(listReceiptDrugReturn, uiUtils, "dateExpiry", "dateManufacture", "companyName", "companyNameShort", "batchNo", "currentQuantity");
     }
 }

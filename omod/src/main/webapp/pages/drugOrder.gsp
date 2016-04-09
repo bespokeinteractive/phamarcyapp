@@ -183,7 +183,40 @@ form label, .form label {
 
 
     function processDrug(drugId, formulationId, frequencyName, days, comments) {
-        console.log(drugId +"-"+formulationId+"-"+frequencyName+"-"+days+"-"+comments);
+//        console.log(drugId + "-" + formulationId + "-" + frequencyName + "-" + days + "-" + comments);
+        jq.getJSON('${ ui.actionLink("pharmacyapp", "drugOrder", "listReceiptDrugAvailable") }', {
+            drugId: drugId,
+            formulationId: formulationId,
+            frequencyName: frequencyName,
+            days: days,
+            comments: comments
+        }).success(function (data) {
+            if (data.length === 0) {
+                jq('#processDrugOrderFormTable > tbody > tr').remove();
+                var tbody = jq('#processDrugOrderFormTable > tbody');
+                var row = '<tr align="center"><td colspan="7"> This drug is empty in your store, please indent it</td></tr>';
+                tbody.append(row);
+            } else {
+                jq('#processDrugOrderFormTable > tbody > tr').remove();
+                var tbody = jq('#processDrugOrderFormTable > tbody');
+                var row;
+                jq.each(data, function (i, item) {
+                    row = '<tr align="center">' +
+                            '<td>' + (i + 1) + ' </td>' +
+                            '<td>' + item.dateExpiry + ' </td>' +
+                            '<td>' + item.dateManufacture + ' </td>' +
+                            '<td>' + item.companyNameShort + ' </td>' +
+                            '<td>' + item.batchNo + ' </td>' +
+                            '<td>' + item.currentQuantity + ' </td>' +
+                            '<td><input type="input" size="4" /> </td>' +
+                            '</tr>';
+                });
+                tbody.append(row);
+            }
+
+        }).error(function (xhr, status, err) {
+            jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+        });
         processdrugdialog.show();
     }
 
@@ -334,7 +367,7 @@ form label, .form label {
         </div>
     </div>
 
-    <div id="processDrugDialog" class="dialog" style="display: none;">
+    <div id="processDrugDialog" class="dialog" style="display: none; width: 80%">
         <div class="dialog-header">
             <i class="icon-folder-open"></i>
 
@@ -344,9 +377,27 @@ form label, .form label {
         <form id="dialogForm">
 
             <div class="dialog-content">
+                <form method="post" id="processDrugOrderForm" class="box">
+                    <table class="box" id="processDrugOrderFormTable">
+                        <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Expiry</th>
+                            <th title="Date of manufacturing">DM</th>
+                            <th>Company</th>
+                            <th>Batch No.</th>
+                            <th title="Quantity available">Available</th>
+                            <th title="Issue quantity">Issue</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+
+                    </table>
+                </form>
+                <br/>
 
 
-                <span class="button confirm right">Confirm</span>
+                <span class="button confirm right">Issue Drug</span>
                 <span class="button cancel">Cancel</span>
             </div>
         </form>
