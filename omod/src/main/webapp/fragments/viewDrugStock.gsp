@@ -26,8 +26,13 @@
 
             var item = tests[index];
 
+            var pageLinkEdit = emr.pageLink("pharmacyapp", "viewCurrentStockBalanceDetail", {
+                drugId: item.drug.id,
+                formulationId: item.formulation.id,
+            });
+
             row += '<td>' + c + '</td>'
-            row += '<td><a href="#" >' + item.drug.name + '<a/></td>'
+            row += '<td><a href="'+ pageLinkEdit +'" >' + item.drug.name + '<a/></td>'
             row += '<td>'+ item.drug.category.name +'</td>';
             row += '<td>'+ item.formulation.name+"-"+item.formulation.dozage +'</td>';
             row += '<td>'+ item.currentQuantity +'</td>';

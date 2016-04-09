@@ -35,7 +35,14 @@
         jQuery("#printButton").on("click", function(e){
             print().show();
         });
+        jq("#returnToDrugList").on("click", function (e) {
+            window.location.href = emr.pageLink("pharmacyapp", "main", {
+                "tabId": "report"
+            });
+        });
     });
+
+
 
 </script>
 
@@ -55,7 +62,7 @@
         <td>${pTransaction.transactionDetail.drug.name} </td>
         <td>${pTransaction.transactionDetail.formulation.name}-${pTransaction.transactionDetail.formulation.dozage}</td>
         <td>${pTransaction.transactionDetail.dateExpiry}</td>
-        <td>${pTransaction.transactionDetail.quantity}</td>
+        <td>${pTransaction.quantity}</td>
         <% } %>
         <% } else { %>
         <tr align="center" >
@@ -66,4 +73,6 @@
 </div>
 <div>
     <button class="button" type="button" id="printButton">Print</button>
+    <input type="button" value="Back To Drug List" name="returnToDrugList"
+           id="returnToDrugList" style="margin-top:20px;">
 </div>
