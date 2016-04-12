@@ -111,7 +111,8 @@
          modal: true,
          buttons: {
          Print: function() {
-          printDiv();
+              printDiv();
+             jq( this ).dialog( "close" );
          }
          }
          });
