@@ -56,28 +56,79 @@
     }
 
     function displayPrintArea(id) {
-        alert(id);
         jq.getJSON('${ui.actionLink("pharmacyapp", "ViewDrugIssuedPatient", "fetchDrugIssuedData")}',
                 {
                     "id": id
                 }).success(function (data) {
-            if (data.length === 0) {
-                jq().toastmessage('showNoticeToast', "No match found!");
-            } else {
-
-            }
-        });
-
-      /*  jq("#dialog-message").append("<p>This is a test Test</p>");
-        jq("#dialog-message" ).dialog({
-            modal: true,
-            buttons: {
-                Print: function() {
-                    jq( this ).dialog( "close" );
-                }
-            }
-        });*/
+                    if (data.length === 0) {
+                        jq().toastmessage('showNoticeToast', "No match found!");
+                    } else {
+                        //console.log(data);
+                        drugDataDisplay(data);
+                     }
+                 });
     }
+    function drugDataDisplay(drugData){
+         jq("#dialog-message").append("<strong>Detail Issue<br></strong>");
+         jq("#dialog-message").append("<b>Name: </b>" + drugData.name + "<br>");
+         jq("#dialog-message").append("<b>Age: </b>" + drugData.age+ "<br>");
+         jq("#dialog-message").append("<b>Gender: </b>" + drugData.gender+ "<br>");
+         jq("#dialog-message").append("<b>Payment Cagegory: </b>" + drugData.paymentCategory+ "<br>");
+         jq("#dialog-message").append("<b>Date: </b>" + drugData.issueDate+ "<br><br>");
+         jq("#dialog-message").append("<strong><br>Issue Drugs Detail<br></strong>");
+        jq("#dialog-message").append('<table id="issueDrugsTable" >' +
+                "<thead><tr>" +
+                "<td> S.No</td>" +
+                "<td>Drug Name</td>" +
+                "<td>Formulation</td>" +
+                "<td>Frequency</td>" +
+                "<td>No Of Days</td>" +
+                "<td>Comments</td>" +
+                "<td>Date of Expiry</td>" +
+                "<td>Quantity</td>" +
+                "</tr></thead><tbody></tbody></table>");
+
+
+        for(index in drugData.listDrugIssue){
+            var row = '<tr>';
+            var c = parseInt(index) + 1;
+            row += '<td>' + c + '</td>';
+            var item = drugData.listDrugIssue[index];
+            row += '<td>' + item.transactionDetail.drug.name + '</td>';
+            row += '<td>' + item.transactionDetail.formulation.name + '</td>';
+            row += '<td>' + item.transactionDetail.frequency.name + '</td>';
+            row += '<td>' + item.transactionDetail.noOfDays + '</td>';
+            row += '<td>' + item.transactionDetail.comments + '</td>';
+            row += '<td>' + item.transactionDetail.dateExpiry + '</td>';
+            row += '<td>' + item.quantity + '</td>';
+            row += '</tr>';
+            jq("#issueDrugsTable > tbody").append(row);
+        }
+
+
+
+         jq("#dialog-message" ).dialog({
+         modal: true,
+         buttons: {
+         Print: function() {
+              printDiv();
+             jq( this ).dialog( "close" );
+         }
+         }
+         });
+    }
+
+    function printDiv()
+    {
+        var printDiv = jq("#dialog-message").html();
+        var printWindow = window.open('', '', 'height=400,width=800');
+        printWindow.document.write('<html><head><title>Patient Information</title>');
+        printWindow.document.write(printDiv);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
+
 </script>
 
 <div>
