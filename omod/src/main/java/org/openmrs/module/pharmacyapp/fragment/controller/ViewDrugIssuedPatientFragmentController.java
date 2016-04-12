@@ -263,9 +263,9 @@ public class ViewDrugIssuedPatientFragmentController {
         Patient patientInfo = inventoryStoreDrugPatient1.getPatient();
         String name =  patientInfo.getGivenName() + " " + patientInfo.getFamilyName() + " " + patientInfo.getMiddleName();
 
-
+        List<SimpleObject> listDrugIssueObj = SimpleObject.fromCollection(listDrugIssue, uiUtils, "transactionDetail.drug.name","transactionDetail.formulation.name","transactionDetail.frequency.name","transactionDetail.noOfDays","transactionDetail.comments","transactionDetail.dateExpiry","quantity");
         drugData = SimpleObject.create("issueDate",issueDate, "name",name, "age", patientInfo.getAge(),
-                "gender", patientInfo.getGender(),"paymentCategory", paymentCategory, "listDrugIssue", listDrugIssue);
+                "gender", patientInfo.getGender(),"paymentCategory", paymentCategory, "listDrugIssue", listDrugIssueObj);
 
         return drugData;
 
