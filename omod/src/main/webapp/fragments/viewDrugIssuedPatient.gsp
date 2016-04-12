@@ -106,6 +106,40 @@
         }
 
 
+        jq("#dialog-message").append("<strong><br>Drugs Not Issued<br></strong>");
+
+         jq("#dialog-message").append('<table id="issueNotDrugsTable" >' +
+                 "<thead><tr>" +
+                 "<td> S.No</td>" +
+                 "<td>Drug Name</td>" +
+                 "<td>Formulation</td>" +
+                 "<td>Frequency</td>" +
+                 "<td>No Of Days</td>" +
+                 "<td>Comments</td>" +
+                 "<td>Date of Expiry</td>" +
+                 "<td>Quantity</td>" +
+                 "</tr></thead><tbody></tbody></table>");
+
+
+
+
+         for(index in drugData.listDrugNotIssuedObj){
+             var row = '<tr>';
+             var c = parseInt(index) + 1;
+             row += '<td>' + c + '</td>';
+             var item = drugData.listDrugNotIssuedObj[index];
+             row += '<td>' + item.transactionDetail.drug.name + '</td>';
+             row += '<td>' + item.transactionDetail.formulation.name + '</td>';
+             row += '<td>' + item.transactionDetail.frequency.name + '</td>';
+             row += '<td>' + item.transactionDetail.noOfDays + '</td>';
+             row += '<td>' + item.transactionDetail.comments + '</td>';
+             row += '<td>' + item.transactionDetail.dateExpiry + '</td>';
+             row += '<td>' + item.quantity + '</td>';
+             row += '</tr>';
+             jq("#issueNotDrugsTable > tbody").append(row);
+         }
+
+
 
          jq("#dialog-message" ).dialog({
          modal: true,
