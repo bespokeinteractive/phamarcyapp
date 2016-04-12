@@ -111,11 +111,23 @@
          modal: true,
          buttons: {
          Print: function() {
-         jq( this ).dialog( "close" );
+          printDiv();
          }
          }
          });
     }
+
+    function printDiv()
+    {
+        var printDiv = jq("#dialog-message").html();
+        var printWindow = window.open('', '', 'height=400,width=800');
+        printWindow.document.write('<html><head><title>Patient Information</title>');
+        printWindow.document.write(printDiv);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
+
 </script>
 
 <div>
