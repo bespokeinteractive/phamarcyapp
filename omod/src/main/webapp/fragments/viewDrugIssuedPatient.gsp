@@ -56,7 +56,6 @@
     }
 
     function displayPrintArea(id) {
-        alert(id);
         jq.getJSON('${ui.actionLink("pharmacyapp", "ViewDrugIssuedPatient", "fetchDrugIssuedData")}',
                 {
                     "id": id
