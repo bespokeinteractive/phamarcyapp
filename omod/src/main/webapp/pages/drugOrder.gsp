@@ -1,7 +1,7 @@
 <%
     ui.decorateWith("appui", "standardEmrPage", [title: "Pharmacy"]);
-
-    ui.includeJavascript("pharmacyapp", "moment.js")
+    ui.includeJavascript("billingui", "knockout-3.4.0.js")
+    ui.includeJavascript("billingui", "moment.js")
 %>
 <style>
 input[type="text"],
@@ -151,14 +151,17 @@ form label, .form label {
 </style>
 
 <script>
+    var drugOrders = [];
     var processdrugdialog;
-    jQuery(document).ready(function () {
+    var listOfDrugQuantity = "";
+    jq(function () {
         processdrugdialog = emr.setupConfirmationDialog({
             selector: '#processDrugDialog',
             actions: {
                 confirm: function () {
-
+                    jq("#processDrugOrderForm").submit();
                     processdrugdialog.close();
+                    listOfDrugQuantity = "";
                 },
                 cancel: function () {
 
@@ -171,56 +174,95 @@ form label, .form label {
         jq('#surname').html(strReplace('${patient.names.familyName}') + ',<em>surname</em>');
         jq('#othname').html(strReplace('${patient.names.givenName}') + ' &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <em>other names</em>');
         jq('#agename').html('${patient.age} years (' + moment('${patient.birthdate}').format('DD,MMM YYYY') + ')');
+    });//end of doc ready
 
+    function cancelDrugProcess() {
+        window.location.href = emr.pageLink("pharmacyapp", "main", {
+            "tabId": "queues"
+        });
+    }
 
-    });
+    function printDiv2() {
+        var printer = window.open('', '', 'width=300,height=300');
+        printer.document.open("text/html");
+        printer.document.write(document.getElementById('printDiv').innerHTML);
+        printer.print();
+        printer.document.close();
+        printer.window.close();
+    }
+
+    function checkValueExt(thiz, value) {
+        if (parseInt(jq(thiz).val()) > parseInt(value)) {
+            jq().toastmessage('showNoticeToast', "Issue Quantity is greater that available quantity!");
+            jq(thiz).val("");
+            jq(thiz).focus();
+        }
+    }
 
     function strReplace(word) {
         var res = word.replace("[", "");
         res = res.replace("]", "");
         return res;
     }
-
-
     function processDrug(drugId, formulationId, frequencyName, days, comments) {
-//        console.log(drugId + "-" + formulationId + "-" + frequencyName + "-" + days + "-" + comments);
-        jq.getJSON('${ ui.actionLink("pharmacyapp", "drugOrder", "listReceiptDrugAvailable") }', {
-            drugId: drugId,
-            formulationId: formulationId,
-            frequencyName: frequencyName,
-            days: days,
-            comments: comments
-        }).success(function (data) {
-            if (data.length === 0) {
-                jq('#processDrugOrderFormTable > tbody > tr').remove();
-                var tbody = jq('#processDrugOrderFormTable > tbody');
-                var row = '<tr align="center"><td colspan="7"> This drug is empty in your store, please indent it</td></tr>';
-                tbody.append(row);
-            } else {
-                jq('#processDrugOrderFormTable > tbody > tr').remove();
-                var tbody = jq('#processDrugOrderFormTable > tbody');
-                var row;
-                jq.each(data, function (i, item) {
-                    row = '<tr align="center">' +
-                            '<td>' + (i + 1) + ' </td>' +
-                            '<td>' + item.dateExpiry + ' </td>' +
-                            '<td>' + item.dateManufacture + ' </td>' +
-                            '<td>' + item.companyNameShort + ' </td>' +
-                            '<td>' + item.batchNo + ' </td>' +
-                            '<td>' + item.currentQuantity + ' </td>' +
-                            '<td><input type="input" size="4" /> </td>' +
-                            '</tr>';
-                });
-                tbody.append(row);
+        jq.ajax({
+            url: '${ ui.actionLink("pharmacyapp", "drugOrder", "listReceiptDrugAvailable") }',
+            dataType: 'json',
+            async: false,
+            data: {
+                drugId: drugId,
+                formulationId: formulationId,
+                frequencyName: frequencyName,
+                days: days,
+                comments: comments
+            },
+            success: function (data) {
+                if (data.length === 0) {
+                    jq('#processDrugOrderFormTable > tbody > tr').remove();
+                    var tbody = jq('#processDrugOrderFormTable > tbody');
+                    var row = '<tr align="center">';
+                    row += '<td colspan="7"> This drug is empty in your store, please indent it</td>'
+                    row += '<input id="' + drugId + '" name="' + drugId + '" type="hidden" />';
+                    row += '</tr>';
+                    tbody.append(row);
+                } else {
+                    jq('#processDrugOrderFormTable > tbody > tr').remove();
+                    var tbody = jq('#processDrugOrderFormTable > tbody');
+                    var row = "";
+                    jq.each(data, function (i, item) {
+                        console.log(item);
+                        listOfDrugQuantity += item.id + ".";
+                        row += '<tr align="center">' +
+                                '<td>' + (i + 1) + '</td>' +
+                                '<td>' + item.dateExpiry + '</td>' +
+                                '<td>' + item.dateManufacture + '</td>' +
+                                '<td title="' + item.companyName + '">' + item.companyNameShort + '</td>' +
+                                '<td>' + item.batchNo + '</td>' +
+                                '<td>' + item.currentQuantity + '</td>';
+                        if (i === 0) {
+                            row += '<td><input type="text" onchange="checkValueExt(this,' + item.currentQuantity + ')" type="text" size="3" name="' + item.id + '_quantity" id="' + item.id + '_quantity" /></td>';
+                        } else {
+                            row += '<td><input type="text" onchange="checkValueExt(this,' + item.currentQuantity + ')" value="0" type="text" size="3" id="' + item.id + '_quantity" name="' + item.id + '_quantity" style="color:red;"/></td>';
+                        }
+                        row += '<input id="' + item.id + '_drugName" name="' + item.id + '_drugName" type="hidden" value="' + item.drug.name + '" />';
+                        row += '<input id="' + item.id + '_formulation" name="' + item.id + '_formulation" type="hidden" value="' + item.formulation.name + "-" + item.formulation.dozage + '" />';
+                        row += '<input id="' + item.id + '_formulationId" name="' + item.id + '_formulationId" type="hidden" value="' + item.formulation.id + '" />';
+                        row += '<input id="' + item.id + '_frequencyName" name="' + item.id + '_frequencyName" type="hidden" value="' + frequencyName + '" />';
+                        row += '<input id="' + item.id + '_noOfDays" name="' + item.id + '_noOfDays" type="hidden" value="' + days + '" />';
+                        row += '<input id="' + item.id + '_comments" name="' + item.id + '_comments" type="hidden" value="' + comments + '" />';
+                        row += '<input id="' + item.id + '_price" name="' + item.id + '_price" type="hidden" value="' + item.costToPatient + '" />';
+                        row += '<input id="listOfDrugQuantity" name="listOfDrugQuantity" type="hidden" value="' + listOfDrugQuantity + '" />';
+                        row += '</tr>';
+                    });
+                    tbody.append(row);
+                }
+            },
+            error: function (xhr, status, err) {
+                jq().toastmessage('showNoticeToast', "AJAX error!" + err);
             }
-
-        }).error(function (xhr, status, err) {
-            jq().toastmessage('showNoticeToast', "AJAX error!" + err);
         });
         processdrugdialog.show();
     }
-
-
 </script>
 
 <div class="clear"></div>
@@ -363,6 +405,10 @@ form label, .form label {
                 <% } %>
                 </tbody>
             </table>
+            <input type="button" value="Cancel" onclick="cancelDrugProcess();" class="cancel"/>
+            <input type="submit" id="subm" name="subm" value="Finish" class="confirm"  style="float: right;"/>
+            <input type="button" id="print" name="print" value="Print" onClick="printDiv2();" class="task"
+                   style="float: right;"/> &nbsp;&nbsp;
 
         </div>
     </div>
@@ -374,32 +420,136 @@ form label, .form label {
             <h3>Process Drug Order</h3>
         </div>
 
-        <form id="dialogForm">
 
-            <div class="dialog-content">
-                <form method="post" id="processDrugOrderForm" class="box">
-                    <table class="box" id="processDrugOrderFormTable">
-                        <thead>
-                        <tr>
-                            <th>S.No</th>
-                            <th>Expiry</th>
-                            <th title="Date of manufacturing">DM</th>
-                            <th>Company</th>
-                            <th>Batch No.</th>
-                            <th title="Quantity available">Available</th>
-                            <th title="Issue quantity">Issue</th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
+        <div class="dialog-content">
+            <form method="post" id="processDrugOrderForm" class="box">
+                <table class="box" id="processDrugOrderFormTable">
+                    <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Expiry</th>
+                        <th title="Date of manufacturing">DM</th>
+                        <th>Company</th>
+                        <th>Batch No.</th>
+                        <th title="Quantity available">Available</th>
+                        <th title="Issue quantity">Issue</th>
+                    </tr>
+                    </thead>
+                    <tbody>
 
-                    </table>
-                </form>
+                    </tbody>
+                </table>
                 <br/>
-
-
                 <span class="button confirm right">Issue Drug</span>
                 <span class="button cancel">Cancel</span>
-            </div>
-        </form>
+            </form>
+        </div>
+
+    </div>
+
+    <!--PRINT DIV  -->
+    <div id="printDiv" class="hidden" style="width: 1280px; font-size: 0.8em">
+
+        <style>
+        @media print {
+            .donotprint {
+                display: none;
+            }
+
+            .spacer {
+                margin-top: 50px;
+                font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
+                font-style: normal;
+                font-size: 14px;
+            }
+
+            .printfont {
+                font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
+                font-style: normal;
+                font-size: 14px;
+            }
+        }
+        </style>
+        <center><img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS"
+                     src="kenya_logo.bmp">
+            <center>
+                <h5>
+                    <center>${userLocation}</center>
+                </h5>
+                <br><br>
+                <table align='Center'>
+                    <tr>
+                        <td>Patient ID :</td>
+                        <td>&nbsp;&nbsp;&nbsp;</td>
+                        <td>&nbsp;${patientSearch.identifier}</td>
+                    </tr>
+                    <tr>
+                        <td>Name :</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;${patientSearch.givenName}&nbsp;
+                            ${patientSearch.familyName}&nbsp;&nbsp;${patientSearch.middleName}</td>
+                    </tr>
+                    <tr>
+                        <td>Age:</td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <% if (patientSearch.age == 0) { %>
+                            &lt 1
+                            <% } else { %>
+                            ${patientSearch.age}
+                            <% } %>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>Gender:</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;${patientSearch.gender}</td>
+                    </tr>
+                    <tr>
+                        <td>Date :</td>
+                        <td>&nbsp;</td>
+                        <td>${date}</td>
+                    </tr>
+                </table>
+
+
+                <table id="myTablee" class="tablesorter" class="thickbox" style="width:100%; margin-top:30px">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center;">S.No</th>
+                        <th style="text-align: center;">Drug Name</th>
+                        <th style="text-align: center;">Formulation</th>
+                        <th style="text-align: center;">Days</th>
+                        <th style="text-align: center;">Frequency</th>
+                        <th style="text-align: center;">Comments</th>
+                        <!-- <th style="text-align: center;">Quantity</th> -->
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% drugOrderList.eachWithIndex { drug, idx -> %>
+                    <tr class="class" id="${drug.inventoryDrug.name}">
+                        <td align="center">${idx}</td>
+                        <td align="center">${drug.inventoryDrug.name}</td>
+                        <td align="center">${drug.inventoryDrugFormulation.name}-${drug.inventoryDrugFormulation.dozage}</td>
+                        <td align="center">${drug.noOfDays}</td>
+                        <td align="center">${drug.frequency.name}</td>
+                        <td align="center">${drug.comments}</td>
+                    </tr>
+                    <% } %>
+
+                    </tbody>
+                </table>
+                <br><br><br><br><br><br><br>
+                <table class="spacer" style="margin-left: 60px;width:100%;">
+                    <tr>
+                        <td width="20%"><b>Treating Doctor</b></td>
+                        <td>:${doctor}</td>
+                    </tr>
+                    <tr>
+                        <td width="20%"><b>Treating Pharmacist</b></td>
+                        <td>:${pharmacist}</td>
+                    </tr>
+                </table>
     </div>
 </div>

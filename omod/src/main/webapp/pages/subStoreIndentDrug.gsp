@@ -271,7 +271,6 @@
                 //set parent category
                 var catId = ui.item.value.category.id;
                 var drgId = ui.item.value.id;
-                console.log(drgId);
                 jq("#drugCategory").val(catId);
                 jq("#drugCategory").change();
                 //set background drug name - frusemide

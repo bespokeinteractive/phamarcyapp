@@ -37,5 +37,6 @@ public class DrugOrderPageController {
         model.addAttribute("doctor", drugOrderList.get(0).getCreator().getGivenName());
         InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
         model.addAttribute("pharmacist", Context.getAuthenticatedUser().getGivenName());
+        model.addAttribute("userLocation",Context.getAdministrationService().getGlobalProperty("hospital.location_user") );
     }
 }
