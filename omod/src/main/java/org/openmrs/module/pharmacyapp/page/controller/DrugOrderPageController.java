@@ -6,6 +6,8 @@ import org.openmrs.module.hospitalcore.model.InventoryStoreDrugPatient;
 import org.openmrs.module.hospitalcore.model.OpdDrugOrder;
 import org.openmrs.module.hospitalcore.model.PatientSearch;
 import org.openmrs.module.inventory.InventoryService;
+import org.openmrs.ui.framework.SimpleObject;
+import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -20,13 +22,19 @@ public class DrugOrderPageController {
             @RequestParam("patientId") Integer patientId,
             @RequestParam("encounterId") Integer encounterId,
             @RequestParam(value = "date", required = false) String dateStr,
-            @RequestParam(value = "patientType", required = false) String patientType) {
+            @RequestParam(value = "patientType", required = false) String patientType,
+            UiUtils uiUtils) {
         InventoryService inventoryService = Context
                 .getService(InventoryService.class);
 
         List<OpdDrugOrder> drugOrderList = inventoryService.listOfDrugOrder(
                 patientId, encounterId);
-        model.addAttribute("drugOrderList", drugOrderList);
+        List<SimpleObject> simpleObjects = SimpleObject.fromCollection(drugOrderList, uiUtils, "inventoryDrug.name",
+                "inventoryDrugFormulation.name","inventoryDrugFormulation.dozage","frequency.name","noOfDays","comments","inventoryDrug.id","inventoryDrugFormulation.id");
+
+
+        model.addAttribute("drugOrderListJson", SimpleObject.create("simpleObjects",simpleObjects).toJson());
+        model.addAttribute("drugOrderList",drugOrderList);
         model.addAttribute("patientId", patientId);
         model.addAttribute("encounterId", encounterId);
         HospitalCoreService hospitalCoreService = Context.getService(HospitalCoreService.class);

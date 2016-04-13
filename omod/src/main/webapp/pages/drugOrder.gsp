@@ -154,12 +154,15 @@ form label, .form label {
     var drugOrders = [];
     var processdrugdialog;
     var listOfDrugQuantity = "";
+    var focusItem;
+
     jq(function () {
+        var jSonOrders = ${drugOrderListJson};
+        var orderList = jSonOrders.simpleObjects;
         processdrugdialog = emr.setupConfirmationDialog({
             selector: '#processDrugDialog',
             actions: {
                 confirm: function () {
-                    jq("#processDrugOrderForm").submit();
                     processdrugdialog.close();
                     listOfDrugQuantity = "";
                 },
@@ -174,6 +177,34 @@ form label, .form label {
         jq('#surname').html(strReplace('${patient.names.familyName}') + ',<em>surname</em>');
         jq('#othname').html(strReplace('${patient.names.givenName}') + ' &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <em>other names</em>');
         jq('#agename').html('${patient.age} years (' + moment('${patient.birthdate}').format('DD,MMM YYYY') + ')');
+
+
+        function OrderListViewModel() {
+            var self = this;
+            // Editable data
+            self.listItems = ko.observableArray([]);
+            var mappedStockItems = jQuery.map(orderList, function (item) {
+                return item;
+            });
+
+            self.viewDetails = function (item) {
+                window.location.replace("viewCurrentStockBalanceDetail.page?drugId=" + item.drug.id + "&formulationId=" + item.formulation.id);
+
+            }
+            self.listItems(mappedStockItems);
+
+
+            self.processDrugItem = function (item) {
+                processDrug(item.inventoryDrug.id, item.inventoryDrugFormulation.id, item.frequency.name, item.noOfDays, item.comments, item);
+            }
+
+            self.removeOrderItem = function () {
+                self.listItems.remove(focusItem);
+            }
+        }
+
+        var list = new OrderListViewModel();
+        ko.applyBindings(list, jq("#indent-search-result")[0]);
     });//end of doc ready
 
     function cancelDrugProcess() {
@@ -204,7 +235,8 @@ form label, .form label {
         res = res.replace("]", "");
         return res;
     }
-    function processDrug(drugId, formulationId, frequencyName, days, comments) {
+    function processDrug(drugId, formulationId, frequencyName, days, comments, item) {
+        focusItem = item;
         jq.ajax({
             url: '${ ui.actionLink("pharmacyapp", "drugOrder", "listReceiptDrugAvailable") }',
             dataType: 'json',
@@ -230,7 +262,6 @@ form label, .form label {
                     var tbody = jq('#processDrugOrderFormTable > tbody');
                     var row = "";
                     jq.each(data, function (i, item) {
-                        console.log(item);
                         listOfDrugQuantity += item.id + ".";
                         row += '<tr align="center">' +
                                 '<td>' + (i + 1) + '</td>' +
@@ -330,7 +361,8 @@ form label, .form label {
 
     <div id="indent-search-result" style="display: block; margin-top:3px;">
         <div role="grid" class="dataTables_wrapper" id="indent-search-result-table_wrapper">
-            <table id="indent-search-result-table" class="dataTable" aria-describedby="indent-search-result-table_info">
+
+            <table id="orderList">
                 <thead>
                 <tr role="row">
                     <th class="ui-state-default" role="columnheader">
@@ -383,69 +415,68 @@ form label, .form label {
                 </tr>
                 </thead>
 
-                <tbody role="alert" aria-live="polite" aria-relevant="all">
-                <% if (drugOrderList != null || drugOrderList != "") { %>
-                <% drugOrderList.eachWithIndex { drug, idx -> %>
+                <tbody data-bind="foreach: listItems">
                 <tr>
-                    <td>${idx + 1}</td>
-                    <td>${drug.inventoryDrug.name}</td>
-                    <td>${drug.inventoryDrugFormulation.name}-${drug.inventoryDrugFormulation.dozage}</td>
-                    <td>${drug.frequency.name}</td>
-                    <td>${drug.noOfDays}</td>
-                    <td>${drug?.comments ?: ""}</td>
-                    <td><a href="#"
-                           onclick="processDrug(${drug.inventoryDrug.id}, ${drug.inventoryDrugFormulation.id}, '${drug.frequency.name}', ${drug.noOfDays}, '${drug.comments}');"><i
-                                class="icon-signin small">Process</i></a></td>
+                    <td data-bind="text: \$index() + 1"></td>
+                    <td data-bind="text: inventoryDrug.name"></td>
+                    <td>
+                        <span data-bind="text: inventoryDrugFormulation.name"></span> - <span
+                            data-bind="text: inventoryDrugFormulation.dozage"></span>
+                    </td>
+                    <td data-bind="text: frequency.name"></td>
+                    <td data-bind="text: noOfDays"></td>
+                    <td data-bind="text: comments"></td>
+                    <td style="text-align: center;">
+                        <a class="remover" href="#" data-bind="click: \$root.processDrugItem">
+                            <i class="icon-signin small">Process</i>
+                        </a>
+                    </td>
                 </tr>
-                <% } %>
-                <% } else { %>
-                <tr align="center">
-                    <td colspan="6">No Drugs Found</td>
-                </tr>
-                <% } %>
                 </tbody>
             </table>
             <input type="button" value="Cancel" onclick="cancelDrugProcess();" class="cancel"/>
-            <input type="submit" id="subm" name="subm" value="Finish" class="confirm"  style="float: right;"/>
+            <input type="submit" id="subm" name="subm" value="Finish" class="confirm" style="float: right;"/>
             <input type="button" id="print" name="print" value="Print" onClick="printDiv2();" class="task"
                    style="float: right;"/> &nbsp;&nbsp;
 
         </div>
+
+        <div id="processDrugDialog" class="dialog" style="display: none; width: 80%">
+            <div class="dialog-header">
+                <i class="icon-folder-open"></i>
+
+                <h3>Process Drug Order</h3>
+            </div>
+
+
+            <div class="dialog-content">
+                <form method="post" id="processDrugOrderForm" class="box">
+                    <table class="box" id="processDrugOrderFormTable">
+                        <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Expiry</th>
+                            <th title="Date of manufacturing">DM</th>
+                            <th>Company</th>
+                            <th>Batch No.</th>
+                            <th title="Quantity available">Available</th>
+                            <th title="Issue quantity">Issue</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                    <br/>
+                    <span class="button confirm right" data-bind="click: \$root.removeOrderItem">Issue Drug</span>
+                    <span class="button cancel">Cancel</span>
+                </form>
+            </div>
+
+        </div>
     </div>
 
-    <div id="processDrugDialog" class="dialog" style="display: none; width: 80%">
-        <div class="dialog-header">
-            <i class="icon-folder-open"></i>
 
-            <h3>Process Drug Order</h3>
-        </div>
-
-
-        <div class="dialog-content">
-            <form method="post" id="processDrugOrderForm" class="box">
-                <table class="box" id="processDrugOrderFormTable">
-                    <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Expiry</th>
-                        <th title="Date of manufacturing">DM</th>
-                        <th>Company</th>
-                        <th>Batch No.</th>
-                        <th title="Quantity available">Available</th>
-                        <th title="Issue quantity">Issue</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                </table>
-                <br/>
-                <span class="button confirm right">Issue Drug</span>
-                <span class="button cancel">Cancel</span>
-            </form>
-        </div>
-
-    </div>
 
     <!--PRINT DIV  -->
     <div id="printDiv" class="hidden" style="width: 1280px; font-size: 0.8em">
@@ -472,84 +503,84 @@ form label, .form label {
         </style>
         <center><img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS"
                      src="kenya_logo.bmp">
-            <center>
-                <h5>
-                    <center>${userLocation}</center>
-                </h5>
-                <br><br>
-                <table align='Center'>
-                    <tr>
-                        <td>Patient ID :</td>
-                        <td>&nbsp;&nbsp;&nbsp;</td>
-                        <td>&nbsp;${patientSearch.identifier}</td>
-                    </tr>
-                    <tr>
-                        <td>Name :</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;${patientSearch.givenName}&nbsp;
-                            ${patientSearch.familyName}&nbsp;&nbsp;${patientSearch.middleName}</td>
-                    </tr>
-                    <tr>
-                        <td>Age:</td>
-                        <td>&nbsp;</td>
-                        <td>
-                            <% if (patientSearch.age == 0) { %>
-                            &lt 1
-                            <% } else { %>
-                            ${patientSearch.age}
-                            <% } %>
-                        </td>
-
-                    </tr>
-                    <tr>
-                        <td>Gender:</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;${patientSearch.gender}</td>
-                    </tr>
-                    <tr>
-                        <td>Date :</td>
-                        <td>&nbsp;</td>
-                        <td>${date}</td>
-                    </tr>
-                </table>
-
-
-                <table id="myTablee" class="tablesorter" class="thickbox" style="width:100%; margin-top:30px">
-                    <thead>
-                    <tr>
-                        <th style="text-align: center;">S.No</th>
-                        <th style="text-align: center;">Drug Name</th>
-                        <th style="text-align: center;">Formulation</th>
-                        <th style="text-align: center;">Days</th>
-                        <th style="text-align: center;">Frequency</th>
-                        <th style="text-align: center;">Comments</th>
-                        <!-- <th style="text-align: center;">Quantity</th> -->
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% drugOrderList.eachWithIndex { drug, idx -> %>
-                    <tr class="class" id="${drug.inventoryDrug.name}">
-                        <td align="center">${idx}</td>
-                        <td align="center">${drug.inventoryDrug.name}</td>
-                        <td align="center">${drug.inventoryDrugFormulation.name}-${drug.inventoryDrugFormulation.dozage}</td>
-                        <td align="center">${drug.noOfDays}</td>
-                        <td align="center">${drug.frequency.name}</td>
-                        <td align="center">${drug.comments}</td>
-                    </tr>
+        </center>
+        <h5>
+            <center>${userLocation}</center>
+        </h5>
+        <br><br>
+        <table align='Center'>
+            <tr>
+                <td>Patient ID :</td>
+                <td>&nbsp;&nbsp;&nbsp;</td>
+                <td>&nbsp;${patientSearch.identifier}</td>
+            </tr>
+            <tr>
+                <td>Name :</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;${patientSearch.givenName}&nbsp;
+                    ${patientSearch.familyName}&nbsp;&nbsp;${patientSearch.middleName}</td>
+            </tr>
+            <tr>
+                <td>Age:</td>
+                <td>&nbsp;</td>
+                <td>
+                    <% if (patientSearch.age == 0) { %>
+                    &lt 1
+                    <% } else { %>
+                    ${patientSearch.age}
                     <% } %>
+                </td>
 
-                    </tbody>
-                </table>
-                <br><br><br><br><br><br><br>
-                <table class="spacer" style="margin-left: 60px;width:100%;">
-                    <tr>
-                        <td width="20%"><b>Treating Doctor</b></td>
-                        <td>:${doctor}</td>
-                    </tr>
-                    <tr>
-                        <td width="20%"><b>Treating Pharmacist</b></td>
-                        <td>:${pharmacist}</td>
-                    </tr>
-                </table>
+            </tr>
+            <tr>
+                <td>Gender:</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;${patientSearch.gender}</td>
+            </tr>
+            <tr>
+                <td>Date :</td>
+                <td>&nbsp;</td>
+                <td>${date}</td>
+            </tr>
+        </table>
+
+
+        <table id="myTablee" class="tablesorter" class="thickbox" style="width:100%; margin-top:30px">
+            <thead>
+            <tr>
+                <th style="text-align: center;">S.No</th>
+                <th style="text-align: center;">Drug Name</th>
+                <th style="text-align: center;">Formulation</th>
+                <th style="text-align: center;">Days</th>
+                <th style="text-align: center;">Frequency</th>
+                <th style="text-align: center;">Comments</th>
+                <!-- <th style="text-align: center;">Quantity</th> -->
+            </tr>
+            </thead>
+            <tbody>
+            <% drugOrderList.eachWithIndex { drug, idx -> %>
+            <tr class="class" id="${drug.inventoryDrug.name}">
+                <td align="center">${idx}</td>
+                <td align="center">${drug.inventoryDrug.name}</td>
+                <td align="center">${drug.inventoryDrugFormulation.name}-${drug.inventoryDrugFormulation.dozage}</td>
+                <td align="center">${drug.noOfDays}</td>
+                <td align="center">${drug.frequency.name}</td>
+                <td align="center">${drug.comments}</td>
+            </tr>
+            <% } %>
+
+            </tbody>
+        </table>
+        <br><br><br><br><br><br><br>
+        <table class="spacer" style="margin-left: 60px;width:100%;">
+            <tr>
+                <td width="20%"><b>Treating Doctor</b></td>
+                <td>:${doctor}</td>
+            </tr>
+            <tr>
+                <td width="20%"><b>Treating Pharmacist</b></td>
+                <td>:${pharmacist}</td>
+            </tr>
+        </table>
     </div>
 </div>
