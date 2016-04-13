@@ -199,6 +199,7 @@ form label, .form label {
             }
 
             self.removeOrderItem = function () {
+                
                 self.listItems.remove(focusItem);
             }
         }
@@ -257,7 +258,12 @@ form label, .form label {
                     row += '<input id="' + drugId + '" name="' + drugId + '" type="hidden" />';
                     row += '</tr>';
                     tbody.append(row);
+                    jq("#drugIssue").attr("disabled",true);
+                    jq("#drugIssue").addClass("disabled");
+
                 } else {
+                    jq("#drugIssue").removeClass('disabled');
+                    jq("#drugIssue").attr("disabled",false);
                     jq('#processDrugOrderFormTable > tbody > tr').remove();
                     var tbody = jq('#processDrugOrderFormTable > tbody');
                     var row = "";
@@ -468,7 +474,7 @@ form label, .form label {
                         </tbody>
                     </table>
                     <br/>
-                    <span class="button confirm right" data-bind="click: \$root.removeOrderItem">Issue Drug</span>
+                    <button class="button confirm right" data-bind="click: \$root.removeOrderItem" id="drugIssue">Issue Drug</button>
                     <span class="button cancel">Cancel</span>
                 </form>
             </div>
