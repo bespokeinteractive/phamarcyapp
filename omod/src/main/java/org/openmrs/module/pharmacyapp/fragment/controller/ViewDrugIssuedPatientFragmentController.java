@@ -120,6 +120,7 @@ public class ViewDrugIssuedPatientFragmentController {
         SimpleObject drugData;
         Date issueDate = null;
         InventoryStoreDrugPatient inventoryStoreDrugPatient1= new InventoryStoreDrugPatient();
+         List<OpdDrugOrder> listOfNotDispensedOrder = null;
         String paymentCategory = "";
 
         InventoryService inventoryService = (InventoryService) Context
@@ -241,7 +242,7 @@ public class ViewDrugIssuedPatientFragmentController {
             issueDate = listDrugIssue.get(0).getStoreDrugPatient().getCreatedOn();
             Encounter encounterId = listDrugIssue.get(0).getTransactionDetail().getEncounter();
 
-            List<OpdDrugOrder> listOfNotDispensedOrder = null;
+
             if(encounterId!= null )
             {
                 listOfNotDispensedOrder = inventoryService.listOfNotDispensedOrder(patientId,issueDate,encounterId);
@@ -264,8 +265,11 @@ public class ViewDrugIssuedPatientFragmentController {
         String name =  patientInfo.getGivenName() + " " + patientInfo.getFamilyName() + " " + patientInfo.getMiddleName();
 
         List<SimpleObject> listDrugIssueObj = SimpleObject.fromCollection(listDrugIssue, uiUtils, "transactionDetail.drug.name","transactionDetail.formulation.name","transactionDetail.frequency.name","transactionDetail.noOfDays","transactionDetail.comments","transactionDetail.dateExpiry","quantity");
+
+         List<SimpleObject> listDrugNotIssuedObj = SimpleObject.fromCollection(listOfNotDispensedOrder, uiUtils, "transactionDetail.drug.name","transactionDetail.formulation.name","transactionDetail.frequency.name","transactionDetail.noOfDays","transactionDetail.comments","transactionDetail.dateExpiry","quantity");
+
         drugData = SimpleObject.create("issueDate",issueDate, "name",name, "age", patientInfo.getAge(),
-                "gender", patientInfo.getGender(),"paymentCategory", paymentCategory, "listDrugIssue", listDrugIssueObj);
+                "gender", patientInfo.getGender(),"paymentCategory", paymentCategory, "listDrugIssue", listDrugIssueObj,"listDrugNotIssuedObj", listDrugNotIssuedObj);
 
         return drugData;
 
