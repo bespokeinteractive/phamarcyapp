@@ -1,17 +1,24 @@
 package org.openmrs.module.pharmacyapp.page.controller;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.openmrs.*;
+import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.HospitalCoreService;
-import org.openmrs.module.hospitalcore.model.InventoryStoreDrugPatient;
-import org.openmrs.module.hospitalcore.model.OpdDrugOrder;
-import org.openmrs.module.hospitalcore.model.PatientSearch;
+import org.openmrs.module.hospitalcore.InventoryCommonService;
+import org.openmrs.module.hospitalcore.model.*;
+import org.openmrs.module.hospitalcore.util.ActionValue;
 import org.openmrs.module.inventory.InventoryService;
+import org.openmrs.module.inventory.util.DateUtils;
 import org.openmrs.ui.framework.SimpleObject;
 import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -49,13 +56,191 @@ public class DrugOrderPageController {
         model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
     }
 
-    public String post(HttpServletRequest request, @RequestParam("patientId") Integer patientId,
-                       @RequestParam("encounterId") Integer encounterId, @RequestParam(value = "paymentMode", required = false) String paymentMode,
-                       @RequestParam(value = "patientType", required = false) String patientType,
-                       @RequestParam(value = "avaiableId", required = false) String[] avaiableId) {
-        System.out.println(request.getParameter("order"));
+    public String post(HttpServletRequest request, UiUtils uiUtils) throws Exception {
+        String order = request.getParameter("order");
+        String patientType = request.getParameter("patientType");
+        String paymentMode = request.getParameter("paymentMode");
+        String encounterId = request.getParameter("encounterId");
+        String patientId = request.getParameter("patientId");
+        JSONArray orders = new JSONArray(order);
 
-        return null;
+        PatientService patientService = Context.getPatientService();
+        Patient patient = patientService.getPatient(Integer.parseInt(patientId));
+        InventoryService inventoryService = Context.getService(InventoryService.class);
+        //InventoryStore store =  inventoryService.getStoreByCollectionRole(new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles()));
+        List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
 
+        InventoryStoreRoleRelation srl = null;
+        Role rl = null;
+        for (Role r : role) {
+            if (inventoryService.getStoreRoleByName(r.toString()) != null) {
+                srl = inventoryService.getStoreRoleByName(r.toString());
+                rl = r;
+            }
+        }
+        InventoryStore store = null;
+        if (srl != null) {
+            store = inventoryService.getStoreById(srl.getStoreid());
+
+        }
+        Date date = new Date();
+        Integer formulationId;
+        String frequencyName;
+        String comments;
+        Integer quantity;
+        Integer noOfDays;
+        Integer avlId;
+
+        InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
+        inventoryStoreDrugPatient.setStore(store);
+        inventoryStoreDrugPatient.setPatient(patient);
+        if (patient.getMiddleName() != null) {
+            inventoryStoreDrugPatient.setName(patient.getGivenName() + " " + patient.getFamilyName() + " " + patient.getMiddleName().replace(",", " "));
+        } else {
+            inventoryStoreDrugPatient.setName(patient.getGivenName() + " " + patient.getFamilyName());
+        }
+        inventoryStoreDrugPatient.setIdentifier(patient.getPatientIdentifier().getIdentifier());
+        inventoryStoreDrugPatient.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
+        inventoryStoreDrugPatient.setCreatedOn(date);
+        inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
+
+        InventoryStoreDrugTransaction transaction = new InventoryStoreDrugTransaction();
+        transaction.setDescription("ISSUE DRUG TO PATIENT " + DateUtils.getDDMMYYYY());
+        transaction.setStore(store);
+        transaction.setTypeTransaction(ActionValue.TRANSACTION[1]);
+        transaction.setCreatedOn(date);
+        //transaction.setPaymentMode(paymentMode);
+        transaction.setPaymentCategory(patient.getAttribute(14).getValue());
+        transaction.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
+
+        transaction = inventoryService.saveStoreDrugTransaction(transaction);
+
+        List<EncounterType> types = new ArrayList<EncounterType>();
+        EncounterType eType = new EncounterType(10);
+        types.add(eType);
+        HospitalCoreService hcs = Context.getService(HospitalCoreService.class);
+        Encounter lastVisitEncounter = hcs.getLastVisitEncounter(patient, types);
+
+        for (int i = 0; i < orders.length(); i++) {
+            JSONObject incomingItem = orders.getJSONObject(i);
+            String price = incomingItem.getString("price");
+            noOfDays = Integer.parseInt(incomingItem.getString("noOfDays"));
+            String listOfDrugQuantity = incomingItem.getString("listOfDrugQuantity");
+            String drugName = incomingItem.getString("drugName");
+            frequencyName = incomingItem.getString("frequencyName");
+            String formulation = incomingItem.getString("formulation");
+            quantity = Integer.parseInt(incomingItem.getString("quantity"));
+            formulationId = Integer.parseInt(incomingItem.getString("formulationId"));
+            comments = incomingItem.getString("comments");
+
+            InventoryCommonService inventoryCommonService = Context.getService(InventoryCommonService.class);
+            Concept fCon = Context.getConceptService().getConcept(frequencyName);
+            if (quantity != 0) {
+
+            }
+
+        }
+
+//        if (avaiableId != null) {
+//            for (String avId : avaiableId) {
+//
+//                if (quantity != 0) {
+//                    avlId = Integer.parseInt(avId);
+//                    InventoryDrugFormulation inventoryDrugFormulation = inventoryCommonService.getDrugFormulationById(formulationId);
+//
+//                    InventoryStoreDrugPatientDetail pDetail = new InventoryStoreDrugPatientDetail();
+//
+//                    InventoryStoreDrugTransactionDetail inventoryStoreDrugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(avlId);
+//                    Integer totalQuantity = inventoryService.sumCurrentQuantityDrugOfStore(store.getId(), inventoryStoreDrugTransactionDetail.getDrug().getId(), inventoryDrugFormulation.getId());
+//                    // int t = totalQuantity -quantity;
+//                    int t = totalQuantity;
+//                    InventoryStoreDrugTransactionDetail drugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(inventoryStoreDrugTransactionDetail.getId());
+//                    //inventoryStoreDrugTransactionDetail.setCurrentQuantity(drugTransactionDetail.getCurrentQuantity() - quantity);
+//                    inventoryStoreDrugTransactionDetail.setCurrentQuantity(drugTransactionDetail.getCurrentQuantity());
+//
+//                    inventoryService.saveStoreDrugTransactionDetail(inventoryStoreDrugTransactionDetail);
+//
+//                    //save transactiondetail first
+//                    InventoryStoreDrugTransactionDetail transDetail = new InventoryStoreDrugTransactionDetail();
+//                    transDetail.setTransaction(transaction);
+//                    transDetail.setCurrentQuantity(0);
+//                    transDetail.setIssueQuantity(quantity);
+//                    transDetail.setOpeningBalance(totalQuantity);
+//                    transDetail.setClosingBalance(t);
+//                    transDetail.setQuantity(0);
+//                    transDetail.setVAT(inventoryStoreDrugTransactionDetail.getVAT());
+//                    transDetail.setCostToPatient(inventoryStoreDrugTransactionDetail.getCostToPatient());
+//                    transDetail.setUnitPrice(inventoryStoreDrugTransactionDetail.getUnitPrice());
+//                    transDetail.setDrug(inventoryStoreDrugTransactionDetail.getDrug());
+//                    transDetail.setReorderPoint(inventoryStoreDrugTransactionDetail.getDrug().getReorderQty());
+//                    transDetail.setAttribute(inventoryStoreDrugTransactionDetail.getDrug().getAttributeName());
+//                    transDetail.setFormulation(inventoryDrugFormulation);
+//                    transDetail.setBatchNo(inventoryStoreDrugTransactionDetail.getBatchNo());
+//                    transDetail.setCompanyName(inventoryStoreDrugTransactionDetail.getCompanyName());
+//                    transDetail.setDateManufacture(inventoryStoreDrugTransactionDetail.getDateManufacture());
+//                    transDetail.setDateExpiry(inventoryStoreDrugTransactionDetail.getDateExpiry());
+//                    transDetail.setReceiptDate(inventoryStoreDrugTransactionDetail.getReceiptDate());
+//                    transDetail.setCreatedOn(date);
+//                    transDetail.setPatientType(patientType);
+//                    transDetail.setEncounter(Context.getEncounterService().getEncounter(encounterId));
+//
+//                    transDetail.setFrequency(fCon);
+//                    transDetail.setNoOfDays(noOfDays);
+//                    transDetail.setComments(comments);
+//                    transDetail.setFlag(0);
+//
+//                    BigDecimal moneyUnitPrice = inventoryStoreDrugTransactionDetail.getCostToPatient().multiply(new BigDecimal(quantity));
+//                    // moneyUnitPrice = moneyUnitPrice.add(moneyUnitPrice.multiply(inventoryStoreDrugTransactionDetail.getVAT().divide(new BigDecimal(100))));
+//                    transDetail.setTotalPrice(moneyUnitPrice);
+//
+//                    transDetail.setParent(inventoryStoreDrugTransactionDetail);
+//                    transDetail = inventoryService.saveStoreDrugTransactionDetail(transDetail);
+//
+//                    pDetail.setQuantity(quantity);
+//
+//                    pDetail.setStoreDrugPatient(inventoryStoreDrugPatient);
+//                    pDetail.setTransactionDetail(transDetail);
+//                    //save issue to patient detail
+//                    inventoryService.saveStoreDrugPatientDetail(pDetail);
+//
+//                    BillingService billingService = Context.getService(BillingService.class);
+//                    IndoorPatientServiceBill bill = new IndoorPatientServiceBill();
+//                    bill.setActualAmount(moneyUnitPrice);
+//                    bill.setAmount(moneyUnitPrice);
+//
+//                    bill.setEncounter(lastVisitEncounter);
+//                    bill.setCreatedDate(new Date());
+//                    bill.setPatient(patient);
+//                    bill.setCreator(Context.getAuthenticatedUser());
+//
+//
+//                    IndoorPatientServiceBillItem item = new IndoorPatientServiceBillItem();
+//
+//                    item.setUnitPrice(pDetail.getTransactionDetail().getCostToPatient());
+//                    item.setAmount(moneyUnitPrice);
+//                    item.setQuantity(pDetail.getQuantity());
+//
+//
+//                    item.setName(pDetail.getTransactionDetail().getDrug().getName());
+//                    item.setCreatedDate(new Date());
+//                    item.setIndoorPatientServiceBill(bill);
+//                    item.setActualAmount(moneyUnitPrice);
+//                    item.setOrderType("DRUG");
+//                    bill.addBillItem(item);
+//                    bill = billingService.saveIndoorPatientServiceBill(bill);
+//
+//                    OpdDrugOrder opdDrugOrder = inventoryService.getOpdDrugOrder(patientId, encounterId,
+//                            inventoryStoreDrugTransactionDetail.getDrug().getId(), formulationId);
+//
+//
+//                    PatientDashboardService patientDashboardService = Context.getService(PatientDashboardService.class);
+//                    opdDrugOrder.setOrderStatus(1);
+//                    patientDashboardService.saveOrUpdateOpdDrugOrder(opdDrugOrder);
+//                }
+//
+//            }
+//
+//        }
+        return "redirect:" + uiUtils.pageLink("pharmacyapp", "main");
     }
 }

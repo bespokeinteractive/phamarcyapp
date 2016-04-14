@@ -348,7 +348,7 @@ form label, .form label {
                     var tbody = jq('#processDrugOrderFormTable > tbody');
                     var row = "";
                     jq.each(data, function (i, item) {
-                        listOfDrugQuantity += item.id + ".";
+                        listOfDrugQuantity += item.id;
                         row += '<tr align="center">' +
                                 '<td>' + (i + 1) + '</td>' +
                                 '<td>' + item.dateExpiry + '</td>' +
@@ -580,7 +580,11 @@ form label, .form label {
         </div>
 
         <form method="post" id="drugsForm">
-            <input id="submvalue" type="hidden" value="Finish">
+            <input name="submvalue"  type="hidden" value="Finish">
+            <input name="patientId" type="hidden" value="${patientId}">
+            <input name="encounterId" type="hidden" value="${encounterId}">
+            <input name="patientType" type="hidden" value="${patientType}">
+
             <textarea name="order" data-bind="value: ko.toJSON(\$root.pItems)" style="display: none;" ></textarea>
         </form>
         <input type="button" value="Cancel" onclick="cancelDrugProcess();" class="cancel"/>
