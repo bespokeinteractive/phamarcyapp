@@ -11,6 +11,7 @@ import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -30,11 +31,11 @@ public class DrugOrderPageController {
         List<OpdDrugOrder> drugOrderList = inventoryService.listOfDrugOrder(
                 patientId, encounterId);
         List<SimpleObject> simpleObjects = SimpleObject.fromCollection(drugOrderList, uiUtils, "inventoryDrug.name",
-                "inventoryDrugFormulation.name","inventoryDrugFormulation.dozage","frequency.name","noOfDays","comments","inventoryDrug.id","inventoryDrugFormulation.id");
+                "inventoryDrugFormulation.name", "inventoryDrugFormulation.dozage", "frequency.name", "noOfDays", "comments", "inventoryDrug.id", "inventoryDrugFormulation.id");
 
 
-        model.addAttribute("drugOrderListJson", SimpleObject.create("simpleObjects",simpleObjects).toJson());
-        model.addAttribute("drugOrderList",drugOrderList);
+        model.addAttribute("drugOrderListJson", SimpleObject.create("simpleObjects", simpleObjects).toJson());
+        model.addAttribute("drugOrderList", drugOrderList);
         model.addAttribute("patientId", patientId);
         model.addAttribute("encounterId", encounterId);
         HospitalCoreService hospitalCoreService = Context.getService(HospitalCoreService.class);
@@ -45,6 +46,16 @@ public class DrugOrderPageController {
         model.addAttribute("doctor", drugOrderList.get(0).getCreator().getGivenName());
         InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
         model.addAttribute("pharmacist", Context.getAuthenticatedUser().getGivenName());
-        model.addAttribute("userLocation",Context.getAdministrationService().getGlobalProperty("hospital.location_user") );
+        model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
+    }
+
+    public String post(HttpServletRequest request, @RequestParam("patientId") Integer patientId,
+                       @RequestParam("encounterId") Integer encounterId, @RequestParam(value = "paymentMode", required = false) String paymentMode,
+                       @RequestParam(value = "patientType", required = false) String patientType,
+                       @RequestParam(value = "avaiableId", required = false) String[] avaiableId) {
+        System.out.println(request.getParameter("order"));
+
+        return null;
+
     }
 }

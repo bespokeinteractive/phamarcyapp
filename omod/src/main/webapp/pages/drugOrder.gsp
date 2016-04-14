@@ -155,16 +155,45 @@ form label, .form label {
     var processdrugdialog;
     var listOfDrugQuantity = "";
     var focusItem;
+    var processedOrders = [];
 
     jq(function () {
+        var isError = false;
+
+        jq.extend({
+            toDictionary: function (query) {
+                var parms = {};
+                var items = query.split("&"); // split
+                for (var i = 0; i < items.length; i++) {
+                    var values = items[i].split("=");
+                    var key = decodeURIComponent(values.shift());
+                    var value = values.join("=")
+                    parms[key] = decodeURIComponent(value);
+                }
+                return (parms);
+            }
+        });
+
+        jq.fn.serializeFormJSON = function () {
+            var o = [];
+            jq(this).find('tr').each(function () {
+                var elements = jq(this).find('input, textarea, select')
+                if (elements.size() > 0) {
+                    var serialized = jq(this).find('input, textarea, select').serialize();
+                    var item = jq.toDictionary(serialized);
+                    o.push(item);
+                }
+            });
+            return o;
+        };
+
         var jSonOrders = ${drugOrderListJson};
         var orderList = jSonOrders.simpleObjects;
         processdrugdialog = emr.setupConfirmationDialog({
             selector: '#processDrugDialog',
             actions: {
                 confirm: function () {
-                    processdrugdialog.close();
-                    listOfDrugQuantity = "";
+                    //empty for now
                 },
                 cancel: function () {
 
@@ -183,6 +212,7 @@ form label, .form label {
             var self = this;
             // Editable data
             self.listItems = ko.observableArray([]);
+            self.pItems = ko.observableArray([]);
             var mappedStockItems = jQuery.map(orderList, function (item) {
                 return item;
             });
@@ -198,11 +228,61 @@ form label, .form label {
                 processDrug(item.inventoryDrug.id, item.inventoryDrugFormulation.id, item.frequency.name, item.noOfDays, item.comments, item);
             }
 
-            self.removeOrderItem = function () {
-                
-                self.listItems.remove(focusItem);
+            self.issueDrugItem = function () {
+                isError = false;
+                jq('.klazz').each(function (i, obj) {
+                    var v = obj.value;
+                    if (!jq.isNumeric(v)) {
+                        jq().toastmessage('showErrorToast', "Please Enter Correct Quantity!");
+                        isError = true;
+                    }
+                });
+
+                if (!isError) {
+                    var jsonString = jq("#processDrugOrderForm").serializeFormJSON();
+                    jq.each(jsonString, function (index, item) {
+                        if (item.quantity > 0) {
+                            self.pItems.push(item);//add the item to the processed array for display
+                        }
+                    });
+                    self.listItems.remove(focusItem);
+                    processdrugdialog.close();
+                    listOfDrugQuantity = "";
+                }
+            }
+
+            self.computedTotal = ko.computed(function(){
+                var total=0;
+                for (var i = 0; i < self.pItems().length; i++){
+                    total+=(self.pItems()[i].quantity *self.pItems()[i].price);
+                }
+                return total;
+            });
+
+            self.removeItem = function (item) {
+                if (self.pItems().length > 1) {
+                    self.pItems.remove(item);
+                } else {
+                    jq().toastmessage('showErrorToast', "Process List Must Have at least 1 item");
+                }
+
+            }
+            self.finishDrugOrder=function(){
+                if (self.pItems().length < 1) {
+                    jq().toastmessage('showErrorToast', "Please Process At least One Drug!");
+                    return false;
+                }
+                if (confirm("Are you sure?")) {
+                    printDiv2();
+                    jq("#drugsForm").submit();
+                    return true;
+                }
+
+                return false;
+
             }
         }
+
 
         var list = new OrderListViewModel();
         ko.applyBindings(list, jq("#indent-search-result")[0]);
@@ -258,12 +338,12 @@ form label, .form label {
                     row += '<input id="' + drugId + '" name="' + drugId + '" type="hidden" />';
                     row += '</tr>';
                     tbody.append(row);
-                    jq("#drugIssue").attr("disabled",true);
+                    jq("#drugIssue").attr("disabled", true);
                     jq("#drugIssue").addClass("disabled");
 
                 } else {
                     jq("#drugIssue").removeClass('disabled');
-                    jq("#drugIssue").attr("disabled",false);
+                    jq("#drugIssue").attr("disabled", false);
                     jq('#processDrugOrderFormTable > tbody > tr').remove();
                     var tbody = jq('#processDrugOrderFormTable > tbody');
                     var row = "";
@@ -277,17 +357,17 @@ form label, .form label {
                                 '<td>' + item.batchNo + '</td>' +
                                 '<td>' + item.currentQuantity + '</td>';
                         if (i === 0) {
-                            row += '<td><input type="text" onchange="checkValueExt(this,' + item.currentQuantity + ')" type="text" size="3" name="' + item.id + '_quantity" id="' + item.id + '_quantity" /></td>';
+                            row += '<td><input class="klazz" type="text" onchange="checkValueExt(this,' + item.currentQuantity + ')" value="" type="text" size="3" name="quantity" id="' + item.id + '_quantity" /></td>';
                         } else {
-                            row += '<td><input type="text" onchange="checkValueExt(this,' + item.currentQuantity + ')" value="0" type="text" size="3" id="' + item.id + '_quantity" name="' + item.id + '_quantity" style="color:red;"/></td>';
+                            row += '<td><input class="klazz" type="text" onchange="checkValueExt(this,' + item.currentQuantity + ')" value="0" type="text" size="3" id="' + item.id + '_quantity" name="quantity" style="color:red;"/></td>';
                         }
-                        row += '<input id="' + item.id + '_drugName" name="' + item.id + '_drugName" type="hidden" value="' + item.drug.name + '" />';
-                        row += '<input id="' + item.id + '_formulation" name="' + item.id + '_formulation" type="hidden" value="' + item.formulation.name + "-" + item.formulation.dozage + '" />';
-                        row += '<input id="' + item.id + '_formulationId" name="' + item.id + '_formulationId" type="hidden" value="' + item.formulation.id + '" />';
-                        row += '<input id="' + item.id + '_frequencyName" name="' + item.id + '_frequencyName" type="hidden" value="' + frequencyName + '" />';
-                        row += '<input id="' + item.id + '_noOfDays" name="' + item.id + '_noOfDays" type="hidden" value="' + days + '" />';
-                        row += '<input id="' + item.id + '_comments" name="' + item.id + '_comments" type="hidden" value="' + comments + '" />';
-                        row += '<input id="' + item.id + '_price" name="' + item.id + '_price" type="hidden" value="' + item.costToPatient + '" />';
+                        row += '<input id="' + item.id + '_drugName" name="drugName" type="hidden" value="' + item.drug.name + '" />';
+                        row += '<input id="' + item.id + '_formulation" name="formulation" type="hidden" value="' + item.formulation.name + "-" + item.formulation.dozage + '" />';
+                        row += '<input id="' + item.id + '_formulationId" name="formulationId" type="hidden" value="' + item.formulation.id + '" />';
+                        row += '<input id="' + item.id + '_frequencyName" name="frequencyName" type="hidden" value="' + frequencyName + '" />';
+                        row += '<input id="' + item.id + '_noOfDays" name="noOfDays" type="hidden" value="' + days + '" />';
+                        row += '<input id="' + item.id + '_comments" name="comments" type="hidden" value="' + comments + '" />';
+                        row += '<input id="' + item.id + '_price" name="price" type="hidden" value="' + item.costToPatient + '" />';
                         row += '<input id="listOfDrugQuantity" name="listOfDrugQuantity" type="hidden" value="' + listOfDrugQuantity + '" />';
                         row += '</tr>';
                     });
@@ -440,12 +520,73 @@ form label, .form label {
                 </tr>
                 </tbody>
             </table>
-            <input type="button" value="Cancel" onclick="cancelDrugProcess();" class="cancel"/>
-            <input type="submit" id="subm" name="subm" value="Finish" class="confirm" style="float: right;"/>
-            <input type="button" id="print" name="print" value="Print" onClick="printDiv2();" class="task"
-                   style="float: right;"/> &nbsp;&nbsp;
+        </div>
+        <br /><br />
+
+        <div role="grid" class="dataTables_wrapper" id="processedOrderList" data-bind="visible: \$root.pItems().length > 0">
+
+            <table>
+                <thead>
+                <tr role="row">
+                    <th class="ui-state-default" role="columnheader">
+                        <div class="DataTables_sort_wrapper">
+                            <span>S.No</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+
+                    <th class="ui-state-default" role="columnheader">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Drug Name</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+
+                    <th class="ui-state-default" role="columnheader">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Formulation</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+
+                    <th class="ui-state-default" role="columnheader">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Quantity</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+
+                    <th class="ui-state-default" role="columnheader">
+                        <div class="DataTables_sort_wrapper">
+                            <span>Unit Price</span>
+                            <span class="DataTables_sort_icon"></span>
+                        </div>
+                    </th>
+                </tr>
+                </thead>
+
+                <tbody data-bind="foreach: pItems">
+                <tr>
+                    <td data-bind="text: \$index() + 1"></td>
+                    <td data-bind="text: drugName"></td>
+                    <td data-bind="text: formulation"></td>
+                    <td data-bind="text: quantity"></td>
+                    <td data-bind="text: price"></td>
+                </tr>
+                </tbody>
+                <h3>Total Price:<span data-bind="text: \$root.computedTotal().toFixed(2)"></span></h3>
+            </table>
 
         </div>
+
+        <form method="post" id="drugsForm">
+            <input id="submvalue" type="hidden" value="Finish">
+            <textarea name="order" data-bind="value: ko.toJSON(\$root.pItems)" style="display: none;" ></textarea>
+        </form>
+        <input type="button" value="Cancel" onclick="cancelDrugProcess();" class="cancel"/>
+        <input type="submit" id="subm" name="subm" value="Finish" class="confirm" style="float: right;" data-bind="click: \$root.finishDrugOrder"/>
+        <input type="button" id="print" name="print" value="Print" onClick="printDiv2();" class="task"
+               style="float: right;"/> &nbsp;&nbsp;
 
         <div id="processDrugDialog" class="dialog" style="display: none; width: 80%">
             <div class="dialog-header">
@@ -474,7 +615,8 @@ form label, .form label {
                         </tbody>
                     </table>
                     <br/>
-                    <button class="button confirm right" data-bind="click: \$root.removeOrderItem" id="drugIssue">Issue Drug</button>
+                    <button class="button confirm right" data-bind="click: \$root.issueDrugItem"
+                            id="drugIssue">Issue Drug</button>
                     <span class="button cancel">Cancel</span>
                 </form>
             </div>

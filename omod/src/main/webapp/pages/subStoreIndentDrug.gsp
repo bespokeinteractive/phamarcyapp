@@ -331,13 +331,11 @@
 
     function removeListItem(counter) {
         if (confirm("Are you sure about this?")) {
-//            drugOrder.splice(index, 1);
             drugOrder = jq.grep(drugOrder, function (item, index) {
                 return (counter !== index);
             });
             jq('#addDrugsTable > tbody > tr').remove();
             var tbody = jq('#addDrugsTable > tbody');
-//            var table = tbody.length ? tbody : jq('#addDrugsTable');
             jq.each(drugOrder, function (counter, item) {
                 tbody.append('<tr><td>' + (counter + 1) + '</td><td>' + item.drugCategoryName + '</td><td>' + item.drugName +
                         '</td><td>' + item.drugFormulationName + '</td><td>' + item.quantity +
