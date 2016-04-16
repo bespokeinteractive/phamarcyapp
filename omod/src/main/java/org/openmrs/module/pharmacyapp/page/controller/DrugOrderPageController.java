@@ -1,5 +1,6 @@
 package org.openmrs.module.pharmacyapp.page.controller;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openmrs.*;
@@ -65,6 +66,14 @@ public class DrugOrderPageController {
         String paymentMode = request.getParameter("paymentMode");
         int encounterId = Integer.parseInt(request.getParameter("encounterId"));
         int patientId = Integer.parseInt(request.getParameter("patientId"));
+        BigDecimal waiverAmount = null;
+        if(StringUtils.isNotEmpty(request.getParameter("waiverAmount"))){
+            waiverAmount = new BigDecimal(request.getParameter("waiverAmount"));
+        }
+
+        String comment = request.getParameter("comment");
+
+
         JSONArray orders = new JSONArray(order);
 
         PatientService patientService = Context.getPatientService();
@@ -188,8 +197,18 @@ public class DrugOrderPageController {
                 //save issue to patient detail
                 inventoryService.saveStoreDrugPatientDetail(pDetail);
 
+
                 BillingService billingService = Context.getService(BillingService.class);
                 IndoorPatientServiceBill bill = new IndoorPatientServiceBill();
+                /*added waiver amount */
+                if (waiverAmount != null) {
+                    bill.setWaiverAmount(waiverAmount);
+                } else {
+                    BigDecimal wavAmt = new BigDecimal(0);
+                    bill.setWaiverAmount(wavAmt);
+                }
+                bill.setComment(comment);
+                bill.setPaymentMode(paymentMode);
                 bill.setActualAmount(moneyUnitPrice);
                 bill.setAmount(moneyUnitPrice);
 
@@ -220,7 +239,6 @@ public class DrugOrderPageController {
                 opdDrugOrder.setOrderStatus(1);
                 patientDashboardService.saveOrUpdateOpdDrugOrder(opdDrugOrder);
             }
-
         }
         return "redirect:" + uiUtils.pageLink("pharmacyapp", "main");
     }
