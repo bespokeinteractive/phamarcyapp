@@ -239,7 +239,6 @@
 			<div id="tabs" style="margin-top: 40px!important;">
 				<ul id="inline-tabs">
 					<li><a href="#queues">Queue</a></li>
-					<li><a href="#issued"> Patient Details</a></li>
 					<li><a href="#patientdrug">Issue drug to Patient</a></li>
 					<li><a href="#accountdrug">Issue drug to Account</a></li>
 					<li><a href="#manage">Indent Drugs</a></li>
@@ -260,7 +259,7 @@
 					<div>${ ui.includeFragment("pharmacyapp", "issueDrugPatientList") }</div>
 
 				</div>
-				
+
 				<div id="accountdrug">
 					<div>${ ui.includeFragment("pharmacyapp", "issueDrugAccountList") }</div>
 
@@ -272,10 +271,6 @@
 
                 <div id="expiry">
                     <div>${ui.includeFragment("pharmacyapp","viewExpiredDrugs")}</div>
-                </div>
-
-                <div id="issued">
-                    <div>${ui.includeFragment("pharmacyapp","viewDrugIssuedPatient")}</div>
                 </div>
 
 			</div>
