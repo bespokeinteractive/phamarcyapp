@@ -4,50 +4,76 @@
 
 <script>
     jq(function () {
-        var dateField = jq("#referred-date-field");
         jq("#getOrders").on("click", function () {
-            var date = dateField.val();
-            var phrase = jq("#phrase").val();
-            jq.getJSON('${ui.actionLink("pharmacyapp", "Queue", "searchPatient")}',
-                    {
-                        "date": moment(date).format('DD/MM/YYYY'),
-                        "phrase": phrase,
-                        "currentPage": 1
-                    }).success(function (data) {
-                        if (data.length === 0) {
-                            jq().toastmessage('showNoticeToast', "No match found!");
-                        } else {
-                            updatePharmacyTable(data)
-                        }
-                    });
+            fetchValues();
         });
-
+		
+		jq('#referred-date-display').change(function(){
+			fetchValues();
+		});
+		
+		jq('#phrase').on('keyup', function(){
+			fetchValues(false);
+		});
+		
+		function fetchValues(showNotification){
+			if (typeof showNotification === 'undefined'){
+				showNotification = true;
+			}
+			
+			var date = jq("#referred-date-field").val();
+            var phrase = jq("#phrase").val();
+			
+            jq.getJSON('${ui.actionLink("pharmacyapp", "Queue", "searchPatient")}', {
+				"date": moment(date).format('DD/MM/YYYY'),
+				"searchKey": phrase,
+				"currentPage": 1
+			}).success(function (data) {
+				var tbody = jq('#pharmacyPatientSearch > tbody');
+				jq('#pharmacyPatientSearch > tbody > tr').remove();
+				
+				if (data.length === 0) {
+					tbody.append('<tr align="center"><td>&nbsp;</td><td colspan="6">No patients found</td></tr>');
+					
+					if (showNotification){
+						jq().toastmessage('showErrorToast', "No match found!");					
+					}
+				} else {
+					updatePharmacyTable(data)
+				}
+			});
+		}
+		
+		fetchValues(false);
+		//End of Document Ready
     });
 
     //update the queue table
     function updatePharmacyTable(tests) {
         var jq = jQuery;
         var dateField = jq("#referred-date-field");
-        jq('#pharmacyPatientSearch > tbody > tr').remove();
+        
         var tbody = jq('#pharmacyPatientSearch > tbody');
         var date = dateField.val();
 
         for (index in tests) {
-            var row = '<tr>';
+            var row = '<tr><td>' + (1+parseInt(index)) + '</td>';
             var item = tests[index];
+			
             <% props.each {
               if(it == props.last()){
                   def pageLinkEdit = ui.pageLink("", "");
                       %>
 
-            row += '<td> <a title="Prescriptions" href="listOfOrder.page?patientId=' +
-                    item.patientId + '&date= '+moment(date).format('DD/MM/YYYY')+'"><i class="icon-stethoscope small" ></i></a>';
+            row += '<td align="center"><a title="Prescriptions" href="listOfOrder.page?patientId=' +
+                    item.patientId + '&date='+moment(date).format('DD/MM/YYYY')+'"><i class="icon-stethoscope small" ></i></a>';
 
             <% } else {%>
 
             row += '<td>' + item.${ it } + '</td>';
             <% }
               } %>
+			
             row += '</tr>';
             tbody.append(row);
         }
@@ -97,7 +123,8 @@
 				
 				<div class="second-col">
 					<label for="phrase">Filter Patient in Queue:</label><br/>
-					<input id="phrase" type="text" name="phrase" placeholder="Enter Patient Name/ID:">
+					<input id="phrase" type="text" name="phrase" placeholder="Enter Patient Name / Identifier">
+					<i class="icon-search" style="color: #aaa; float: right; position: absolute; font-size: 16px ! important; margin-left: -495px; margin-top: 4px;"></i>
 				</div>
 				
 				<a class="button confirm" id="getOrders" style="float: right; margin: 15px 5px 0 0;">
@@ -111,6 +138,7 @@
 	<table id="pharmacyPatientSearch">
 		<thead>
 			<tr role="row">
+				<th>#</th>
 				<th>IDENTIFIER</th>
 				<th>NAMES</th>
 				<th>AGE</th>
@@ -121,6 +149,7 @@
 
 		<tbody role="alert" aria-live="polite" aria-relevant="all">
 		<tr align="center">
+			<td>&nbsp;</td>
 			<td colspan="6">No patients found</td>
 		</tr>
 		</tbody>
