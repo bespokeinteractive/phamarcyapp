@@ -1,0 +1,36 @@
+table{
+	margin-top: 5px!important;
+}
+
+.name {
+	color: #f26522;
+}
+.new-patient-header .demographics {
+    float: none!important;
+    margin-top: 5px;
+}
+.new-patient-header .demographics h1 span {
+    font-size: 1.3em;
+}
+.filter{
+	border-top: 1px solid #eee;
+	margin-top: 5px;
+	
+}
+.filter div{
+	display: inline-block;
+}
+
+#referred-date label{
+	display: none;
+}
+
+
+#queue-div .show-icon {
+    background: rgba(0, 0, 0, 0) url("../images/queue.png") no-repeat scroll 0 0 / 100% auto;
+    display: inline-block;
+    float: right;
+    height: 60px;
+    margin-bottom: -40px;
+    width: 60px;
+}

@@ -12,10 +12,12 @@ public class ContainerPageController {
         if (rel.equals("patients-queue")){
             model.addAttribute("fragment", "queue");
             model.addAttribute("title", "Patient Queue");
+            model.addAttribute("header", "PATIENT QUEUE LIST");
         }
         else {
             model.addAttribute("fragment", "404");
             model.addAttribute("title", "404");
+            model.addAttribute("header", "404");
         }
     }
 }

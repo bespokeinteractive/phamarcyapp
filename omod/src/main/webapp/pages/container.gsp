@@ -1,6 +1,8 @@
 <%
     ui.decorateWith("appui", "standardEmrPage", [title: title])	
-    ui.includeCss("pharmacyapp", "dashboard.css")
+    ui.includeCss("pharmacyapp", "container.css")
 %>
+
+
 
 ${ui.includeFragment("pharmacyapp", fragment)}
