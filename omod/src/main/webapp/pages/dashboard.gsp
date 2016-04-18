@@ -13,6 +13,15 @@
 			});
 		});
 		
+		jq(window).resize(function(){
+			var d=jq('#main-dashboard');
+			var m=0.5306122;
+			
+			d.height((d.width()*m));
+			
+			console.log(d.height());
+		}).resize();
+		
 	});
 </script>
 
