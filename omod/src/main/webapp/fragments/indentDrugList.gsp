@@ -111,7 +111,8 @@
 
                 <h3>Indent</h3>
                 <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" value="Add Indent Slip"
-                       style="float: right" onclick="subStoreIndentDrug();"/>
+                       style="float: right;  background: #5b57a6 -moz-linear-gradient(center top , #5b57a6, #5b57a6) repeat scroll 0 0; border: 1px solid #5b57a6;
+                      border-radius: 3px;color: white;cursor: pointer;" onclick="subStoreIndentDrug();"/>
             </div>
         </div>
     </div>
