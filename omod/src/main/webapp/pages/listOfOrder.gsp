@@ -1,5 +1,5 @@
 <%
-    ui.decorateWith("appui", "standardEmrPage", [title: "Pharmacy"]);
+    ui.decorateWith("appui", "standardEmrPage", [title: "List of Orders"]);
 
     ui.includeJavascript("billingui", "moment.js")
 %>
@@ -145,6 +145,37 @@
 		float: left;
 		display: inline-block;
 	}
+	.title{
+		border: 	1px solid #eee;
+		margin: 	3px 0;
+		padding:	5px;
+	}
+	.title i{
+		font-size: 1.5em;
+		padding: 0;
+	}
+	.title span{
+		font-size: 20px;
+	}
+	.title em{
+		border-bottom: 1px solid #ddd;
+		color: #888;
+		display: inline-block;
+		font-size: 0.5em;
+		width: 200px;
+	}
+	th:first-child{
+		width: 5px;
+	}
+	th:nth-child(2){
+		width: 100px;
+	}
+	th:nth-child(3){
+		width: 150px;
+	}
+	th:last-child{
+		width: 135px;
+	}
 </style>
 
 <div class="clear"></div>
@@ -163,7 +194,7 @@
 			
 			<li>
 				<i class="icon-chevron-right link"></i>
-				<a href="${ui.pageLink('pharmacyapp','dashboard')}">Queue</a>
+				<a href="${ui.pageLink('pharmacyapp','container',[rel:'patients-queue'])}">Queue</a>
 			</li>
 			
 			<li>
@@ -210,70 +241,55 @@
                 <i class="icon-tags small" style="font-size: 16px"></i><small>Category:</small> ${patientCategory}
             </div>
         </div>
-        <div class="close"></div>
     </div>
-    <div id="indent-search-result" style="display: block; margin-top:3px;">
-        <div role="grid" class="dataTables_wrapper" id="indent-search-result-table_wrapper">
-            <table id="indent-search-result-table" class="dataTable" aria-describedby="indent-search-result-table_info">
-                <thead>
-                <tr role="row">
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>S.No</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Order Id</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Date</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Sent From</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                </tr>
-                </thead>
-                ${date}
-
-                <tbody role="alert" aria-live="polite" aria-relevant="all">
-                <% if (listOfOrders != null || listOfOrders != "") { %>
-                    <% listOfOrders.eachWithIndex { order , idx->  %>
-                        <tr>
-                            <td>${idx+1}</td>
-                            <td>
-                                <a href="drugOrder.page?patientId=${patientId}&encounterId=${order.encounter.encounterId}&patientType=${patientType}&date=${date}">
-                                    ${order.encounter.encounterId}</a></td>
-                            <td>${ui.formatDatePretty(order.createdOn)}</td>
-                            <td>
-                                <% if (order.referralWardName != null && order.referralWardName != "" && order.referralWardName != "null") { %>
-                                    ${order.referralWardName}
-                                <%}%>
-                            </td>
-                        </tr>
-                    <%}%>
-                <%}else{%>
-                    <tr align="center">
-                        <td colspan="6">No order found</td>
-                    </tr>
-                <%}%>
-                </tbody>
-            </table>
-
-        </div>
-    </div>
-
+	
+	<div class="close"></div>
+	
+	<div class="title">
+		<i class="icon-time"></i>
+		<span>${date} <em>&nbsp; order date</em></span>
+	</div>
+	
+	<table>
+		<thead>
+			<tr role="row">
+				<th>#</th>
+				<th>ORDER#</th>
+				<th>DATE</th>
+				<th>SEND FROM</th>
+				<th>ACTION</th>
+			</tr>
+		</thead>
+		
+		<tbody role="alert" aria-live="polite" aria-relevant="all">
+			<% if (listOfOrders != null || listOfOrders != "") { %>
+				<% listOfOrders.eachWithIndex { order , idx->  %>
+					<tr>
+						<td>${idx+1}</td>
+						<td>
+							<a href="drugOrder.page?patientId=${patientId}&encounterId=${order.encounter.encounterId}&patientType=${patientType}&date=${date}">
+								${order.encounter.encounterId}</a></td>
+						<td>${ui.formatDatePretty(order.createdOn)}</td>
+						<td>
+							<% if (order.referralWardName != null && order.referralWardName != "" && order.referralWardName != "null") { %>
+								${order.referralWardName}
+							<%} else {%>
+								N/A
+							<%}%>
+						</td>
+						<td align="center">
+							<a class="button task" href="drugOrder.page?patientId=${patientId}&encounterId=${order.encounter.encounterId}&patientType=${patientType}&date=${date}">
+								<i class="icon-signout"></i>
+								PROCESS
+							</a>
+						</td>
+					</tr>
+				<%}%>
+			<%}else{%>
+				<tr align="center">
+					<td colspan="6">No order found</td>
+				</tr>
+			<%}%>
+		</tbody>
+    </table>
 </div>

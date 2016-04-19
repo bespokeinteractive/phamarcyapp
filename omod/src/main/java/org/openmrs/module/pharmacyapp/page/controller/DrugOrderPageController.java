@@ -51,6 +51,9 @@ public class DrugOrderPageController {
         model.addAttribute("encounterId", encounterId);
         HospitalCoreService hospitalCoreService = Context.getService(HospitalCoreService.class);
         PatientSearch patientSearch = hospitalCoreService.getPatientByPatientId(patientId);
+        Patient patient = new Patient(patientId);
+
+        model.addAttribute("previousVisit",hospitalCoreService.getLastVisitTime(patient));
         model.addAttribute("patientSearch", patientSearch);
         model.addAttribute("patientType", patientType);
         model.addAttribute("date", dateStr);
