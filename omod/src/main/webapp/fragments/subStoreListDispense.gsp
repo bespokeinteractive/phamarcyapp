@@ -12,9 +12,9 @@
             });
             self.drugDispenseList(mappedDrugItems);
             self.viewDetails = function (item) {
-                var url = '${ui.pageLink("billingui","processDrugOrder",[rel:'item.id'])}';
+                var url = '${ui.pageLink("pharmacyapp","printDrugOrder")}';
 //                window.location.replace("detailedDispenseDrug.page?receiptId=" + item.id);
-                window.location.href = url;
+                window.location.href = url + "?issueId=" + item.id;
             };
         }
 
@@ -25,7 +25,7 @@
     function getOrderList(searchIssueName, fromDate, toDate, receiptId) {
         jQuery.ajax({
             type: "GET",
-            url: '${ui.actionLink("billingui", "subStoreIssueDrugList", "getOrderList")}',
+            url: '${ui.actionLink("pharmacyapp", "subStoreListDispense", "getDispenseList")}',
             dataType: "json",
             global: false,
             async: false,
@@ -56,15 +56,15 @@
 <form method="get" id="form">
     <table>
         <tr>
-            <td><input type="text" name="issueName" id="issueName" placeholder="Patient Name"/>
+            <td><input type="text" name="dIssueName" id="dIssueName" placeholder="Patient Name"/>
             </td>
-            <td><input type="text" id="fromDate" class="date-pick left"
-                       readonly="readonly" name="fromDate"
+            <td><input type="text" id="dFromDate" class="date-pick left"
+                       readonly="readonly" name="dFromDate"
                        title="Double Click to Clear" ondblclick="this.value = '';" placeholder="From Date:"/></td>
-            <td><input type="text" id="toDate" class="date-pick left"
-                       readonly="readonly" name="toDate"
+            <td><input type="text" id="dToDate" class="date-pick left"
+                       readonly="readonly" name="dToDate"
                        title="Double Click to Clear" ondblclick="this.value = '';" placeholder="To Date:"/></td>
-            <td><input type="text" name="receiptId" id="receiptId" placeholder="Receipt No."/>
+            <td><input type="text" name="dReceiptId" id="dReceiptId" placeholder="Receipt No."/>
             </td>
         </tr>
     </table>
