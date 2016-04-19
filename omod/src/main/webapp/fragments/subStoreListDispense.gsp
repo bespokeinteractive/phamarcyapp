@@ -3,6 +3,16 @@
     jq(function () {
         var receiptsData = getOrderList();
         jQuery('.date-pick').datepicker({minDate: '-100y', dateFormat: 'dd/mm/yy'});
+
+
+        jq('.dispenseSearch').on('keyup blur change', function () {
+            var issueName = jq("#dIssueName").val();
+            var fromDate = jq("#dFromDate").val();
+            var toDate = jq("#dToDate").val();
+            var receiptId = jq("#dReceiptId").val();
+            var resutlts = getOrderList(issueName, fromDate, toDate, receiptId);
+            list.drugDispenseList(resutlts);
+        });
         function IssueDrugViewModel() {
             var self = this;
             // Editable data
@@ -56,15 +66,15 @@
 <form method="get" id="form">
     <table>
         <tr>
-            <td><input type="text" name="dIssueName" id="dIssueName" placeholder="Patient Name"/>
+            <td><input type="text" name="dIssueName" id="dIssueName" placeholder="Patient Name" class="dispenseSearch"/>
             </td>
-            <td><input type="text" id="dFromDate" class="date-pick left"
+            <td><input type="text" id="dFromDate" class="date-pick left dispenseSearch"
                        readonly="readonly" name="dFromDate"
                        title="Double Click to Clear" ondblclick="this.value = '';" placeholder="From Date:"/></td>
-            <td><input type="text" id="dToDate" class="date-pick left"
+            <td><input type="text" id="dToDate" class="date-pick left dispenseSearch"
                        readonly="readonly" name="dToDate"
                        title="Double Click to Clear" ondblclick="this.value = '';" placeholder="To Date:"/></td>
-            <td><input type="text" name="dReceiptId" id="dReceiptId" placeholder="Receipt No."/>
+            <td><input type="text" name="dReceiptId" id="dReceiptId" placeholder="Receipt No." class="dispenseSearch"/>
             </td>
         </tr>
     </table>
