@@ -239,6 +239,7 @@
 			<div id="tabs" style="margin-top: 40px!important;">
 				<ul id="inline-tabs">
 					<li><a href="#queues">Queue</a></li>
+					<li><a href="#dispense">Dispense</a></li>
 					<li><a href="#patientdrug">Issue drug to Patient</a></li>
 					<li><a href="#accountdrug">Issue drug to Account</a></li>
 					<li><a href="#manage">Indent Drugs</a></li>
@@ -249,6 +250,9 @@
 				
 				<div id="queues">
 					${ ui.includeFragment("pharmacyapp", "queue") }
+				</div>
+				<div id="dispense">
+					${ ui.includeFragment("pharmacyapp", "subStoreListDispense") }
 				</div>
 				
 				<div id="manage">

@@ -10,7 +10,7 @@
 %>
 
 <script>
-    ACCOUNT= {
+    ACCOUNT = {
         detailDrugAccount: function (issueId) {
             if (SESSION.checkSession()) {
                 url = "issueDrugAccountDetail.form?issueId=" + issueId + "&keepThis=false&TB_iframe=true&height=500&width=1000";
@@ -22,7 +22,7 @@
 
 <script>
     jQuery(document).ready(function () {
-        function print () {
+        function print() {
             var printDiv = jQuery("#print").html();
             var printWindow = window.open('', '', 'height=400,width=800');
             printWindow.document.write('<html><head><title>Drugs To Account Detail</title>');
@@ -32,45 +32,43 @@
             printWindow.print();
         }
 
-        jQuery("#printButton").on("click", function(e){
+        jQuery("#printButton").on("click", function (e) {
             print().show();
         });
         jq("#returnToDrugList").on("click", function (e) {
             window.location.href = emr.pageLink("pharmacyapp", "main", {
-                "tabId": "report"
+                "tabId": "accountdrug"
             });
         });
     });
-
-
-
 </script>
 
 <div id="print">
     <table cellpadding="5" cellspacing="0" width="100%" id="queueList">
-    <tr align="center">
-        <th>category</th>
-        <th>name</th>
-        <th>formulation</th>
-        <th>Date </th>
-        <th>Quantity</th>
+        <tr align="center">
+            <th>category</th>
+            <th>name</th>
+            <th>formulation</th>
+            <th>Date</th>
+            <th>Quantity</th>
         </tr>
-        <% if (listDrugIssue!=null || listDrugIssue!="") { %>
+        <% if (listDrugIssue != null || listDrugIssue != "") { %>
         <% listDrugIssue.each { pTransaction -> %>
-        <tr align="center" class=' ' >
-        <td>${pTransaction.transactionDetail.drug.category.name}</td>
-        <td>${pTransaction.transactionDetail.drug.name} </td>
-        <td>${pTransaction.transactionDetail.formulation.name}-${pTransaction.transactionDetail.formulation.dozage}</td>
-        <td>${pTransaction.transactionDetail.dateExpiry}</td>
-        <td>${pTransaction.quantity}</td>
-        <% } %>
-        <% } else { %>
-        <tr align="center" >
+        <tr align="center" class=' '>
+            <td>${pTransaction.transactionDetail.drug.category.name}</td>
+            <td>${pTransaction.transactionDetail.drug.name}</td>
+            <td>${pTransaction.transactionDetail.formulation.name}-${pTransaction.transactionDetail.formulation.dozage}</td>
+            <td>${pTransaction.transactionDetail.dateExpiry}</td>
+            <td>${pTransaction.quantity}</td>
+            <% } %>
+            <% } else { %>
+        <tr align="center">
             <td colspan="9">No drug found</td>
         </tr>
         <% } %>
-        </table>
+    </table>
 </div>
+
 <div>
     <button class="button" type="button" id="printButton">Print</button>
     <input type="button" value="Back To Drug List" name="returnToDrugList"
