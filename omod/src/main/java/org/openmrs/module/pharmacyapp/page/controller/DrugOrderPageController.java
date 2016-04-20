@@ -42,7 +42,8 @@ public class DrugOrderPageController {
         List<OpdDrugOrder> drugOrderList = inventoryService.listOfDrugOrder(
                 patientId, encounterId);
         List<SimpleObject> simpleObjects = SimpleObject.fromCollection(drugOrderList, uiUtils, "inventoryDrug.name",
-                "inventoryDrugFormulation.name", "inventoryDrugFormulation.dozage", "frequency.name", "noOfDays", "comments", "inventoryDrug.id", "inventoryDrugFormulation.id");
+                "inventoryDrugFormulation.name", "inventoryDrugFormulation.dozage", "frequency.name", "noOfDays", "comments",
+                "inventoryDrug.id", "inventoryDrugFormulation.id");
 
 
         model.addAttribute("drugOrderListJson", SimpleObject.create("simpleObjects", simpleObjects).toJson());
