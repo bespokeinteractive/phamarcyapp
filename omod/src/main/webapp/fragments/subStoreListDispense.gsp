@@ -10,8 +10,8 @@
             var fromDate = jq("#dFromDate").val();
             var toDate = jq("#dToDate").val();
             var receiptId = jq("#dReceiptId").val();
-            var resutlts = getOrderList(issueName, fromDate, toDate, receiptId);
-            list.drugDispenseList(resutlts);
+            var results = getOrderList(issueName, fromDate, toDate, receiptId);
+            list.drugDispenseList(results);
         });
         function IssueDrugViewModel() {
             var self = this;
