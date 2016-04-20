@@ -4,6 +4,7 @@
 
 <script>
     var drugOrder = [];
+    var selectDrug;
     jq(function () {
         var cleared = false;
         jq("#drugSelection").hide();
@@ -103,7 +104,7 @@
                     }
                 },
                 cancel: function () {
-//                    jq("#dialogForm").reset();
+                  jq("#dialogForm").reset();
                     addnameforindentslipdialog.close();
                 }
             }
@@ -266,57 +267,57 @@
             },
             select: function (event, ui) {
                 event.preventDefault();
-                jQuery("#searchPhrase").val(ui.item.value.name);
+                selectDrug = ui.item.value.name;
+                jQuery("#searchPhrase").val(selectDrug);
 
                 //set parent category
                 var catId = ui.item.value.category.id;
-                var drgId = ui.item.value.id;
+
+
                 jq("#drugCategory").val(catId);
-                jq("#drugCategory").change();
                 //set background drug name - frusemide
 
+                var drugName = selectDrug;
+                var drugFormulationData = "";
+                jq('#drugFormulation').empty();
 
-            }
-        });
-
-        jq("#searchPhrase").on("change", function (e) {
-            var drugName = jq(this).val();
-            var drugFormulationData = "";
-            jq('#drugFormulation').empty();
-
-            if (drugName === "") {
-                jq('<option value="">Select Formulation</option>').appendTo("#drugFormulation");
-            } else {
-                jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "getFormulationByDrugName") }', {
-                    drugName: drugName
-                }).success(function (data) {
-                    for (var key in data) {
-                        if (data.hasOwnProperty(key)) {
-                            var val = data[key];
-                            for (var i in val) {
-                                var name, dozage;
-                                if (val.hasOwnProperty(i)) {
-                                    var j = val[i];
-                                    if (i == "id") {
-                                        drugFormulationData = drugFormulationData + '<option id="' + j + '">';
-                                    } else if (i == "name") {
-                                        name = j;
-                                    }
-                                    else {
-                                        dozage = j;
-                                        drugFormulationData = drugFormulationData + (name + "-" + dozage) + '</option>';
+                if (drugName === "") {
+                    jq('<option value="">Select Formulation</option>').appendTo("#drugFormulation");
+                } else {
+                    jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "getFormulationByDrugName") }', {
+                        drugName: drugName
+                    }).success(function (data) {
+                        for (var key in data) {
+                            if (data.hasOwnProperty(key)) {
+                                var val = data[key];
+                                for (var i in val) {
+                                    var name, dozage;
+                                    if (val.hasOwnProperty(i)) {
+                                        var j = val[i];
+                                        if (i == "id") {
+                                            drugFormulationData = drugFormulationData + '<option id="' + j + '">';
+                                        } else if (i == "name") {
+                                            name = j;
+                                        }
+                                        else {
+                                            dozage = j;
+                                            drugFormulationData = drugFormulationData + (name + "-" + dozage) + '</option>';
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }
-                    jq(drugFormulationData).appendTo("#drugFormulation");
-                }).error(function (xhr, status, err) {
-                    jq('<option value="">Select Formulation</option>').appendTo("#drugFormulation");
-                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
-                });
-            }
 
+                        }
+
+                        jq(drugFormulationData).appendTo("#drugFormulation");
+                    }).error(function (xhr, status, err) {
+                        jq('<option value="">Select Formulation</option>').appendTo("#drugFormulation");
+                        jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                    });
+                }
+
+
+            }
         });
 
         jq("#addDrugsSubmitButton").click(function (event) {
