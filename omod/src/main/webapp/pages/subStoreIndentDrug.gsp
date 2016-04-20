@@ -30,7 +30,7 @@
                         var tbody = jq('#addDrugsTable').children('tbody');
                         var table = tbody.length ? tbody : jq('#addDrugsTable');
                         var index = drugOrder.length;
-                        table.append('<tr><td>' + (index + 1) + '</td><td>' + jq("#drugCategory :selected").text() + '</td><td>' + jq("#drugName").val() +
+                        table.append('<tr><td>' + (index + 1) + '</td><td>' + jq("#drugCategory :selected").text() + '</td><td>' + jq("#drugName :selected").text() +
                                 '</td><td>' + jq("#drugFormulation option:selected").text() + '</td><td>' + jq("#quantity").val() +
                                 '</td><td>' + '<a class="remover" href="#" onclick="removeListItem(' + index + ');"><i class="icon-remove small" style="color:red"></i></a>' + '</td></tr>');
                         drugOrder.push(
