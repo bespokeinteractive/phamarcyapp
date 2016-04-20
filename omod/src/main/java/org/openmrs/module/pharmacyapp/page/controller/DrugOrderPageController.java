@@ -49,16 +49,21 @@ public class DrugOrderPageController {
         model.addAttribute("drugOrderList", drugOrderList);
         model.addAttribute("patientId", patientId);
         model.addAttribute("encounterId", encounterId);
+
         HospitalCoreService hospitalCoreService = Context.getService(HospitalCoreService.class);
         PatientSearch patientSearch = hospitalCoreService.getPatientByPatientId(patientId);
+
         Patient patient = new Patient(patientId);
 
+        model.addAttribute("patientCategory", patient.getAttribute(14));
         model.addAttribute("previousVisit",hospitalCoreService.getLastVisitTime(patient));
         model.addAttribute("patientSearch", patientSearch);
         model.addAttribute("patientType", patientType);
         model.addAttribute("date", dateStr);
         model.addAttribute("doctor", drugOrderList.get(0).getCreator().getGivenName());
+
         InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
+
         model.addAttribute("pharmacist", Context.getAuthenticatedUser().getGivenName());
         model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
     }

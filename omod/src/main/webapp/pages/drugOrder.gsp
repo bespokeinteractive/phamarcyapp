@@ -57,8 +57,8 @@
         });
         jq(".dashboard-tabs").tabs();
 
-        jq('#surname').html(strReplace('${patient.names.familyName}') + ',<em>surname</em>');
-        jq('#othname').html(strReplace('${patient.names.givenName}') + ' &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <em>other names</em>');
+        jq('#surname').html(stringReplace('${patient.names.familyName}') + ',<em>surname</em>');
+        jq('#othname').html(stringReplace('${patient.names.givenName}') + ' &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <em>other names</em>');
         jq('#agename').html('${patient.age} years (' + moment('${patient.birthdate}').format('DD,MMM YYYY') + ')');
 		jq('#lstdate').html('Last Visit: '+ moment('${previousVisit}').format('DD, MMM YYYY'));
 
@@ -165,12 +165,7 @@
             jq(thiz).focus();
         }
     }
-
-    function strReplace(word) {
-        var res = word.replace("[", "");
-        res = res.replace("]", "");
-        return res;
-    }
+	
     function processDrug(drugId, formulationId, frequencyName, days, comments, item) {
         focusItem = item;
         jq.ajax({
@@ -204,10 +199,10 @@
                     var row = "";
                     jq.each(data, function (i, item) {
                         listOfDrugQuantity += item.id;
-                        row += '<tr align="center">' +
+                        row += '<tr>' +
                                 '<td>' + (i + 1) + '</td>' +
-                                '<td>' + item.dateExpiry + '</td>' +
-                                '<td>' + item.dateManufacture + '</td>' +
+                                '<td>' + item.dateExpiry.substring(0, 11).replaceAt(2, ",").replaceAt(6, " ").insertAt(3, 0, " ") + '</td>' +
+                                '<td>' + item.dateManufacture.substring(0, 11).replaceAt(2, ",").replaceAt(6, " ").insertAt(3, 0, " ") + '</td>' +
                                 '<td title="' + item.companyName + '">' + item.companyNameShort + '</td>' +
                                 '<td>' + item.batchNo + '</td>' +
                                 '<td>' + item.currentQuantity + '</td>';
@@ -361,7 +356,7 @@
 
 	.catg {
 		color: #363463;
-		margin: 25px 10px 0 0;
+		margin: 35px 10px 0 0;
 	}
 
 	.ui-tabs {
@@ -386,6 +381,58 @@
 		float: left;
 		display: inline-block;
 	}
+	.title{
+		border: 	1px solid #eee;
+		margin: 	3px 0;
+		padding:	5px;
+	}
+	.title i{
+		font-size: 1.5em;
+		padding: 0;
+	}
+	.title span{
+		font-size: 20px;
+	}
+	.title em{
+		border-bottom: 1px solid #ddd;
+		color: #888;
+		display: inline-block;
+		font-size: 0.5em;
+		margin-right: 10px;
+		width: 200px;
+	}
+	th:first-child{
+		width: 5px;
+	}
+	th:last-child{
+		width: 110px;
+	}
+	
+	#orderListTable td:nth-child(4),
+	#orderListTable td:nth-child(5),
+	#orderListTable td:nth-child(6){
+		width: 110px;
+		text-align: right;
+	}
+	
+	#processDrugOrderFormTable th:nth-child(2),
+	#processDrugOrderFormTable th:nth-child(3){
+		width: 110px;
+	}
+	#processDrugOrderFormTable td:nth-child(4){
+		text-transform: capitalize;
+	}
+	#processDrugOrderFormTable th:nth-child(6),
+	#processDrugOrderFormTable th:nth-child(7){
+		width: 80px;
+	}
+	.buttons-div{
+		margin-top: 5px;
+	}
+	#modal-overlay {
+		background: #000 none repeat scroll 0 0;
+		opacity: 0.4!important;
+	}
 </style>
 
 <div class="clear"></div>
@@ -404,12 +451,17 @@
 			
 			<li>
 				<i class="icon-chevron-right link"></i>
-				<a href="${ui.pageLink('pharmacyapp','container', [rel:'patients-queue'])}">Queue</a>
+				<a href="${ui.pageLink('pharmacyapp','container', [rel:'patients-queue', date:date])}">Queue</a>
 			</li>
 			
 			<li>
 				<i class="icon-chevron-right link"></i>
-				Orders
+				<a href="${ui.pageLink('pharmacyapp','listOfOrder', [patientId:patientId, date:date])}">Orders</a>
+			</li>
+			
+			<li>
+				<i class="icon-chevron-right link"></i>
+				Process
 			</li>
 		</ul>
 	</div>
@@ -450,143 +502,89 @@
             <br>
 
             <div class="catg">
-                <i class="icon-tags small" style="font-size: 16px"></i><small>Category:</small> ${patientType}
+                <i class="icon-tags small" style="font-size: 16px"></i><small>Category:</small> ${patient.getAttribute(14)}
             </div>
         </div>
 
         <div class="close"></div>
     </div>
+	
+	<div class="title">
+		<i class="icon-time"></i>
+		<span>${date} <em style="width: 80px;">&nbsp; order date</em></span>
+		
+		<i class="icon-quote-left"></i>
+		<span>${encounterId} <em>&nbsp; order number</em></span>
+	</div>
 
     <div id="indent-search-result" style="display: block; margin-top:3px;">
-        <div role="grid" class="dataTables_wrapper" id="indent-search-result-table_wrapper">
+		<table id="orderList">
+			<thead>
+				<tr role="row">
+					<th>#</th>
+					<th>DRUG NAME</th>
+					<th>FORMULATION</th>
+					<th>FREQUENCY</th>
+					<th>DAYS</th>
+					<th>COMMENTS</th>
+					<th>ACTIONS</th>
+				</tr>
+			</thead>
 
-            <table id="orderList">
-                <thead>
-                <tr role="row">
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>S.No</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Drug Name</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Formulation</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Frequency</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Days</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Comments</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Actions</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-                </tr>
-                </thead>
-
-                <tbody data-bind="foreach: listItems">
-                <tr>
-                    <td data-bind="text: \$index() + 1"></td>
-                    <td data-bind="text: inventoryDrug.name"></td>
-                    <td>
-                        <span data-bind="text: inventoryDrugFormulation.name"></span> - <span
-                            data-bind="text: inventoryDrugFormulation.dozage"></span>
-                    </td>
-                    <td data-bind="text: frequency.name"></td>
-                    <td data-bind="text: noOfDays"></td>
-                    <td data-bind="text: comments"></td>
-                    <td style="text-align: center;">
-                        <a class="remover" href="#" data-bind="click: \$root.processDrugItem">
-                            <i class="icon-signin small">Process</i>
-                        </a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <br /><br />
+			<tbody data-bind="foreach: listItems">
+				<tr>
+					<td data-bind="text: \$index() + 1"></td>
+					<td data-bind="text: inventoryDrug.name"></td>
+					<td>
+						<span data-bind="text: inventoryDrugFormulation.name"></span> - <span
+							data-bind="text: inventoryDrugFormulation.dozage"></span>
+					</td>
+					<td data-bind="text: frequency.name"></td>
+					<td data-bind="text: noOfDays"></td>
+					<td data-bind="text: comments"></td>
+					<td style="text-align: center;">
+						<a class="remover" href="#" data-bind="click: \$root.processDrugItem">
+							<i class="icon-circle-arrow-right small"> </i>PROCESS
+						</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+        
 
         <div role="grid" class="dataTables_wrapper" id="processedOrderList" data-bind="visible: \$root.pItems().length > 0">
 
-            <table>
+			<h3>Total Price:<span data-bind="text: \$root.computedTotal().toFixed(2)"></span></h3>
+            <table id="orderListTable">
                 <thead>
-                <tr role="row">
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>S.No</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Drug Name</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Formulation</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Quantity</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Unit Price</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-                </tr>
+					<tr role="row">
+						<th>#</th>
+						<th>DRUG NAME</th>
+						<th>FORMULATION</th>
+						<th>QUANTITY</th>
+						<th>UNIT PRICE</th>
+						<th>TOTAL PRICE</th>
+					</tr>
                 </thead>
 
                 <tbody data-bind="foreach: pItems">
-                <tr>
-                    <td data-bind="text: \$index() + 1"></td>
-                    <td data-bind="text: drugName"></td>
-                    <td data-bind="text: formulation"></td>
-                    <td data-bind="text: quantity"></td>
-                    <td data-bind="text: price"></td>
-                </tr>
+					<tr>
+						<td data-bind="text: \$index() + 1"></td>
+						<td data-bind="text: drugName"></td>
+						<td data-bind="text: formulation"></td>
+						<td data-bind="text: quantity"></td>
+						<td data-bind="text: price"></td>
+						<td data-bind="text: price*quantity"></td>
+					</tr>
                 </tbody>
-                <h3>Total Price:<span data-bind="text: \$root.computedTotal().toFixed(2)"></span></h3>
+				
+				<tbody>
+					<tr>
+						<td></td>
+						<td colspan="4"><b>SUB TOTALS (KES)</b></td>
+						<td data-bind="text: \$root.computedTotal().toFixed(2)" style="text-align: right;"></td>
+					</tr>
+				</tbody>
             </table>
 
         </div>
@@ -599,12 +597,14 @@
 
             <textarea name="order" data-bind="value: ko.toJSON(\$root.pItems)" style="display: none;" ></textarea>
         </form>
-        <input type="button" value="Cancel" onclick="cancelDrugProcess();" class="cancel"/>
-        <input type="submit" id="subm" name="subm" value="Finish" class="confirm" style="float: right;" data-bind="click: \$root.finishDrugOrder"/>
-        <input type="button" id="print" name="print" value="Print" onClick="printDiv2();" class="task"
-               style="float: right;"/> &nbsp;&nbsp;
+		
+		<div class="buttons-div">
+			<input type="button" value="Cancel" onclick="cancelDrugProcess();" class="cancel"/>
+			<input type="submit" id="subm" name="subm" value="Finish Order" class="confirm" style="float: right; margin-right: 0px" data-bind="click: \$root.finishDrugOrder"/>
+			<input type="button" id="print" name="print" value="Print Order" onClick="printDiv2();" class="task" style="float: right; margin-right: 5px"/>
+		</div>
 
-        <div id="processDrugDialog" class="dialog" style="display: none; width: 80%">
+        <div id="processDrugDialog" class="dialog" style="display: none; width: 900px">
             <div class="dialog-header">
                 <i class="icon-folder-open"></i>
 
@@ -617,7 +617,7 @@
                     <table class="box" id="processDrugOrderFormTable">
                         <thead>
                         <tr>
-                            <th>S.No</th>
+                            <th>#</th>
                             <th>Expiry</th>
                             <th title="Date of manufacturing">DM</th>
                             <th>Company</th>

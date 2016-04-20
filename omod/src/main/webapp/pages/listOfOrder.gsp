@@ -194,7 +194,7 @@
 			
 			<li>
 				<i class="icon-chevron-right link"></i>
-				<a href="${ui.pageLink('pharmacyapp','container',[rel:'patients-queue'])}">Queue</a>
+				<a href="${ui.pageLink('pharmacyapp','container',[rel:'patients-queue', date:date])}">Queue</a>
 			</li>
 			
 			<li>
