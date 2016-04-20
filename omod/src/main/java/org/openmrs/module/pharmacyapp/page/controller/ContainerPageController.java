@@ -8,7 +8,11 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 public class ContainerPageController {
     public void get( @RequestParam(value = "rel", required = true) String rel,
+                     @RequestParam(value = "date", required = false) String date,
                      PageModel model) {
+
+        model.addAttribute("date", date);
+
         if (rel.equals("patients-queue")){
             model.addAttribute("fragment", "queue");
             model.addAttribute("title", "Patient Queue");

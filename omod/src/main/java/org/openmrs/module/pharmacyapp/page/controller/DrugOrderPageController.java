@@ -53,7 +53,7 @@ public class DrugOrderPageController {
         HospitalCoreService hospitalCoreService = Context.getService(HospitalCoreService.class);
         PatientSearch patientSearch = hospitalCoreService.getPatientByPatientId(patientId);
 
-        Patient patient = new Patient(patientId);
+        Patient patient = Context.getPatientService().getPatient(patientId);
 
         model.addAttribute("patientCategory", patient.getAttribute(14));
         model.addAttribute("previousVisit",hospitalCoreService.getLastVisitTime(patient));
@@ -248,6 +248,6 @@ public class DrugOrderPageController {
                 patientDashboardService.saveOrUpdateOpdDrugOrder(opdDrugOrder);
             }
         }
-        return "redirect:" + uiUtils.pageLink("pharmacyapp", "main");
+        return "redirect:" + uiUtils.pageLink("pharmacyapp", "dashboard");
     }
 }

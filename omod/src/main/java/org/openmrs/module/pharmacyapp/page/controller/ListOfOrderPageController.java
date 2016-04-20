@@ -21,12 +21,9 @@ import java.util.List;
  */
 public class ListOfOrderPageController {
     public void get(PageModel pageModel,
-                    @RequestParam("patientId") Integer patientId,
+                    @RequestParam("patientId") Patient patient,
                     @RequestParam(value = "date", required = false) String dateStr) {
-        InventoryService inventoryService = Context
-                .getService(InventoryService.class);
-        PatientService patientService = Context.getPatientService();
-        Patient patient = patientService.getPatient(patientId);
+        InventoryService inventoryService = Context.getService(InventoryService.class);
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         Date date = null;
         try {
@@ -34,20 +31,19 @@ public class ListOfOrderPageController {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        List<OpdDrugOrder> listOfOrders = inventoryService.listOfOrder(patientId,date);
+        List<OpdDrugOrder> listOfOrders = inventoryService.listOfOrder(patient.getPatientId(),date);
         HospitalCoreService hospitalCoreService = Context.getService(HospitalCoreService.class);
-        PatientSearch patientSearch = hospitalCoreService.getPatientByPatientId(patientId);
-        Patient p = new Patient(patientId);
+        PatientSearch patientSearch = hospitalCoreService.getPatientByPatientId(patient.getPatientId());
 
-        String patientType = hospitalCoreService.getPatientType(p);
+        String patientType = hospitalCoreService.getPatientType(patient);
 
         pageModel.addAttribute("patientType", patientType);
         pageModel.addAttribute("patientSearch", patientSearch);
         pageModel.addAttribute("listOfOrders", listOfOrders);
-        pageModel.addAttribute("previousVisit",hospitalCoreService.getLastVisitTime(p));
+        pageModel.addAttribute("previousVisit",hospitalCoreService.getLastVisitTime(patient));
         pageModel.addAttribute("patientCategory", patient.getAttribute(14));
         //model.addAttribute("serviceOrderSize", serviceOrderList.size());
-        pageModel.addAttribute("patientId", patientId);
+        pageModel.addAttribute("patientId", patient.getPatientId());
         pageModel.addAttribute("date", dateStr);
 
     }

@@ -6,7 +6,10 @@
 
 <script>
     var drugOrders = [];
+	
+    var confirmdrugdialog;
     var processdrugdialog;
+	
     var listOfDrugQuantity = "";
     var focusItem;
     var processedOrders = [];
@@ -43,6 +46,7 @@
 
         var jSonOrders = ${drugOrderListJson};
         var orderList = jSonOrders.simpleObjects;
+		
         processdrugdialog = emr.setupConfirmationDialog({
             selector: '#processDrugDialog',
             actions: {
@@ -55,6 +59,22 @@
                 }
             }
         });
+		
+		confirmdrugdialog = emr.setupConfirmationDialog({
+            selector: '#confirmDrugDialog',
+            actions: {
+                confirm: function () {
+					confirmdrugdialog.close();
+					
+                    printDiv2();
+                    jq("#drugsForm").submit();
+                },
+                cancel: function () {
+                    confirmdrugdialog.close();
+                }
+            }
+        });
+		
         jq(".dashboard-tabs").tabs();
 
         jq('#surname').html(stringReplace('${patient.names.familyName}') + ',<em>surname</em>');
@@ -111,7 +131,7 @@
                 for (var i = 0; i < self.pItems().length; i++){
                     total+=(self.pItems()[i].quantity *self.pItems()[i].price);
                 }
-                return total;
+                return total.toString().formatToAccounting();
             });
 
             self.removeItem = function (item) {
@@ -127,11 +147,16 @@
                     jq().toastmessage('showErrorToast', "Please Process At least One Drug!");
                     return false;
                 }
-                if (confirm("Are you sure?")) {
-                    printDiv2();
-                    jq("#drugsForm").submit();
-                    return true;
-                }
+				
+				confirmdrugdialog.show();
+				
+				
+				
+                //if (confirm("Are you sure?")) {
+                    //printDiv2();
+                    //jq("#drugsForm").submit();
+                    //return true;
+                //}
 
                 return false;
 
@@ -144,8 +169,9 @@
     });//end of doc ready
 
     function cancelDrugProcess() {
-        window.location.href = emr.pageLink("pharmacyapp", "main", {
-            "tabId": "queues"
+        window.location.href = emr.pageLink("pharmacyapp", "container", {
+            "rel" : "patients-queue",
+			"date": '${date}'
         });
     }
 
@@ -257,6 +283,10 @@
 	textarea {
 		width: 97%;
 	}
+	
+	.toast-item {
+        background-color: #222;
+    }
 
 	.append-to-value {
 		color: #999;
@@ -433,6 +463,17 @@
 		background: #000 none repeat scroll 0 0;
 		opacity: 0.4!important;
 	}
+	.dialog-content h3{
+		border: 1px solid #eee;
+		color: #363463;
+		margin-top: 5px;
+		padding: 10px;
+		text-align: center;
+	}
+	td a,
+	td a:hover{
+		text-decoration: none;
+	}
 </style>
 
 <div class="clear"></div>
@@ -502,7 +543,7 @@
             <br>
 
             <div class="catg">
-                <i class="icon-tags small" style="font-size: 16px"></i><small>Category:</small> ${patient.getAttribute(14)}
+                <i class="icon-tags small" style="font-size: 16px"></i><small>Category:</small> ${patientCategory}
             </div>
         </div>
 
@@ -518,7 +559,7 @@
 	</div>
 
     <div id="indent-search-result" style="display: block; margin-top:3px;">
-		<table id="orderList">
+		<table id="orderList" data-bind="visible: \$root.listItems().length > 0">
 			<thead>
 				<tr role="row">
 					<th>#</th>
@@ -552,9 +593,19 @@
 		</table>
         
 
-        <div role="grid" class="dataTables_wrapper" id="processedOrderList" data-bind="visible: \$root.pItems().length > 0">
-
-			<h3>Total Price:<span data-bind="text: \$root.computedTotal().toFixed(2)"></span></h3>
+        <div role="grid" class="dataTables_wrapper" id="processedOrderList" data-bind="visible: \$root.pItems().length > 0" style="display: none;">
+			<div class="title">
+				<i class="icon-bookmark"></i>
+				<span>
+					PROCESSED
+					<em style="width: 80px;">&nbsp; processed drugs</em>
+				</span>
+				
+				<span style="float: right; color: rgb(170, 170, 170); margin: 4px 5px 0px 0px;" data-bind="text: \$root.computedTotal()" style="text-align: right; font-weight: bold;">
+					PROCESSED
+				</span>
+			</div>
+			
             <table id="orderListTable">
                 <thead>
 					<tr role="row">
@@ -563,7 +614,7 @@
 						<th>FORMULATION</th>
 						<th>QUANTITY</th>
 						<th>UNIT PRICE</th>
-						<th>TOTAL PRICE</th>
+						<th>TOTAL COST</th>
 					</tr>
                 </thead>
 
@@ -573,8 +624,8 @@
 						<td data-bind="text: drugName"></td>
 						<td data-bind="text: formulation"></td>
 						<td data-bind="text: quantity"></td>
-						<td data-bind="text: price"></td>
-						<td data-bind="text: price*quantity"></td>
+						<td data-bind="text: price.toString().formatToAccounting()"></td>
+						<td data-bind="text: (price*quantity).toString().formatToAccounting()"></td>
 					</tr>
                 </tbody>
 				
@@ -582,7 +633,7 @@
 					<tr>
 						<td></td>
 						<td colspan="4"><b>SUB TOTALS (KES)</b></td>
-						<td data-bind="text: \$root.computedTotal().toFixed(2)" style="text-align: right;"></td>
+						<td data-bind="text: \$root.computedTotal()" style="text-align: right; font-weight: bold;"></td>
 					</tr>
 				</tbody>
             </table>
@@ -639,6 +690,21 @@
 
         </div>
     </div>
+	
+	<div id="confirmDrugDialog" class="dialog" style="display: none;">
+		<div class="dialog-header">
+			<i class="icon-save"></i>
+			<h3>Confirm</h3>
+		</div>
+
+
+		<div class="dialog-content">
+			<h3>Confirm finalizing and posting the order <b>#${encounterId}</b>?</h3>
+			
+			<button class="button confirm right" style="margin-right: 0px">Confirm</button>
+            <span class="button cancel">Cancel</span>
+		</div>
+	</div>
 
 
 

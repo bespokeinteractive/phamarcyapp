@@ -10,6 +10,7 @@
 		
 		jq('#referred-date-display').change(function(){
 			fetchValues();
+			console.log('Called Onload');
 		});
 		
 		jq('#phrase').on('keyup', function(){
@@ -44,7 +45,22 @@
 			});
 		}
 		
-		fetchValues(false);
+		
+		if ('${date}' != ''){
+			console.log('${date}');
+			
+			var from = '${date}'.split("/");
+			var f = new Date(from[2], from[1] - 1, from[0]);
+			
+			console.log(f);
+			
+			jq('#referred-date-field').val(moment(f).format('YYYY-MM-DD'));
+			jq('#referred-date-display').val(moment(f).format('DD MMM YYYY')).change();
+		}
+		else {
+			fetchValues(false);		
+		}
+		
 		//End of Document Ready
     });
 
@@ -92,7 +108,7 @@
 				
 				<li>
 					<a href="${ui.pageLink('pharmacyapp', 'dashboard')}">
-						<i class="icon-chevron-right link"></i>Inventory
+						<i class="icon-chevron-right link"></i>Pharmacy
 					</a>
 				</li>
 
