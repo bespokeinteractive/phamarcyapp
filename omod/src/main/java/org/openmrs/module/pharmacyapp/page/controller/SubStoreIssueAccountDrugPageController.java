@@ -5,4 +5,9 @@ package org.openmrs.module.pharmacyapp.page.controller;
  * Created on 4/20/2016.
  */
 public class SubStoreIssueAccountDrugPageController {
+    public void controller(){
+
+    }
+
+
 }
