@@ -477,6 +477,10 @@
                         <label for="quantity">Quantity</label>
                         <input name="quantity" id="quantity" type="text">
                     </li>
+                     <li>
+                        <label for="comment">Comment</label>
+                        <input name="comment" id="comment" type="text">
+                    </li>
 
                 </ul>
 
