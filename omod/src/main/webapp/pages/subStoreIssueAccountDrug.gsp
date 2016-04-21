@@ -21,6 +21,104 @@
                 }
             }
         });
+
+        jq("#issueSearchPhrase").autocomplete({
+            minLength: 3,
+            source: function (request, response) {
+                jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "fetchDrugListByName") }',
+                        {
+                            searchPhrase: request.term
+                        }
+                ).success(function (data) {
+                            var results = [];
+                            for (var i in data) {
+                                var result = {label: data[i].name, value: data[i]};
+                                results.push(result);
+                            }
+                            response(results);
+                        });
+            },
+            focus: function (event, ui) {
+                jq("#issueSearchPhrase").val(ui.item.value.name);
+                return false;
+            },
+            select: function (event, ui) {
+                event.preventDefault();
+                selectDrug = ui.item.value.name;
+                jQuery("#issueSearchPhrase").val(selectDrug);
+
+                //set parent category
+                var catId = ui.item.value.category.id;
+                jq("#issueDrugCategory").val(catId);
+
+                var drugName = selectDrug;
+                var drugFormulationData = "";
+                jq('#issueDrugFormulation').empty();
+
+                if (drugName === "") {
+                    jq('<option value="">Select Formulation</option>').appendTo("#issueDrugFormulation");
+                } else {
+                    jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "getFormulationByDrugName") }', {
+                        drugName: drugName
+                    }).success(function (data) {
+                        for (var key in data) {
+                            if (data.hasOwnProperty(key)) {
+                                var val = data[key];
+                                for (var i in val) {
+                                    var name, dozage;
+                                    if (val.hasOwnProperty(i)) {
+                                        var j = val[i];
+                                        if (i == "id") {
+                                            drugFormulationData = drugFormulationData + '<option id="' + j + '">';
+                                        } else if (i == "name") {
+                                            name = j;
+                                        }
+                                        else {
+                                            dozage = j;
+                                            drugFormulationData = drugFormulationData + (name + "-" + dozage) + '</option>';
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+
+                        jq(drugFormulationData).appendTo("#issueDrugFormulation");
+                    }).error(function (xhr, status, err) {
+                        jq('<option value="">Select Formulation</option>').appendTo("#issueDrugFormulation");
+                        jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                    });
+                }
+
+
+            }
+        });
+
+        function IssueViewModel() {
+            var self = this;
+//            Non Editable Catalogue - Comes from the server
+            self.drugList = ko.observableArray([]);
+
+//            Editable Data
+            self.selectedDrugs = ko.observableArray([]);
+
+//            Operations
+            self.addDrugToList = function (item) {
+                self.selectedDrugs.push(new DrugIssue(item));
+            }
+
+            self.removeDrugFromList = function (drug) {
+                self.selectedDrugs.remove(drug);
+            }
+        }
+
+        function DrugIssue(item) {
+            var self = this;
+            self.item = ko.observable(item);
+        }
+
+        var issueList = new IssueViewModel();
+        ko.applyBindings(issueList, jq("#accountDrugIssue")[0]);
     });//end of doc ready
 </script>
 
@@ -41,7 +139,7 @@
         </ul>
     </div>
 
-    <div class="patient-header new-patient-header">
+    <div class="patient-header new-patient-header" id="accountDrugIssue">
         <div class="dashboard clear">
             <div class="info-section">
                 <div class="info-header">
@@ -115,6 +213,11 @@
                             <label for="issueDrugCategory">Drug Category</label>
                             <select name="issueDrugCategory" id="issueDrugCategory">
                                 <option value="0">Select Category</option>
+                                <% if (listCategory != null || listCategory != "") { %>
+                                <% listCategory.each { drugCategory -> %>
+                                <option id="${drugCategory.id}" value="${drugCategory.id}">${drugCategory.name}</option>
+                                <% } %>
+                                <% } %>
                             </select>
                         </li>
                         <li>
@@ -147,4 +250,3 @@
     </div>
 
 </div>
-${listCategory}

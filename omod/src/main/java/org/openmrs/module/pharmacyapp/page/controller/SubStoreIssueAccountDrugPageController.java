@@ -24,8 +24,7 @@ public class SubStoreIssueAccountDrugPageController {
         InventoryService inventoryService = Context.getService(InventoryService.class);
 
         List<InventoryDrugCategory> listCategory = inventoryService.findDrugCategory("");
-        List<SimpleObject> simpleListCategory = SimpleObject.fromCollection(listCategory,uiUtils,"id","name");
-        model.addAttribute("listCategory", SimpleObject.create("listCategory",simpleListCategory).toJson());
+        model.addAttribute("listCategory", listCategory);
 
         model.addAttribute("categoryId", categoryId);
         if (categoryId != null && categoryId > 0) {

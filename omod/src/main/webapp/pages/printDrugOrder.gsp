@@ -80,8 +80,18 @@
             self.submitBill = function () {
                 var flag =${flag };
                 if (flag === 0) {
-                    //process the drug , it hasn't been processed yet
-                    jq("#drugBillsForm").submit();
+                    //no need to submit, just print and set
+//                    jq("#drugBillsForm").submit();
+                    //drug has been processed, we just do a reprint
+                    jq().toastmessage('showErrorToast', "Drug Processed Already- Do a reprint!");
+                    var printDiv = jQuery("#printDiv").html();
+                    var printWindow = window.open('', '', 'height=400,width=800');
+                    printWindow.document.write('<html><head><title>Print Drug Order :-Support by KenyaEHRS</title>');
+                    printWindow.document.write('</head>');
+                    printWindow.document.write(printDiv);
+                    printWindow.document.write('</body></html>');
+                    printWindow.document.close();
+                    printWindow.print();
 
                 } else {
                     //drug has been processed, we just do a reprint
@@ -139,7 +149,7 @@
             </li>
             <li>
                 <i class="icon-chevron-right link"></i>
-                <a href="${ui.pageLink('billingui', 'billingQueue')}">Billing</a>
+                <a href="${ui.pageLink('billingui', 'billingQueue')}">Pharmacy</a>
             </li>
 
             <li>
@@ -290,28 +300,20 @@
         </div>
 
         <div>
-            Attending Pharmacist: ${cashier} &nbsp;&nbsp;
+            Attending Pharmacistw: ${cashier} &nbsp;&nbsp;
         </div>
-        <form method="post" id="drugBillsForm" style="padding-top: 10px">
-            <input id="patientId" name="patientId" type="hidden" value="${identifier}">
-            <input id="receiptid" name="receiptid" type="hidden" value="${receiptid}">
-            <input id="flag" name="flag" type="hidden" value="${flag}">
 
-            <textarea name="drugOrder" data-bind="value: ko.toJSON(\$root)" style="display:none;"></textarea>
-            <input type="button" class="button cancel"
-                   onclick="javascript:window.location.href = 'billingQueue.page?'"
-                   value="Cancel">
+        <input type="button" class="button cancel"
+               onclick="javascript:window.location.href = 'billingQueue.page?'"
+               value="Cancel">
+        <% if (flag == 1) { %>
+        <input id="printOrder" name="printOrder" style="float:right;" class=" confirm"
+               value="Reprint" data-bind="click: submitBill, enable: availableOrders().length > 0 ">
+        <% } else { %>
+        <input id="printOrder" name="printOrder" style="float:right;" class="confirm"
+               value="Print" data-bind="click: submitBill, enable: availableOrders().length > 0 ">
+        <% } %>
 
-
-            <% if (flag == 1) { %>
-            <input type="submit" id="savebill" name="savebill" style="float:right;" class="button confirm"
-                   value="Reprint" data-bind="click: submitBill, enable: availableOrders().length > 0 ">
-            <% } else { %>
-            <input type="submit" id="savebill" name="savebill" style="float:right;" class="button confirm"
-                   value="Print" data-bind="click: submitBill, enable: availableOrders().length > 0 ">
-            <% } %>
-
-        </form>
 
         <!-- PRINT DIV -->
         <div id="printDiv" style="display: none;">
@@ -320,7 +322,7 @@
                 <table class="spacer" style="margin-left: 60px;">
                     <tr>
                         <h3>
-                            <center><b><u>${userLocation}</u> </b></center>
+                            <center><b><u>${userLocation}</u></b></center>
                         </h3>
                     </tr>
                     <tr>
@@ -340,11 +342,11 @@
                     <tr>
                         <td>Name</td>
                         <td>
-                            :${givenName}&nbsp;${familyName}&nbsp;${middleName} </td>
+                            :${givenName}&nbsp;${familyName}&nbsp;${middleName}</td>
                     </tr>
                     <tr>
                         <td>Patient ID</td>
-                        <td>:${identifier }</td>
+                        <td>:${identifier}</td>
                     </tr>
                     <tr>
                     <tr>
@@ -363,9 +365,8 @@
                         <td>:${paymentSubCategory}</td>
                     </tr>
 
-
                 </table>
-                <table width="100%"  class="tablesorter thickbox">
+                <table width="100%" class="tablesorter thickbox">
                     <thead>
                     <tr align="center">
                         <th>S.No</th>
@@ -404,7 +405,7 @@
 
                 <div data-bind="visible: nonDispensed().length > 0">
                     <center><h3>Drugs Not Issued</h3></center>
-                    <table width="100%"  class="tablesorter thickbox">
+                    <table width="100%" class="tablesorter thickbox">
                         <thead>
                         <tr align="center">
                             <th>S.No</th>
