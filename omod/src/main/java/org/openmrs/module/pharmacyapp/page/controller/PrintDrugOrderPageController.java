@@ -25,11 +25,9 @@ import java.util.List;
 public class PrintDrugOrderPageController {
 
     public void get(@RequestParam(value = "issueId", required = false) Integer issueId,
-                    PageModel model,UiUtils uiUtils) {
-        model.addAttribute("userLocation",Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
-        InventoryService inventoryService = (InventoryService) Context
-                .getService(InventoryService.class);
-        //InventoryStore store =  inventoryService.getStoreByCollectionRole(new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles()));
+                    PageModel model, UiUtils uiUtils) {
+        model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
+        InventoryService inventoryService = Context.getService(InventoryService.class);
         List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
 
         InventoryStoreRoleRelation srl = null;
@@ -58,21 +56,18 @@ public class PrintDrugOrderPageController {
             transaction.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
 
             transaction = inventoryService.saveStoreDrugTransaction(transaction);
-            model.addAttribute("patientId",listDrugIssue.get(0).getStoreDrugPatient().getPatient().getPatientId());
+            model.addAttribute("patientId", listDrugIssue.get(0).getStoreDrugPatient().getPatient().getPatientId());
             for (InventoryStoreDrugPatientDetail pDetail : listDrugIssue) {
 
                 Date date1 = new Date();
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                Integer totalQuantity = inventoryService
-                        .sumCurrentQuantityDrugOfStore(store.getId(), pDetail
-                                        .getTransactionDetail().getDrug().getId(),
-                                pDetail.getTransactionDetail().getFormulation()
-                                        .getId());
+                Integer totalQuantity = inventoryService.sumCurrentQuantityDrugOfStore(store.getId(), pDetail
+                        .getTransactionDetail().getDrug().getId(), pDetail.getTransactionDetail().getFormulation().getId());
                 int t = totalQuantity;
 
                 Integer receipt = pDetail.getStoreDrugPatient().getId();
@@ -123,15 +118,9 @@ public class PrintDrugOrderPageController {
 
 
                 BigDecimal moneyUnitPrice = pDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(pDetail.getQuantity()));
-
                 transDetail.setTotalPrice(moneyUnitPrice);
-
-
                 transDetail.setParent(pDetail.getTransactionDetail());
-                transDetail = inventoryService
-                        .saveStoreDrugTransactionDetail(transDetail);
-
-
+                transDetail = inventoryService.saveStoreDrugTransactionDetail(transDetail);
             }
 
         }
@@ -148,9 +137,9 @@ public class PrintDrugOrderPageController {
                     .getStoreDrugPatient().getCreatedOn());
             int age = listDrugIssue.get(0)
                     .getStoreDrugPatient().getPatient().getAge();
-            if(age<1){
+            if (age < 1) {
                 model.addAttribute("age", "<1");
-            }else{
+            } else {
                 model.addAttribute("age", age);
             }
             //TODO starts here
@@ -173,7 +162,6 @@ public class PrintDrugOrderPageController {
 
             //TODO ends here
 
-
             model.addAttribute("identifier", listDrugIssue.get(0)
                     .getStoreDrugPatient().getPatient().getPatientIdentifier());
             model.addAttribute("givenName", listDrugIssue.get(0)
@@ -183,8 +171,8 @@ public class PrintDrugOrderPageController {
             if (listDrugIssue.get(0).getStoreDrugPatient().getPatient().getMiddleName() != null) {
                 model.addAttribute("middleName", listDrugIssue.get(0)
                         .getStoreDrugPatient().getPatient().getMiddleName());
-            }else{
-                model.addAttribute("middleName"," ");
+            } else {
+                model.addAttribute("middleName", " ");
             }
 
 

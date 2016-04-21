@@ -51,7 +51,6 @@
 
             self.availableOrders(mappedOrders);
             self.nonDispensed(mappedNonDispensed);
-
             //observable waiver
             self.waiverAmount = ko.observable(0.00);
 
@@ -78,34 +77,27 @@
 
             //submit bill
             self.submitBill = function () {
-                var flag =${flag };
-                if (flag === 0) {
-                    //no need to submit, just print and set
-//                    jq("#drugBillsForm").submit();
-                    //drug has been processed, we just do a reprint
-                    jq().toastmessage('showErrorToast', "Drug Processed Already- Do a reprint!");
-                    var printDiv = jQuery("#printDiv").html();
-                    var printWindow = window.open('', '', 'height=400,width=800');
-                    printWindow.document.write('<html><head><title>Print Drug Order :-Support by KenyaEHRS</title>');
-                    printWindow.document.write('</head>');
-                    printWindow.document.write(printDiv);
-                    printWindow.document.write('</body></html>');
-                    printWindow.document.close();
-                    printWindow.print();
+                var printDiv = jQuery("#printDiv").html();
+                var printWindow = window.open('', '', 'height=400,width=800');
+                printWindow.document.write('<html><head><title>Print Drug Order :-Support by KenyaEHRS</title>');
+                printWindow.document.write('</head>');
+                printWindow.document.write(printDiv);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
 
-                } else {
-                    //drug has been processed, we just do a reprint
-                    jq().toastmessage('showErrorToast', "Drug Processed Already- Do a reprint!");
-                    var printDiv = jQuery("#printDiv").html();
-                    var printWindow = window.open('', '', 'height=400,width=800');
-                    printWindow.document.write('<html><head><title>Print Drug Order :-Support by KenyaEHRS</title>');
-                    printWindow.document.write('</head>');
-                    printWindow.document.write(printDiv);
-                    printWindow.document.write('</body></html>');
-                    printWindow.document.close();
-                    printWindow.print();
+                var flag =${flag };
+                var ids =${receiptid};
+                if (flag === 0) {
+                    var data = jQuery.ajax({
+                        type: "GET"
+                        , url: '${ ui.actionLink("pharmacyapp", "drugOrder", "subStoreIssueDrugDeduct") }'
+                        , data: ({receiptid: ids, flag: flag})
+                        , async: false
+                        , cache: false
+                    }).responseText;
                 }
-            }
+            };
 
             self.isNonPaying = ko.computed(function () {
                 var cat = "${paymentSubCategory}";
@@ -286,25 +278,14 @@
                 <span data-bind="text: runningTotal,css:{'retired': isNonPaying()}"></span>
                 <span data-bind="visible: isNonPaying()">0.00</span>
             </div>
-
-            <div data-bind="visible: flag() == 0">
-                Waiver Amount: <input id="waiverAmount" data-bind="value: waiverAmount"/><br/>
-
-                <div data-bind="visible: waiverAmount() > 0">
-                    Waiver Comment:<textarea type="text" id="waiverComment" name="waiverComment"
-                                             size="7" class="hasborder" style="width: 99.4%; height: 60px;"
-                                             data-bind="value: comment"></textarea> <br/>
-                </div>
-            </div>
-
         </div>
 
         <div>
-            Attending Pharmacistw: ${cashier} &nbsp;&nbsp;
+            Attending Pharmacist: ${cashier} &nbsp;&nbsp;
         </div>
 
         <input type="button" class="button cancel"
-               onclick="javascript:window.location.href = 'billingQueue.page?'"
+               onclick="javascript:window.location.href = 'billingQueue.page'"
                value="Cancel">
         <% if (flag == 1) { %>
         <input type="button" id="printOrder" name="printOrder" style="float:right;" class="button confirm"
