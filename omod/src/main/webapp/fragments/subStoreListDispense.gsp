@@ -18,7 +18,15 @@
             // Editable data
             self.drugDispenseList = ko.observableArray([]);
             var mappedDrugItems = jQuery.map(receiptsData, function (item) {
-                return item;
+                console.log(item);
+                if((item.values===0)&&(item.statuss===1)){
+                    return item;
+                }else if((item.values!==0)&&(item.statuss===1)){
+                    return item;
+                }else{
+//                    do nothing, the item has not been processed from the cashier side
+                }
+
             });
             self.drugDispenseList(mappedDrugItems);
             self.viewDetails = function (item) {

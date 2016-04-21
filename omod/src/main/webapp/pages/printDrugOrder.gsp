@@ -307,10 +307,10 @@
                onclick="javascript:window.location.href = 'billingQueue.page?'"
                value="Cancel">
         <% if (flag == 1) { %>
-        <input id="printOrder" name="printOrder" style="float:right;" class=" confirm"
+        <input type="button" id="printOrder" name="printOrder" style="float:right;" class="button confirm"
                value="Reprint" data-bind="click: submitBill, enable: availableOrders().length > 0 ">
         <% } else { %>
-        <input id="printOrder" name="printOrder" style="float:right;" class="confirm"
+        <input type="button" id="printOrder" name="printOrder" style="float:right;" class="button confirm"
                value="Print" data-bind="click: submitBill, enable: availableOrders().length > 0 ">
         <% } %>
 
