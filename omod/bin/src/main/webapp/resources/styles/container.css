@@ -1,0 +1,75 @@
+table{
+	margin-top: 5px!important;
+}
+
+td a:hover{
+	text-decoration: none;
+	color: #00f;
+	animation-duration: 4s;
+}
+
+.toast-item {
+	background-color: #222!important;
+}
+
+.add-on{
+	color: #f26522;
+	cursor: pointer;
+}
+
+.name {
+	color: #f26522;
+}
+.new-patient-header .demographics {
+    float: none!important;
+    margin-top: 5px;
+}
+.new-patient-header .demographics h1 span {
+    font-size: 1.3em;
+}
+.filter{
+	border-top: 1px solid #eee;
+    margin-top: 5px;
+    padding-top: 5px;
+}
+.filter div{
+	display: inline-block;
+}
+.filter label{
+	padding-left: 5px
+}
+
+#referred-date label{
+	display: none;
+}
+
+#phrase{
+	padding-left: 30px;
+    width: 500px;
+}
+
+#queue-div .show-icon {
+    background: rgba(0, 0, 0, 0) url("../images/queue.png") no-repeat scroll 0 0 / 100% auto;
+    display: inline-block;
+    float: right;
+    height: 60px;
+    margin-bottom: -40px;
+    width: 60px;
+}
+
+input[type="text"], select {
+    border: 1px solid #aaa;
+    border-radius: 2px !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    height: 30px;
+    padding-left: 5px;
+}
+
+#queue-div th:first-child{
+	width:5px;
+}
+
+#queue-div th:last-child{
+	width:80px;
+}
