@@ -241,6 +241,9 @@
 					<li><a href="#patientdrug">Issue drug to Patient</a></li>
 					<li><a href="#accountdrug">Issue drug to Account</a></li>
 					<li><a href="#manage">Indent Drugs</a></li>
+
+					<li><a href="#issuedrugs">Issue Drugs</a></li>
+					<li><a href="#report">Issue drug to Account</a></li>
 					<li><a href="#stock">View Drug Stock </a></li>
                     <li><a href="#expiry">View Expired Drugs </a></li>
 				</ul>
@@ -248,12 +251,13 @@
 				<div id="manage">
 					<div>${ ui.includeFragment("pharmacyapp", "indentDrugList") }</div>
 				</div>
-				<div id="patientdrug">
-					<div>${ ui.includeFragment("pharmacyapp", "issueDrugPatientList") }</div>
+				
+				<div id="issuedrugs">
 
+					<div>${ ui.includeFragment("pharmacyapp", "issuePatientDrug") }</div>
 				</div>
-
-				<div id="accountdrug">
+				
+				<div id="report">
 					<div>${ ui.includeFragment("pharmacyapp", "issueDrugAccountList") }</div>
 
 				</div>
