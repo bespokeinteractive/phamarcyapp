@@ -256,7 +256,7 @@
 				<th>#</th>
 				<th>ORDER#</th>
 				<th>DATE</th>
-				<th>SEND FROM</th>
+				<th>SENT FROM</th>
 				<th>ACTION</th>
 			</tr>
 		</thead>

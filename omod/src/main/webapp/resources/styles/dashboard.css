@@ -5,7 +5,7 @@
 	margin-top: 12px;
 }
 #main-dashboard {
-	border-top: 1px solid #ddd;
+	border-top: 1px bottom #ddd;
 	height: 520px;
 	margin-top: 3px;
 	background: rgba(0, 0, 0, 0) url("../images/dashboard.png") no-repeat scroll 0 0 / 100% auto;
