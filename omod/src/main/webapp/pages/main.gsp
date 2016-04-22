@@ -23,12 +23,10 @@
 		body {
 			margin-top: 20px;
 		}
-
 		.col1, .col2, .col3, .col4, .col5, .col6, .col7, .col8, .col9, .col10, .col11, .col12 {
 			color: #555;
 			text-align: left;
 		}
-
 		form input,
 		form select {
 			margin: 0px;
@@ -37,7 +35,6 @@
 			padding: 2px 10px;
 			height: 32px !important;
 		}
-
 		.info-header span {
 			cursor: pointer;
 			display: inline-block;
@@ -45,21 +42,17 @@
 			margin-top: -2px;
 			padding-right: 5px;
 		}
-
 		.dashboard .info-section {
 			margin: 2px 5px 5px;
 		}
-
 		.toast-item {
 			background-color: #222;
 		}
-
 		@media all and (max-width: 768px) {
 			.onerow {
 				margin: 0 0 100px;
 			}
 		}
-
 		form .advanced {
 			background: #363463 none repeat scroll 0 0;
 			border-color: #dddddd;
@@ -99,15 +92,12 @@
 			letter-spacing: 1px;
 			margin: 5px;
 		}
-
 		table.dataTable thead th, table.dataTable thead td {
 			padding: 5px 10px;
 		}
-
 		form input:focus {
 			border: 1px solid #00f !important;
 		}
-
 		input[type="text"], select {
 			border: 1px solid #aaa;
 			border-radius: 2px !important;
@@ -115,16 +105,13 @@
 			box-sizing: border-box !important;
 			height: 32px;
 		}
-
 		.newdtp {
 			width: 166px;
 		}
-
 		#lastDayOfVisit label, 
 		#referred-date label{
 			display: none;
 		}
-
 		#lastDayOfVisit input {
 			width: 160px;
 		}
@@ -248,16 +235,16 @@
 				<div id="manage">
 					<div>${ ui.includeFragment("pharmacyapp", "indentDrugList") }</div>
 				</div>
-				
 				<div id="patientdrug">
-
 					<div>${ ui.includeFragment("pharmacyapp", "issuePatientDrug") }</div>
+
 				</div>
-				
+
 				<div id="accountdrug">
 					<div>${ ui.includeFragment("pharmacyapp", "issueDrugAccountList") }</div>
 
 				</div>
+
 				<div id="stock">
 					<div>${ui.includeFragment("pharmacyapp","viewDrugStock")} </div>
 				</div>
