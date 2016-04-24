@@ -5,7 +5,9 @@
 
 <script>
     jq(function () {
-//        jq("#issueDrugSelection").hide();
+        var selectedDrugId;
+        jq("#issueDrugSelection").hide();
+        jq("#issueDetails").hide();
         jq("#addIssueButton").on("click", function (e) {
             addissuedialog.show();
         });
@@ -14,9 +16,16 @@
             actions: {
                 confirm: function () {
 
+
+                    jq("#issueDrugSelection").hide();
+                    jq("#issueDrugKey").show();
                     addissuedialog.close();
                 },
                 cancel: function () {
+
+
+                    jq("#issueDrugSelection").hide();
+                    jq("#issueDrugKey").show();
                     addissuedialog.close();
                 }
             }
@@ -45,6 +54,7 @@
             select: function (event, ui) {
                 event.preventDefault();
                 selectDrug = ui.item.value.name;
+                selectedDrugId = ui.item.value.id
                 jQuery("#issueSearchPhrase").val(selectDrug);
 
                 //set parent category
@@ -139,6 +149,10 @@
 
         jq("#issueDrugName").on("change", function (e) {
             var drugName = jq(this).children(":selected").attr("name");
+            var drugId = jq(this).children(":selected").attr("id");
+
+            selectedDrugId = drugId;
+
             var drugFormulationData = "";
             jq('#issueDrugFormulation').empty();
 
@@ -177,6 +191,33 @@
 
         });
 
+        jq("#issueDrugFormulation").on("change", function (e) {
+            var formulationId = jQuery(this).children(":selected").attr("id");
+            var drugId = selectedDrugId;
+            jQuery.ajax({
+                type: "GET"
+                , dataType: "json"
+                , url: '${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "listReceiptDrug") }'
+                , data: ({drugId: drugId, formulationId: formulationId})
+                , async: false
+                , success: function (response) {
+                    issueList.listReceiptDrug.removeAll();
+                    jq.map( response, function( val, i ) {
+                        issueList.addDrugToFormulationList(val,0);
+                    });
+                    if (issueList.listReceiptDrug().length === 0) {
+                        jq("#issueDetails").show();
+                    } else {
+                        jq("#issueDetails").hide();
+                    }
+                },
+                error: function (xhr) {
+                    alert("An Error occurred");
+                }
+            })
+        });
+
+
         function IssueViewModel() {
             var self = this;
 //            Non Editable Catalogue - Comes from the server
@@ -185,19 +226,32 @@
 //            Editable Data
             self.selectedDrugs = ko.observableArray([]);
 
+//            List of Drugs By Formulation
+            self.listReceiptDrug = ko.observableArray([]);
+
 //            Operations
-            self.addDrugToList = function (item) {
-                self.selectedDrugs.push(new DrugIssue(item));
-            }
+            self.addDrugToList = function (item,quantity) {
+                self.selectedDrugs.push(new DrugIssue(item,quantity));
+            };
+            self.addDrugToFormulationList = function (item,quantity) {
+                self.listReceiptDrug.push(new DrugIssue(item,quantity));
+            };
 
             self.removeDrugFromList = function (drug) {
                 self.selectedDrugs.remove(drug);
-            }
+            };
         }
 
-        function DrugIssue(item) {
+        function DrugIssue(item,quantity) {
             var self = this;
             self.item = ko.observable(item);
+            self.quantity = ko.observable(quantity);
+            self.quantity.subscribe(function(newValue) {
+                if(newValue > self.item().currentQuantity){
+                    jq().toastmessage('showErrorToast', "Issue quantity is greater that available quantity!");
+                    self.quantity(0);
+                }
+            });
         }
 
         var issueList = new IssueViewModel();
@@ -281,7 +335,7 @@
                    id="addDrugsSubmitButton" style="margin-top:20px;">
         </div>
 
-        <div id="addIssueDialog" class="dialog" style="display: none;">
+        <div id="addIssueDialog" class="dialog" style="display: none; width: 80%">
             <div class="dialog-header">
                 <i class="icon-folder-open"></i>
 
@@ -322,9 +376,44 @@
                                 <option value="0">Select Formulation</option>
                             </select>
                         </li>
+
+                        <div id="issueDetails" style="color: red;">
+                            This Drug is empty in your store please indent it!
+                        </div>
+
+                        <div id="issueDetailsList" data-bind="visible: \$root.listReceiptDrug().length > 0">
+                            <form method="post" id="processDrugOrderForm" class="box">
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Expiry</th>
+                                        <th title="Date of manufacturing">DM</th>
+                                        <th>Company</th>
+                                        <th>Batch No.</th>
+                                        <th title="Quantity available">Available</th>
+                                        <th title="Issue quantity">Issue</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: listReceiptDrug">
+                                    <tr>
+                                        <td data-bind="text: \$index() + 1"></td>
+                                        <td data-bind="text: item().dateExpiry"></td>
+                                        <td data-bind="text: item().dateManufacture"></td>
+                                        <td data-bind="text: item().companyNameShort"></td>
+                                        <td data-bind="text: item().batchNo"></td>
+                                        <td data-bind="text: item().currentQuantity"></td>
+                                        <td><input data-bind="value: quantity"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <br/>
+                                <button class="button confirm right" data-bind="click: \$root.addDrugItem"
+                                        id="drugIssue">Add Drug</button>
+                                <span class="button cancel">Cancel</span>
+                            </form>
+                        </div>
                     </ul>
-                    <span class="button confirm right">Confirm</span>
-                    <span class="button cancel">Cancel</span>
                 </div>
             </form>
         </div>
