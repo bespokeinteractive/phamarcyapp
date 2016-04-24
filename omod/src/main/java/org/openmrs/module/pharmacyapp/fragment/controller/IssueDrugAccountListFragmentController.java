@@ -175,7 +175,7 @@ public class IssueDrugAccountListFragmentController {
 
         }
 
-        return SimpleObject.fromCollection(listReceiptDrugReturn, uiUtils, "id", "drug.id","drug.name","drug.category.id","drug.category.name","dateExpiry","dateManufacture",
+        return SimpleObject.fromCollection(listReceiptDrugReturn, uiUtils, "id", "drug.id","formulation.name","formulation.dozage","drug.name","drug.category.id","drug.category.name","dateExpiry","dateManufacture",
                 "companyName","companyNameShort","batchNo","currentQuantity");
     }
 }

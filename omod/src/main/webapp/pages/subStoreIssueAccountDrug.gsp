@@ -202,8 +202,8 @@
                 , async: false
                 , success: function (response) {
                     issueList.listReceiptDrug.removeAll();
-                    jq.map( response, function( val, i ) {
-                        issueList.addDrugToFormulationList(val,0);
+                    jq.map(response, function (val, i) {
+                        issueList.addDrugToFormulationList(val, 0);
                     });
                     if (issueList.listReceiptDrug().length === 0) {
                         jq("#issueDetails").show();
@@ -217,7 +217,6 @@
             })
         });
 
-
         function IssueViewModel() {
             var self = this;
 //            Non Editable Catalogue - Comes from the server
@@ -230,24 +229,37 @@
             self.listReceiptDrug = ko.observableArray([]);
 
 //            Operations
-            self.addDrugToList = function (item,quantity) {
-                self.selectedDrugs.push(new DrugIssue(item,quantity));
+            self.addDrugToList = function (item, quantity) {
+                self.selectedDrugs.push(new DrugIssue(item, quantity));
             };
-            self.addDrugToFormulationList = function (item,quantity) {
-                self.listReceiptDrug.push(new DrugIssue(item,quantity));
+            self.addDrugToFormulationList = function (item, quantity) {
+                self.listReceiptDrug.push(new DrugIssue(item, quantity));
             };
 
             self.removeDrugFromList = function (drug) {
                 self.selectedDrugs.remove(drug);
             };
+            self.addDrugItem = function () {
+                jq.map(self.listReceiptDrug(), function (val, i) {
+                    console.log(val.item());
+                    if (val.quantity() > 0) {
+                        self.addDrugToList(val.item(), val.quantity());
+
+                    }
+                });
+            };
+
+            self.clearList = function(){
+                self.selectedDrugs.removeAll();
+            }
         }
 
-        function DrugIssue(item,quantity) {
+        function DrugIssue(item, quantity) {
             var self = this;
             self.item = ko.observable(item);
             self.quantity = ko.observable(quantity);
-            self.quantity.subscribe(function(newValue) {
-                if(newValue > self.item().currentQuantity){
+            self.quantity.subscribe(function (newValue) {
+                if (newValue > self.item().currentQuantity) {
                     jq().toastmessage('showErrorToast', "Issue quantity is greater that available quantity!");
                     self.quantity(0);
                 }
@@ -317,12 +329,27 @@
                 </tr>
                 </thead>
 
-                <tbody>
+                <tbody data-bind="foreach: selectedDrugs">
+                <tr>
+                    <td data-bind="text: \$index() + 1"></td>
+                    <td data-bind="text: item().drug.category.name"></td>
+                    <td data-bind="text: item().drug.name"></td>
+                    <td>
+                        <span data-bind="text: item().formulation.name"></span>-
+                        <span data-bind="text: item().formulation.dozage"></span>
+                    </td>
+                    <td data-bind="text: quantity"></td>
+                    <td>
+                        <a class="remover" href="#" data-bind="click: \$root.removeDrugFromList">
+                            <i class="icon-remove small" style="color:red"></i>
+                        </a>
+                    </td>
+                </tr>
                 </tbody>
             </table>
 
-            <input type="button" value="Clear Iist" class="button cancel" name="clearAccountList" id="clearAccountList"
-                   style="float: right; margin-top:20px;">
+            <input type="button" value="Clear List" class="button cancel" name="clearAccountList" id="clearAccountList"
+                   style="float: right; margin-top:20px;" data-bind="click: \$root.clearList">
             <input type="button" value="Add To Issue Slip" class="button confirm" name="addIssueButton"
                    id="addIssueButton"
                    style="margin-top:20px;">
@@ -408,11 +435,11 @@
                                     </tbody>
                                 </table>
                                 <br/>
-                                <button class="button confirm right" data-bind="click: \$root.addDrugItem"
-                                        id="drugIssue">Add Drug</button>
-                                <span class="button cancel">Cancel</span>
                             </form>
                         </div>
+                        <button class="button confirm right" data-bind="click: \$root.addDrugItem"
+                                id="drugIssue">Add Drug</button>
+                        <span class="button cancel">Cancel</span>
                     </ul>
                 </div>
             </form>
