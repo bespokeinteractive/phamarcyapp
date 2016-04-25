@@ -7,6 +7,8 @@ import org.openmrs.module.hospitalcore.model.InventoryDrugCategory;
 import org.openmrs.module.hospitalcore.model.InventoryStore;
 import org.openmrs.module.hospitalcore.model.InventoryStoreDrugTransactionDetail;
 import org.openmrs.module.hospitalcore.model.InventoryStoreRoleRelation;
+import org.openmrs.module.hospitalcore.util.Action;
+import org.openmrs.module.hospitalcore.util.ActionValue;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.util.PagingUtil;
 import org.openmrs.module.inventory.util.RequestUtil;
@@ -97,8 +99,9 @@ public class ViewDrugStockFragmentController {
 
         if (stockBalances!=null){
             Collections.sort(stockBalances);
+            return SimpleObject.fromCollection(stockBalances,uiUtils,"drug.id","drug.name","drug.category.name","formulation.id","formulation.name","formulation.dozage","drug.attribute","currentQuantity","reorderPoint");
         }
-        return SimpleObject.fromCollection(stockBalances,uiUtils,"drug.id","drug.name","drug.category.name","formulation.id","formulation.name","formulation.dozage","drug.attribute","currentQuantity","reorderPoint");
+        return SimpleObject.fromCollection(Collections.EMPTY_LIST, uiUtils);
     }
 
 }

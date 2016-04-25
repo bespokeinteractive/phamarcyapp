@@ -2,10 +2,7 @@ package org.openmrs.module.pharmacyapp.page.controller;
 
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.hospitalcore.model.InventoryDrug;
-import org.openmrs.module.hospitalcore.model.InventoryStore;
-import org.openmrs.module.hospitalcore.model.InventoryStoreDrugTransactionDetail;
-import org.openmrs.module.hospitalcore.model.InventoryStoreRoleRelation;
+import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.Action;
 import org.openmrs.module.hospitalcore.util.ActionValue;
 import org.openmrs.module.inventory.InventoryService;
@@ -22,10 +19,15 @@ import java.util.List;
  */
 public class MainPageController {
     public String get(PageModel model,@RequestParam(value="tabId",required=false)  String tabId) {
+        List<Action> listDrugAttribute = ActionValue.getListDrugAttribute();
+        model.addAttribute("listDrugAttribute", listDrugAttribute);
 
         List<InventoryStoreDrugTransactionDetail> listReceiptDrugReturn = null;
         InventoryService inventoryService = (InventoryService) Context
                 .getService(InventoryService.class);
+
+        List<InventoryDrugCategory> listCategory = inventoryService.listDrugCategory("", 0, 0);
+
 
         List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
         InventoryStoreRoleRelation srl = null;
@@ -46,9 +48,11 @@ public class MainPageController {
 
             List<Action> listSubStoreStatus = ActionValue.getListIndentSubStore();
             model.addAttribute("listSubStoreStatus", listSubStoreStatus);
+
             model.addAttribute("tabId", tabId);
-        }
-        else{
+
+            model.put("listCategory", listCategory);
+        } else {
             return "redirect: index.htm";
         }
         return null;
