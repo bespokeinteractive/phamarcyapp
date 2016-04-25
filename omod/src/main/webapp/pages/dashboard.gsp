@@ -7,9 +7,16 @@
 	jq(function () {
 		var redirectLink = '';
 		
-		jq('#queue').on('click', function(){
+		jq('#queue, #dispense').on('click', function(){
+			if (jq(this).attr('id') == 'queue'){
+				redirectLink = 'patients-queue';
+			}
+			else if (jq(this).attr('id') == 'dispense'){
+				redirectLink = 'dispense-drugs';
+			}
+			
 			window.location.href = emr.pageLink("pharmacyapp", "container", {
-				rel: 'patients-queue'
+				rel: redirectLink
 			});
 		});
 		
@@ -59,8 +66,13 @@
 <div id='main-dashboard'>
 	<div id="queue">
 		<i class="icon-group"></i><br/>
-		<span>PHARMACY QUEUE</span>
+		<span>PHARMACY QUEUE</span>	
+	</div>
 	
+
+	<div id="dispense">
+		<i class="icon-exchange"></i><br/>
+		<span>DISPENSE DRUGS</span>	
 	</div>
 
 

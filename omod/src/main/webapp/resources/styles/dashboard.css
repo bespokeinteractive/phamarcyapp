@@ -25,11 +25,25 @@
 #main-dashboard #queue{
 	border: 1px none #ddd;
     cursor: pointer;
+	float: left;
     height: 15.0%;
     left: 41.7%;
     padding: 13px 0 0;
     position: relative;
     text-align: center;
     top: 21.5%;
+    width: 17.8%;
+}
+
+#main-dashboard #dispense{
+	border: 1px none #ddd;
+    cursor: pointer;
+    float: left;
+    height: 14.7%;
+    left: 42.6%;
+    padding: 13px 0 0;
+    position: relative;
+    text-align: center;
+    top: 21.7%;
     width: 17.8%;
 }

@@ -18,6 +18,11 @@ public class ContainerPageController {
             model.addAttribute("title", "Patient Queue");
             model.addAttribute("header", "PATIENT QUEUE LIST");
         }
+        else if (rel.equals("dispense-drugs")){
+            model.addAttribute("fragment", "subStoreListDispense");
+            model.addAttribute("title", "Dispense Drugs");
+            model.addAttribute("header", "DISPENSE DRUGS TO PATIENT");
+        }
         else {
             model.addAttribute("fragment", "404");
             model.addAttribute("title", "404");
