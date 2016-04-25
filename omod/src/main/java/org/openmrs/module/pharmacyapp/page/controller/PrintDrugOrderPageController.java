@@ -162,17 +162,15 @@ public class PrintDrugOrderPageController {
 
             //TODO ends here
 
-            model.addAttribute("identifier", listDrugIssue.get(0)
-                    .getStoreDrugPatient().getPatient().getPatientIdentifier());
-            model.addAttribute("givenName", listDrugIssue.get(0)
-                    .getStoreDrugPatient().getPatient().getGivenName());
-            model.addAttribute("familyName", listDrugIssue.get(0)
-                    .getStoreDrugPatient().getPatient().getFamilyName());
+            model.addAttribute("identifier", listDrugIssue.get(0).getStoreDrugPatient().getPatient().getPatientIdentifier());
+            model.addAttribute("givenName", listDrugIssue.get(0).getStoreDrugPatient().getPatient().getGivenName());
+            model.addAttribute("familyName", listDrugIssue.get(0).getStoreDrugPatient().getPatient().getFamilyName());
+            model.addAttribute("birthdate", listDrugIssue.get(0).getStoreDrugPatient().getPatient().getBirthdate());
+
             if (listDrugIssue.get(0).getStoreDrugPatient().getPatient().getMiddleName() != null) {
-                model.addAttribute("middleName", listDrugIssue.get(0)
-                        .getStoreDrugPatient().getPatient().getMiddleName());
+                model.addAttribute("middleName", listDrugIssue.get(0).getStoreDrugPatient().getPatient().getMiddleName());
             } else {
-                model.addAttribute("middleName", " ");
+                model.addAttribute("middleName", "");
             }
 
 
@@ -191,6 +189,9 @@ public class PrintDrugOrderPageController {
             HospitalCoreService hcs = Context.getService(HospitalCoreService.class);
             List<PersonAttribute> pas = hcs.getPersonAttributes(listDrugIssue.get(0)
                     .getStoreDrugPatient().getPatient().getId());
+
+            model.addAttribute("lastVisit", hcs.getLastVisitTime(listDrugIssue.get(0).getStoreDrugPatient().getPatient()));
+
             for (PersonAttribute pa : pas) {
                 PersonAttributeType attributeType = pa.getAttributeType();
                 PersonAttributeType personAttributePCT = hcs.getPersonAttributeTypeByName("Paying Category Type");

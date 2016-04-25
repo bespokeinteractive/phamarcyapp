@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by qqnarf on 3/31/16.
+ * Created by Francis Githae on 3/31/16.
  */
 public class DrugOrderPageController {
     public void get(

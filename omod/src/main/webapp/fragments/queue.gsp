@@ -1,5 +1,5 @@
 <%
-    def props = ["fullname", "identifier", "age", "gender","action"]
+    def props = ["identifier", "fullname", "age", "gender","action"]
 %>
 
 <script>
@@ -134,7 +134,7 @@
 				<i class="icon-filter" style="color: rgb(91, 87, 166); float: left; font-size: 52px ! important; padding: 0px 10px 0px 0px;"></i>
 				<div class="first-col">
 					<label for="referred-date-display">Date</label><br/>
-					${ui.includeFragment("uicommons", "field/datetimepicker", [id: 'referred-date', label: 'Date Ordered', formFieldName: 'referredDate', useTime: false, defaultToday: true])}
+					${ui.includeFragment("uicommons", "field/datetimepicker", [id: 'referred-date', label: 'Date', formFieldName: 'referredDate', useTime: false, defaultToday: true])}
 				</div>
 				
 				<div class="second-col">
@@ -173,17 +173,7 @@
 
 </div>
 
-<div>
-    
-
-    <div id="patient-search-results" style="display: block; margin-top:3px;">
-        <div role="grid" class="dataTables_wrapper" id="patient-search-results-table_wrapper">
-            
-
-        </div>
-    </div>
-
-</div>
+<div class="footer">&nbsp;</div>
 
 
 

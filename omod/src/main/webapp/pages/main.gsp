@@ -238,18 +238,12 @@
 			
 			<div id="tabs" style="margin-top: 40px!important;">
 				<ul id="inline-tabs">
-					<li><a href="#dispense">Dispense</a></li>
 					<li><a href="#patientdrug">Issue drug to Patient</a></li>
 					<li><a href="#accountdrug">Issue drug to Account</a></li>
 					<li><a href="#manage">Indent Drugs</a></li>
 					<li><a href="#stock">View Drug Stock </a></li>
                     <li><a href="#expiry">View Expired Drugs </a></li>
-
 				</ul>
-				
-				<div id="dispense">
-					${ ui.includeFragment("pharmacyapp", "subStoreListDispense") }
-				</div>
 				
 				<div id="manage">
 					<div>${ ui.includeFragment("pharmacyapp", "indentDrugList") }</div>
