@@ -67,7 +67,7 @@
             actions: {
                 confirm: function () {
                     if (jq("#slipName").val() == '') {
-                        jq().toastmessage('showNoticeToast', "Enter slip Name!");
+                        jq().toastmessage('showNoticeToast', "Enter drug slip Name!");
                     } else if (jq("#mainstore").val() == 0) {
                         jq().toastmessage('showNoticeToast', "Select a Main Store!");
                     } else {
@@ -390,24 +390,24 @@
                 <thead>
                 <tr role="row">
                     <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">S.No<span class="DataTables_sort_icon"></span></div>
+                        <div class="DataTables_sort_wrapper">Issue S.No<span class="DataTables_sort_icon"></span></div>
                     </th>
 
                     <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Drug Category<span class="DataTables_sort_icon"></span>
+                        <div class="DataTables_sort_wrapper">Issue Drug Category<span class="DataTables_sort_icon"></span>
                         </div>
                     </th>
 
                     <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Drug Name<span class="DataTables_sort_icon"></span></div>
+                        <div class="DataTables_sort_wrapper">Issue Drug Name<span class="DataTables_sort_icon"></span></div>
                     </th>
 
                     <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Formulation<span class="DataTables_sort_icon"></span></div>
+                        <div class="DataTables_sort_wrapper">Issue Formulation<span class="DataTables_sort_icon"></span></div>
                     </th>
 
                     <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Quantity<span class="DataTables_sort_icon"></span></div>
+                        <div class="DataTables_sort_wrapper">Issue Quantity<span class="DataTables_sort_icon"></span></div>
                     </th>
                     <th class="ui-state-default">
 
@@ -421,10 +421,8 @@
 
            
 
-            <input type="button" value="Add Drug" class="button confirm" name="addDrugsButton" id="addDrugsButton"
+            <input type="button" value="Issue Drug" class="button confirm" name="addDrugsButton" id="addDrugsButton"
                    style="margin-top:20px;">
-            <input type="button" value="Back To Drug List" class="button confirm" name="returnToDrugList"
-                   id="returnToDrugList" style="margin-top:20px;">
             <input type="button" value="Print" class="button confirm" name="printSlip"
                    id="printSlip" style="margin-top:20px;">
         </div>
@@ -443,7 +441,7 @@
             <div class="dialog-content">
                 <ul>
                     <li>
-                        <label for="drugCategory">Drug Category</label>
+                        <label for="issueDrugCategory"> Issue Drug Category</label>
                         <select name="drugCategory" id="drugCategory">
                             <option value="0">Select Category</option>
                             <% if (listCategory != null || listCategory != "") { %>
@@ -455,30 +453,30 @@
                     </li>
                     <li>
                         <div id="drugKey">
-                            <label for="searchPhrase">Drug Name</label>
+                            <label for="searchPhrase"> Issue Drug Name</label>
                             <input id="searchPhrase" name="searchPhrase" onblur="loadDrugFormulations();"/>
                         </div>
 
                         <div id="drugSelection">
-                            <label for="drugName">Drug Name</label>
+                            <label for="drugName">Issue Drug Name</label>
                             <select name="drugName" id="drugName">
                                 <option value="0">Select Drug</option>
                             </select>
                         </div>
                     </li>
                     <li>
-                        <lable for="drugFormulation">Formulation</lable>
+                        <lable for="drugFormulation"> Issue Formulation</lable>
                         <select name="drugFormulation" id="drugFormulation">
                             <option value="0">Select Formulation</option>
                         </select>
                     </li>
 
                     <li>
-                        <label for="quantity">Quantity</label>
+                        <label for="quantity">Issue Quantity</label>
                         <input name="quantity" id="quantity" type="text">
                     </li>
                      <li>
-                        <label for="comment">Comment</label>
+                        <label for="comment">Issue Comment</label>
                         <input name="comment" id="comment" type="text">
                     </li>
 
