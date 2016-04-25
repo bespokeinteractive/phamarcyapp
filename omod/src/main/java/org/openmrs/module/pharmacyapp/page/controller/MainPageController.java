@@ -30,6 +30,8 @@ public class MainPageController {
 
 
         List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
+        List<InventoryDrugCategory> listCategory = inventoryService
+                .listDrugCategory("", 0, 0);
         InventoryStoreRoleRelation srl = null;
         Role rl = null;
         for (Role r : role) {
@@ -48,7 +50,6 @@ public class MainPageController {
 
             List<Action> listSubStoreStatus = ActionValue.getListIndentSubStore();
             model.addAttribute("listSubStoreStatus", listSubStoreStatus);
-
             model.addAttribute("tabId", tabId);
 
             model.put("listCategory", listCategory);
@@ -56,6 +57,8 @@ public class MainPageController {
             return "redirect: index.htm";
         }
         return null;
+
+
     }
 
 }

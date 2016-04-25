@@ -1,4 +1,51 @@
 <script>
+    jq(function () {
+        //action when the searchField change occurs
+        jq(".searchFieldChanged").on("change", function () {
+            reloadExpiredDrugs();
+        });
+
+        //action when the searchField blur occurs
+        jq(".searchFieldBlured").on("blur", function () {
+            reloadExpiredDrugs();
+        });
+
+        function reloadExpiredDrugs() {
+            var categoryId = jq("#categoryId").val();
+            var drugName = jq("#drugName").val();
+            var attribute = jq("#attribute").val();
+            getExpiredDrugs(categoryId, drugName, attribute);
+        }
+    });
+
+    function getExpiredDrugs(categoryId, drugName, attribute) {
+        jq.getJSON('${ui.actionLink("pharmacyapp", "ViewExpiredDrugs", "viewStockBalanceExpired")}',
+                {
+                    categoryId: categoryId,
+                    drugName: drugName,
+                    attribute: attribute
+                }).success(function (data) {
+                    if (data.length === 0 && data != null) {
+                        jq().toastmessage('showNoticeToast', "No drug found!");
+                        jq('#expiry-list-table > tbody > tr').remove();
+                        var tbody = jq('#expiry-list-table > tbody');
+                        var row = '<tr align="center"><td colspan="5">No drugs found</td></tr>';
+                        tbody.append(row);
+
+                    } else {
+                        ExpiryTable(data);
+
+                    }
+                }).error(function () {
+                    jq().toastmessage('showNoticeToast', "An Error Occured while Fetching List");
+                    jq('#expiry-list-table > tbody > tr').remove();
+                    var tbody = jq('#expiry-list-table > tbody');
+                    var row = '<tr align="center"><td colspan="5">No drugs found</td></tr>';
+                    tbody.append(row);
+
+                });
+    }
+
     jq(function(){
         var date = jq("#referred-date-field").val();
         jq.getJSON('${ui.actionLink("pharmacyapp", "ViewExpiredDrugs", "viewStockBalanceExpired")}',
@@ -50,15 +97,33 @@
             tbody.append(row);
         }
     }
-</script>
 
-<div>
-    <h2 style="display: inline-block;">Expiry List</h2>
+    function accountDetail(id) {
+        window.location.href = emr.pageLink("pharmacyapp", "issueDrugAccountDetail", {
+            "issueId": id
+        });
+    }
+</script>
 
     <div id="expiry-list" style="display: block; margin-top:3px;">
         <div role="grid" class="dataTables_wrapper" id="expiry-list-table_wrapper">
             <table id="expiry-list-table" class="dataTable" aria-describedby="expiry-list-table_info">
+
+                <select  id="categoryId" class="searchFieldChanged" title="Select Category" style="width: 200px;">
+                    <option value>Select Category</option>
+                    <% listCategory.each { %>
+                    <option value="${it.id}" title="${it.name}">
+                        ${it.name}
+                    </option>
+                    <% } %>
+                </select>
+                <label for="drugName"> Name:</label>
+                <input type="text" id="drugName" class="searchFieldChanged" name="drugName" placeholder="Enter Drug Name" title="Enter Drug Name" style="width: 160px; " >
+                <label for="attribute"> Attribute:</label>
+                <input type="text" id="attribute" class="searchFieldBlured" name="attribute" placeholder="Enter Attribute" title="Enter Attribute" style="width: 160px;">
+
                 <thead>
+                <tr role="row">
 
                 <th class="ui-state-default" role="columnheader" style="width:10px;">
                     <div class="DataTables_sort_wrapper">
@@ -118,5 +183,3 @@
 
         </div>
     </div>
-
-</div>
