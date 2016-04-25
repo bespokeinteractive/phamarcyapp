@@ -5,6 +5,7 @@
 
 <script>
     jq(function () {
+        var accountName;
         var selectedDrugId;
         var isAccountCreated = false;
         jq("#issueDrugSelection").hide();
@@ -229,6 +230,9 @@
 //            List of Drugs By Formulation
             self.listReceiptDrug = ko.observableArray([]);
 
+//            Observable account object
+            self.listAccount = ko.observable();
+
 //            Operations
             self.addDrugToList = function (item, quantity) {
                 self.selectedDrugs.push(new DrugIssue(item, quantity));
@@ -242,7 +246,6 @@
             };
             self.addDrugItem = function () {
                 jq.map(self.listReceiptDrug(), function (val, i) {
-                    console.log(val.item());
                     if (val.quantity() > 0) {
                         self.addDrugToList(val.item(), val.quantity());
 
@@ -256,6 +259,8 @@
                 } else {
                     jq().toastmessage('showErrorToast', "No Drugs in Issue List!");
                 }
+                isAccountCreated=false;
+
             };
 
             self.returnToList = function () {
@@ -266,6 +271,7 @@
 
             self.printList = function () {
                 if (isAccountCreated) {
+                    console.log(issueList.listAccount());
                     alert("about to print");
                 } else {
                     self.createAccount();
@@ -301,30 +307,30 @@
             actions: {
                 confirm: function () {
                     if (jq("#accountName").val() == '') {
-                        jq().toastmessage('showNoticeToast', "Enter Indent Name!");
+                        jq().toastmessage('showNoticeToast', "Enter Account Name!");
                     } else {
-                        indentName.push(
-                                {
-                                    accountName: jq("#accountName").val()
-                                }
-                        );
-                        drugOrder = JSON.stringify(drugOrder);
-                        indentName = JSON.stringify(indentName);
-
-                        var addDrugsData = {
-                            'drugOrder': drugOrder,
-                            'indentName': indentName,
-                            'send': 1,
-                            'action': 2,
-                            'keepThis': false
+                        accountName = jq("#accountName").val();
+                        var addAccountNameData = {
+                            'accountName': accountName
                         };
-                        jq.getJSON('${ ui.actionLink("pharmacyapp", "subStoreIndentDrug", "saveIndentSlip") }', addDrugsData)
+
+                        jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "postAccountName") }', addAccountNameData)
                                 .success(function (data) {
-                                    jq().toastmessage('showNoticeToast', "Save Indent Successful!");
-                                    window.location.href = emr.pageLink("pharmacyapp", "main", {
+                                   /* window.location.href = emr.pageLink("pharmacyapp", "main", {
                                         "tabId": "manage"
-                                    });
-                                    isAccountCreated=true;
+                                    });*/
+                                    var result = data.message;
+                                    if(result === "error"){
+                                        jq().toastmessage('showErrorToast', "Error Saving Account!");
+                                        issueList.listAccount();
+                                        isAccountCreated = false;
+                                    }else{
+                                        jq().toastmessage('showNoticeToast', "Save Account Successful!");
+                                        issueList.listAccount(result);
+                                        isAccountCreated = true;
+                                    }
+
+
 
                                 })
                                 .error(function (xhr, status, err) {
@@ -369,6 +375,9 @@
 
                     <h3>Issue Drugs to Account</h3>
                 </div>
+            </div>
+            <div data-bind="visible: listAccount()">
+                <h3>Account: <span data-bind="text: listAccount.name"></span> </h3>
             </div>
         </div>
 

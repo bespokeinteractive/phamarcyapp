@@ -18,12 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
 /**
  * @author Stanslaus Odhiambo
- * Created on 3/29/2016.
+ *         Created on 3/29/2016.
  */
 public class IssueDrugAccountListFragmentController {
     public void controller() {
@@ -175,7 +176,36 @@ public class IssueDrugAccountListFragmentController {
 
         }
 
-        return SimpleObject.fromCollection(listReceiptDrugReturn, uiUtils, "id", "drug.id","formulation.name","formulation.dozage","drug.name","drug.category.id","drug.category.name","dateExpiry","dateManufacture",
-                "companyName","companyNameShort","batchNo","currentQuantity");
+        return SimpleObject.fromCollection(listReceiptDrugReturn, uiUtils, "id", "drug.id", "formulation.name", "formulation.dozage", "drug.name", "drug.category.id", "drug.category.name", "dateExpiry", "dateManufacture",
+                "companyName", "companyNameShort", "batchNo", "currentQuantity");
+    }
+
+    public SimpleObject postAccountName(HttpServletRequest request,UiUtils uiUtils) {
+        String account = request.getParameter("accountName");
+        if (!StringUtils.isBlank(account)) {
+            InventoryService inventoryService = Context.getService(InventoryService.class);
+            List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
+            InventoryStoreRoleRelation srl = null;
+            Role rl = null;
+            for (Role r : role) {
+                if (inventoryService.getStoreRoleByName(r.toString()) != null) {
+                    srl = inventoryService.getStoreRoleByName(r.toString());
+                    rl = r;
+                }
+            }
+            InventoryStore store = null;
+            if (srl != null) {
+                store = inventoryService.getStoreById(srl.getStoreid());
+            }
+            InventoryStoreDrugAccount issueAccount = new InventoryStoreDrugAccount();
+            issueAccount.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
+            issueAccount.setCreatedOn(new Date());
+            issueAccount.setName(account);
+            issueAccount.setStore(store);
+            SimpleObject simpleObject = SimpleObject.fromObject(issueAccount, uiUtils, "id", "name", "store.id", "store.name");
+            return SimpleObject.create("message",simpleObject);
+        }
+
+        return SimpleObject.create("message", "error");
     }
 }
