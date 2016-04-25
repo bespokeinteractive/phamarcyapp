@@ -6,6 +6,7 @@
 <script>
     jq(function () {
         var selectedDrugId;
+        var isAccountCreated = false;
         jq("#issueDrugSelection").hide();
         jq("#issueDetails").hide();
         jq("#addIssueButton").on("click", function (e) {
@@ -249,8 +250,37 @@
                 });
             };
 
-            self.clearList = function(){
-                self.selectedDrugs.removeAll();
+            self.clearList = function () {
+                if (self.selectedDrugs().length > 0) {
+                    self.selectedDrugs.removeAll();
+                } else {
+                    jq().toastmessage('showErrorToast', "No Drugs in Issue List!");
+                }
+            };
+
+            self.returnToList = function () {
+                window.location.href = emr.pageLink("pharmacyapp", "main", {
+                    "tabId": "accountdrug"
+                });
+            };
+
+            self.printList = function () {
+                if (isAccountCreated) {
+                    alert("about to print");
+                } else {
+                    self.createAccount();
+                }
+            };
+            self.processIssueDrugToAccount = function () {
+                if (isAccountCreated) {
+                    alert("about to process");
+                } else {
+                    self.createAccount();
+                }
+            };
+
+            self.createAccount = function () {
+                addaccountforissueslipdialog.show();
             }
         }
 
@@ -265,6 +295,49 @@
                 }
             });
         }
+
+        var addaccountforissueslipdialog = emr.setupConfirmationDialog({
+            selector: '#addAccountForIssueSlip',
+            actions: {
+                confirm: function () {
+                    if (jq("#accountName").val() == '') {
+                        jq().toastmessage('showNoticeToast', "Enter Indent Name!");
+                    } else {
+                        indentName.push(
+                                {
+                                    accountName: jq("#accountName").val()
+                                }
+                        );
+                        drugOrder = JSON.stringify(drugOrder);
+                        indentName = JSON.stringify(indentName);
+
+                        var addDrugsData = {
+                            'drugOrder': drugOrder,
+                            'indentName': indentName,
+                            'send': 1,
+                            'action': 2,
+                            'keepThis': false
+                        };
+                        jq.getJSON('${ ui.actionLink("pharmacyapp", "subStoreIndentDrug", "saveIndentSlip") }', addDrugsData)
+                                .success(function (data) {
+                                    jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+                                    window.location.href = emr.pageLink("pharmacyapp", "main", {
+                                        "tabId": "manage"
+                                    });
+                                    isAccountCreated=true;
+
+                                })
+                                .error(function (xhr, status, err) {
+                                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                                })
+                        addaccountforissueslipdialog.close();
+                    }
+                },
+                cancel: function () {
+                    addaccountforissueslipdialog.close();
+                }
+            }
+        });
 
         var issueList = new IssueViewModel();
         ko.applyBindings(issueList, jq("#accountDrugIssue")[0]);
@@ -349,17 +422,20 @@
             </table>
 
             <input type="button" value="Clear List" class="button cancel" name="clearAccountList" id="clearAccountList"
-                   style="float: right; margin-top:20px;" data-bind="click: \$root.clearList">
+                   style="float: right; margin-top:20px;"
+                   data-bind="click: \$root.clearList ,visible: \$root.selectedDrugs().length > 0">
             <input type="button" value="Add To Issue Slip" class="button confirm" name="addIssueButton"
                    id="addIssueButton"
                    style="margin-top:20px;">
 
             <input type="button" value="Back To List" class="button confirm" name="returnToDrugList"
-                   id="returnToDrugList" style="margin-top:20px;">
+                   id="returnToDrugList" style="margin-top:20px;" data-bind="click: \$root.returnToList">
             <input type="button" value="Print" class="button confirm" name="printIndent"
-                   id="printIndent" style="margin-top:20px;">
+                   id="printIndent" style="margin-top:20px;"
+                   data-bind="click: \$root.printList,visible: \$root.selectedDrugs().length > 0">
             <input type="button" value="Finish" class="button confirm" name="addDrugsSubmitButton"
-                   id="addDrugsSubmitButton" style="margin-top:20px;">
+                   id="addDrugsSubmitButton" style="margin-top:20px;"
+                   data-bind="click: \$root.processIssueDrugToAccount,visible: \$root.selectedDrugs().length > 0">
         </div>
 
         <div id="addIssueDialog" class="dialog" style="display: none; width: 80%">
@@ -441,6 +517,28 @@
                                 id="drugIssue">Add Drug</button>
                         <span class="button cancel">Cancel</span>
                     </ul>
+                </div>
+
+                <div id="addAccountForIssueSlip" class="dialog">
+                    <div class="dialog-header">
+                        <i class="icon-folder-open"></i>
+
+                        <h3>Add Account For Slip</h3>
+                    </div>
+
+                    <div class="dialog-content">
+                        <ul>
+                            <li>
+                                <form id="createAccountForm">
+                                    <lable for="accountName">Name</lable>
+                                    <input type="text" name="accountName" id="accountName"/>
+                                </form>
+                            </li>
+                        </ul>
+
+                        <span class="button confirm right">Confirm</span>
+                        <span class="button cancel">Cancel</span>
+                    </div>
                 </div>
             </form>
         </div>
