@@ -6,6 +6,7 @@
 <script>
     jq(function () {
         var accountName;
+        var accountObject;
         var selectedDrugId;
         var isAccountCreated = false;
         jq("#issueDrugSelection").hide();
@@ -233,6 +234,7 @@
 //            Observable account object
             self.listAccount = ko.observable();
 
+
 //            Operations
             self.addDrugToList = function (item, quantity) {
                 self.selectedDrugs.push(new DrugIssue(item, quantity));
@@ -256,10 +258,11 @@
             self.clearList = function () {
                 if (self.selectedDrugs().length > 0) {
                     self.selectedDrugs.removeAll();
+                    isAccountCreated = false;
                 } else {
                     jq().toastmessage('showErrorToast', "No Drugs in Issue List!");
                 }
-                isAccountCreated=false;
+                isAccountCreated = false;
 
             };
 
@@ -271,15 +274,35 @@
 
             self.printList = function () {
                 if (isAccountCreated) {
-                    console.log(issueList.listAccount());
-                    alert("about to print");
+                    printAccountDiv();
                 } else {
                     self.createAccount();
                 }
             };
             self.processIssueDrugToAccount = function () {
                 if (isAccountCreated) {
-                    alert("about to process");
+                    //process drug addition to issue list
+                    indentName = JSON.stringify(indentName);
+
+                    var addIssueDrugsData = {
+                        'drugOrder': drugOrder,
+                        'indentName': indentName,
+                        'send': 1,
+                        'action': 2,
+                        'keepThis': false
+                    };
+                    jq.getJSON('${ ui.actionLink("pharmacyapp", "subStoreIndentDrug", "saveIndentSlip") }', addIssueDrugsData)
+                            .success(function (data) {
+                                jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+                                window.location.href = emr.pageLink("pharmacyapp", "main", {
+                                    "tabId": "manage"
+                                });
+
+                            })
+                            .error(function (xhr, status, err) {
+                                jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                            })
+
                 } else {
                     self.createAccount();
                 }
@@ -302,6 +325,17 @@
             });
         }
 
+        function printAccountDiv() {
+            var printDiv = jQuery("#printDivAccount").html();
+            var printWindow = window.open('', '', 'height=400,width=800');
+            printWindow.document.write('<html><head><title>Indent Slip :-Support by KenyaEHRS</title>');
+            printWindow.document.write('</head>');
+            printWindow.document.write(printDiv);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+
         var addaccountforissueslipdialog = emr.setupConfirmationDialog({
             selector: '#addAccountForIssueSlip',
             actions: {
@@ -314,29 +348,36 @@
                             'accountName': accountName
                         };
 
-                        jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "postAccountName") }', addAccountNameData)
-                                .success(function (data) {
-                                   /* window.location.href = emr.pageLink("pharmacyapp", "main", {
-                                        "tabId": "manage"
-                                    });*/
-                                    var result = data.message;
-                                    if(result === "error"){
-                                        jq().toastmessage('showErrorToast', "Error Saving Account!");
-                                        issueList.listAccount();
-                                        isAccountCreated = false;
-                                    }else{
-                                        jq().toastmessage('showNoticeToast', "Save Account Successful!");
-                                        issueList.listAccount(result);
-                                        isAccountCreated = true;
-                                    }
+                        jq.ajax({
+                            url:'${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "postAccountName") }',
+                            data: addAccountNameData,
+                            type: "get",
+                            dataType:"json",
+                            async: false,
+                            success: function (data) {
+                                var result = data.message;
+                                issueList.listAccount(result);
+                                console.log(issueList.listAccount());
+                                if (result === "error") {
+                                    jq().toastmessage('showErrorToast', "Error Saving Account!");
+                                    issueList.listAccount();
+                                    isAccountCreated = false;
+                                } else {
+                                    jq().toastmessage('showNoticeToast', "Save Account Successful!");
+                                    issueList.listAccount(result);
+                                    accountObject = result;
+                                    isAccountCreated = true;
+                                }
+                            },
+                            error: function (xhr, status, err) {
+                                jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                            }
+                        });
 
+                        console.log(accountObject);
 
-
-                                })
-                                .error(function (xhr, status, err) {
-                                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
-                                })
                         addaccountforissueslipdialog.close();
+                        printAccountDiv();
                     }
                 },
                 cancel: function () {
@@ -376,8 +417,9 @@
                     <h3>Issue Drugs to Account</h3>
                 </div>
             </div>
-            <div data-bind="visible: listAccount()">
-                <h3>Account: <span data-bind="text: listAccount.name"></span> </h3>
+
+            <div data-bind="visible: listAccount">
+                <h3>Account: <span data-bind="text: listAccount"></span></h3>
             </div>
         </div>
 
@@ -552,6 +594,81 @@
             </form>
         </div>
 
+        <!-- PRINT DIV -->
+        <div id="printDivAccount" style="display: none;">
+            <div style="margin: 10px auto; width: 981px; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
+
+                <br/>
+                <br/>
+                <center style="float:center;font-size: 2.2em">Issue Drugs To Account:</center>
+                <br/>
+                <br/>
+                <span style="float:right;font-size: 1.7em">Date: ${date}</span>
+                <br/>
+                <br/>
+
+                <div>
+                    <table id="addDrugsAccountPrint" class="dataTable">
+                        <thead>
+                        <tr role="row">
+                            <th class="ui-state-default">
+                                <div class="DataTables_sort_wrapper">S.No<span class="DataTables_sort_icon"></span>
+                                </div>
+                            </th>
+
+                            <th class="ui-state-default">
+                                <div class="DataTables_sort_wrapper">Drug Category<span
+                                        class="DataTables_sort_icon"></span>
+                                </div>
+                            </th>
+
+                            <th class="ui-state-default">
+                                <div class="DataTables_sort_wrapper">Drug Name<span class="DataTables_sort_icon"></span>
+                                </div>
+                            </th>
+
+                            <th class="ui-state-default">
+                                <div class="DataTables_sort_wrapper">Formulation<span
+                                        class="DataTables_sort_icon"></span></div>
+                            </th>
+
+                            <th class="ui-state-default">
+                                <div class="DataTables_sort_wrapper">Quantity<span class="DataTables_sort_icon"></span>
+                                </div>
+                            </th>
+                            <th class="ui-state-default">
+
+                            </th>
+                        </tr>
+                        </thead>
+
+                        <tbody data-bind="foreach: selectedDrugs">
+                        <tr>
+                            <td data-bind="text: \$index() + 1"></td>
+                            <td data-bind="text: item().drug.category.name"></td>
+                            <td data-bind="text: item().drug.name"></td>
+                            <td>
+                                <span data-bind="text: item().formulation.name"></span>-
+                                <span data-bind="text: item().formulation.dozage"></span>
+                            </td>
+                            <td data-bind="text: quantity"></td>
+                            <td>
+                                <a class="remover" href="#" data-bind="click: \$root.removeDrugFromList">
+                                    <i class="icon-remove small" style="color:red"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <br/><br/><br/><br/><br/><br/>
+                <span style="float:right;font-size: 1.5em">Signature of inventory clerk/ Stamp</span>
+            </div>
+        </div>
+        <!-- END PRINT DIV -->
+
     </div>
 
 </div>
+
+
