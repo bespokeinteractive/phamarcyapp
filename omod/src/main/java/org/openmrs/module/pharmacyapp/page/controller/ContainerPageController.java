@@ -23,6 +23,11 @@ public class ContainerPageController {
             model.addAttribute("title", "Dispense Drugs");
             model.addAttribute("header", "DISPENSE DRUGS TO PATIENT");
         }
+        else if (rel.equals("issue-to-patient")){
+            model.addAttribute("fragment", "issuePatientDrug");
+            model.addAttribute("title", "Issue Drugs to Patient");
+            model.addAttribute("header", "DISPENSE DRUGS TO PATIENT");
+        }
         else {
             model.addAttribute("fragment", "404");
             model.addAttribute("title", "404");

@@ -19,7 +19,8 @@ import java.util.List;
  * Created by Dennys Henry on 3/14/2016.
  */
 public class MainPageController {
-    public String get(PageModel model,@RequestParam(value="tabId",required=false)  String tabId) {
+    public String get(PageModel model,
+                      @RequestParam(value="tabId",required=false)  String tabId) {
         List<Action> listDrugAttribute = ActionValue.getListDrugAttribute();
         model.addAttribute("listDrugAttribute", listDrugAttribute);
         List<InventoryStoreDrugTransactionDetail> listReceiptDrugReturn = null;

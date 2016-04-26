@@ -47,3 +47,15 @@
     top: 21.7%;
     width: 17.8%;
 }
+#main-dashboard #patient{
+	border: 1px solid #ddd;
+    cursor: pointer;
+    float: left;
+    height: 14.7%;
+    left: 6%;
+    padding: 13px 0 0;
+    position: relative;
+    text-align: center;
+    top: 40.1%;
+    width: 17.8%;
+}
