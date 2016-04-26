@@ -65,8 +65,6 @@
             actions: {
                 confirm: function () {
 					confirmdrugdialog.close();
-					
-                    printDiv2();
                     jq("#drugsForm").submit();
                 },
                 cancel: function () {
@@ -149,14 +147,6 @@
                 }
 				
 				confirmdrugdialog.show();
-				
-				
-				
-                //if (confirm("Are you sure?")) {
-                    //printDiv2();
-                    //jq("#drugsForm").submit();
-                    //return true;
-                //}
 
                 return false;
 

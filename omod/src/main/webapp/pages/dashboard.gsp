@@ -7,7 +7,7 @@
 	jq(function () {
 		var redirectLink = '';
 		
-		jq('#queue, #dispense, #patient').on('click', function(){
+		jq('#queue, #dispense, #patient, #stock, #expired, #accounts, #indent').on('click', function(){
 			if (jq(this).attr('id') == 'queue'){
 				redirectLink = 'patients-queue';
 			}
@@ -16,6 +16,21 @@
 			}
 			else if (jq(this).attr('id') == 'patient'){
 				redirectLink = 'issue-to-patient';
+			}
+			else if (jq(this).attr('id') == 'accounts'){
+				redirectLink = 'issue-to-account';
+			}
+			else if (jq(this).attr('id') == 'stock'){
+				redirectLink = 'current-stock';
+			}
+			else if (jq(this).attr('id') == 'expired'){
+				redirectLink = 'expired-stock';
+			}
+			else if (jq(this).attr('id') == 'indent'){
+				redirectLink = 'indent-drugs';
+			}
+			else{
+				return false;
 			}
 			
 			window.location.href = emr.pageLink("pharmacyapp", "container", {
@@ -70,8 +85,7 @@
 	<div id="queue">
 		<i class="icon-group"></i><br/>
 		<span>PHARMACY QUEUE</span>	
-	</div>
-	
+	</div>	
 
 	<div id="dispense">
 		<i class="icon-exchange"></i><br/>
@@ -79,12 +93,28 @@
 	</div>
 	
 	<div id="patient">
-		<i class="icon-exchange"></i><br/>
+		<i class="icon-user"></i><br/>
 		<span>ISSUE TO PATIENT</span>	
 	</div>
-
-
-
+	
+	<div id="stock">
+		<i class="icon-paste"></i><br/>
+		<span>DRUG STOCK</span>
+	</div>
+	
+	<div id="expired">
+		<i class="icon-calendar"></i><br/>
+		<span>EXPIRED DRUGS</span>
+	</div>
+	
+	<div id="accounts">
+		<i class="icon-lock"></i><br/>
+		<span>ISSUE TO ACCOUNT</span>
+	</div>
+	
+	<div id="indent">
+		<i class="icon-retweet"></i><br/>
+		<span>INDENT DRUGS</span>
+	</div>
 </div>
-Link to <a href="main.page">main</a>
 

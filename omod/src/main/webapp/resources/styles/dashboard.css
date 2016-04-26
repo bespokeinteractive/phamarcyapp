@@ -48,7 +48,7 @@
     width: 17.8%;
 }
 #main-dashboard #patient{
-	border: 1px solid #ddd;
+	border: 1px none #ddd;
     cursor: pointer;
     float: left;
     height: 14.7%;
@@ -57,5 +57,53 @@
     position: relative;
     text-align: center;
     top: 40.1%;
+    width: 17.8%;
+}
+#main-dashboard #stock{
+	border: 1px none #ddd;
+    cursor: pointer;
+    float: left;
+    height: 14.7%;
+    left: -48.6%;
+    padding: 13px 0 0;
+    position: relative;
+    text-align: center;
+    top: 58.1%;
+    width: 17.8%;
+}
+#main-dashboard #expired{
+	border: 1px none #ddd;
+    cursor: pointer;
+    float: left;
+    height: 14.7%;
+    left: -48.1%;
+    padding: 13px 0 0;
+    position: relative;
+    text-align: center;
+    top: 58.1%;
+    width: 17.8%;
+}
+#main-dashboard #accounts{
+	border: 1px none #ddd;
+    cursor: pointer;
+    float: left;
+    height: 14.7%;
+    left: 24%;
+    padding: 13px 0 0;
+    position: relative;
+    text-align: center;
+    top: 41.1%;
+    width: 17.8%;
+}
+#main-dashboard #indent{
+	border: 1px none #ddd;
+    cursor: pointer;
+    float: left;
+    height: 14.7%;
+    left: -12.3%;
+    padding: 13px 0 0;
+    position: relative;
+    text-align: center;
+    top: 59.7%;
     width: 17.8%;
 }

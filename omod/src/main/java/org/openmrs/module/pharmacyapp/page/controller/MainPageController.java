@@ -1,12 +1,12 @@
 package org.openmrs.module.pharmacyapp.page.controller;
 
-import org.openmrs.Patient;
+
 import org.openmrs.Role;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.Action;
 import org.openmrs.module.hospitalcore.util.ActionValue;
 import org.openmrs.module.inventory.InventoryService;
+import org.openmrs.api.context.Context;
 import org.openmrs.ui.framework.page.PageModel;
 import org.springframework.web.bind.annotation.RequestParam;
 

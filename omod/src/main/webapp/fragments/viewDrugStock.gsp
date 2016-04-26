@@ -1,21 +1,5 @@
 
 <script>
-    jq(function(){
-        var date = jq("#referred-date-field").val();
-        jq.getJSON('${ui.actionLink("pharmacyapp", "ViewDrugStock", "list")}',
-            {
-                "date": moment(date).format('DD/MM/YYYY'),
-                "currentPage": 1
-            } ).success(function (data) {
-                if (data.length === 0) {
-                    jq().toastmessage('showNoticeToast', "No drug found!");
-                } else {
-                    StockTable(data)
-                }
-
-            });
-    });
-
     function StockTable(tests) {
         var jq = jQuery;
         jq('#stock-list-table > tbody > tr').remove();
@@ -48,9 +32,9 @@
             tbody.append(row);
         }
     }
+	
     jq(function () {
-        jQuery('.date-pick').datepicker({minDate: '-100y', dateFormat: 'dd/mm/yy'});
-        getAccountList();
+		getStockList();
 
         jq('#drugName').on("keyup",function(){
             reloadList();
@@ -71,7 +55,7 @@
             var attribute = jq("#attribute").val();
             getStockList(drugName, categoryId, attribute);
         }
-        });//end of doc ready
+    });//end of doc ready
 
     function getStockList(drugName, categoryId, attribute) {
         jq.getJSON('${ui.actionLink("pharmacyapp", "ViewDrugStock", "list")}',
@@ -130,7 +114,7 @@
             <div class="info-header">
                 <i class="icon-list-ul"></i>
                 <h3>Drug Stock list</h3>
-                <div style="margin-top: -35px">
+                <div>
                     <i class="icon-filter" style="font-size: 26px!important; color: #5b57a6"></i>
                     <label for="drugName">Drug Name: </label>
                         <input type="text" id="drugName" name="drugName" placeholder="Enter Account Name"  title="Enter Drug Name" style="width: 160px; "/>
