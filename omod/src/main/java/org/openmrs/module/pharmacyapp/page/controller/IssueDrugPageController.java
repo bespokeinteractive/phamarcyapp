@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.model.InventoryDrug;
@@ -19,39 +20,54 @@ public class IssueDrugPageController {
 	public void controller(){
 		}
 
-	public void get(@RequestParam(value = "categoryId", required = false) Integer categoryId,
+	public void get
+	(@RequestParam(value = "categoryId", required = false) Integer categoryId,
+			@RequestParam(value="patientId",required=false) Integer patientId,
+			
             PageModel model) {
-InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
-List<InventoryDrugCategory> listCategory = inventoryService.findDrugCategory("");
-model.addAttribute("listCategory", listCategory);
-model.addAttribute("categoryId", categoryId);
-if(categoryId != null && categoryId > 0){
-    List<InventoryDrug> drugs = inventoryService.findDrug(categoryId, null);
-    model.addAttribute("drugs",drugs);
-
-}
-// InventoryStore store = inventoryService.getStoreByCollectionRole(new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles()));
-List <Role>role=new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
-
-InventoryStoreRoleRelation srl=null;
-Role rl = null;
-for(Role r: role){
-    if(inventoryService.getStoreRoleByName(r.toString())!=null){
-        srl = inventoryService.getStoreRoleByName(r.toString());
-        rl=r;
-    }
-}
-InventoryStore store =null;
-if(srl!=null){
-    store = inventoryService.getStoreById(srl.getStoreid());
-
-}
-model.addAttribute("store",store);
-model.addAttribute("date",new Date());
-int userId = Context.getAuthenticatedUser().getId();
-String fowardParam = "subStoreIndentDrug_"+userId;
-List<InventoryStoreDrugIndentDetail> list = (List<InventoryStoreDrugIndentDetail> ) StoreSingleton.getInstance().getHash().get(fowardParam);
-model.addAttribute("listIndent", list);
-
-}
+		
+		Patient Patient = Context.getPatientService().getPatient(patientId);
+		InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
+		List<InventoryDrugCategory> listCategory = inventoryService.findDrugCategory("");
+		model.addAttribute("listCategory", listCategory);
+		model.addAttribute("categoryId", categoryId);
+		if(categoryId != null && categoryId > 0){
+		    List<InventoryDrug> drugs = inventoryService.findDrug(categoryId, null);
+		    model.addAttribute("drugs",drugs);
+		    
+		
+		}
+		// InventoryStore store = inventoryService.getStoreByCollectionRole(new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles()));
+		List <Role>role=new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
+		
+		InventoryStoreRoleRelation srl=null;
+		Role rl = null;
+		for(Role r: role){
+		    if(inventoryService.getStoreRoleByName(r.toString())!=null){
+		        srl = inventoryService.getStoreRoleByName(r.toString());
+		        rl=r;
+		    }
+		}
+		InventoryStore store =null;
+		if(srl!=null){
+		    store = inventoryService.getStoreById(srl.getStoreid());
+		
+		}
+			model.addAttribute("store",store);
+			model.addAttribute("date",new Date());
+			model.addAttribute("patientId", patientId);
+			model.addAttribute("patientIdentifier",Patient.getPatientIdentifier());
+			model.addAttribute("category",Patient.getAttribute(14));
+			model.addAttribute("age",Patient.getAge());
+			model.addAttribute("gender",Patient.getGender());
+			String first = Patient.getFamilyName();
+			String anothername = Patient.getGivenName();
+			String names = first + " " + anothername;
+			model.addAttribute("names",names);
+			int userId = Context.getAuthenticatedUser().getId();
+			String fowardParam = "subStoreIndentDrug_"+userId;
+			List<InventoryStoreDrugIndentDetail> list = (List<InventoryStoreDrugIndentDetail> ) StoreSingleton.getInstance().getHash().get(fowardParam);
+			model.addAttribute("listIndent", list);
+			
+	}
 }
