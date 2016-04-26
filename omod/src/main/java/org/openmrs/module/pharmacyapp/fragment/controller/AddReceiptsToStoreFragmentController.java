@@ -1,5 +1,6 @@
 package org.openmrs.module.pharmacyapp.fragment.controller;
 
+import org.openmrs.Concept;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.InventoryCommonService;
 import org.openmrs.module.hospitalcore.model.InventoryDrug;
@@ -42,6 +43,20 @@ public class AddReceiptsToStoreFragmentController {
 
         return formulationsList;
     }
+    public List<SimpleObject> getFrequencies(UiUtils uiUtils){
+        InventoryCommonService inventoryCommonService = Context
+                .getService(InventoryCommonService.class);
+        List<Concept> drugFrequencyConcept = inventoryCommonService
+                .getDrugFrequency();
+        if(drugFrequencyConcept != null){
+            List<SimpleObject> mydrugFrequencyObj = SimpleObject.fromCollection(drugFrequencyConcept,uiUtils, "id", "name");
+            return mydrugFrequencyObj;
+        }
+        else{
+            return null;
+        }
+    }
+
 
     public List<SimpleObject> fetchDrugListByName(@RequestParam(value = "searchPhrase") String searchPhrase, UiUtils ui) {
         InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);

@@ -1,5 +1,6 @@
 package org.openmrs.module.pharmacyapp.page.controller;
 
+import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.model.*;
@@ -21,7 +22,6 @@ public class MainPageController {
     public String get(PageModel model,@RequestParam(value="tabId",required=false)  String tabId) {
         List<Action> listDrugAttribute = ActionValue.getListDrugAttribute();
         model.addAttribute("listDrugAttribute", listDrugAttribute);
-
         List<InventoryStoreDrugTransactionDetail> listReceiptDrugReturn = null;
         InventoryService inventoryService = (InventoryService) Context
                 .getService(InventoryService.class);
@@ -51,7 +51,6 @@ public class MainPageController {
             List<Action> listSubStoreStatus = ActionValue.getListIndentSubStore();
             model.addAttribute("listSubStoreStatus", listSubStoreStatus);
             model.addAttribute("tabId", tabId);
-
         } else {
             return "redirect: index.htm";
         }
@@ -59,5 +58,5 @@ public class MainPageController {
 
 
     }
-
 }
+
