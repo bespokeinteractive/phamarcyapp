@@ -5,27 +5,29 @@
 
 <script>
 
-    jQuery(document).ready(function () {
+    jq(document).ready(function () {
         jq('.col4 select').bind('change keyup', function() {
             ADVSEARCH.delay();
         });
+		
         jq('input').keydown(function (e) {
             var key = e.keyCode || e.which;
             if ((key == 9 || key == 13) && jq(this).attr('id') != 'searchPhrase') {
                 ADVSEARCH.delay();
             }
         });
+		
         jq('#lastDayOfVisit-display').on("change", function (dateText) {
             ADVSEARCH.delay();
         });
     });
 
-    jQuery.fn.clearForm = function() {
+    jq.fn.clearForm = function() {
         return this.each(function() {
             var type = this.type, tag = this.tagName.toLowerCase();
             if (tag == 'form')
-                return jQuery(':input',this).clearForm();
-            if ((type == 'text' || type == 'hidden') && jQuery(this).attr('id') != 'searchPhrase')
+                return jq(':input',this).clearForm();
+            if ((type == 'text' || type == 'hidden') && jq(this).attr('id') != 'searchPhrase')
                 this.value = '';
             else if (type == 'checkbox' || type == 'radio')
                 this.checked = false;
@@ -51,10 +53,10 @@
         // search patient
         searchPatient: function (currentPage, pageSize) {
             this.beforeSearch();
-            var phrase = jQuery("#searchPhrase").val();
+            var phrase = jq("#searchPhrase").val();
 
             if (phrase.length >= 1) {
-                jQuery("#ajaxLoader").show();
+                jq("#ajaxLoader").show();
                 getPatientQueue(1);
             }
             else{
@@ -91,19 +93,19 @@
     // get queue
     function getPatientQueue(currentPage) {
         this.currentPage = currentPage;
-        var phrase = jQuery("#searchPhrase").val();
+        var phrase = jq("#searchPhrase").val();
         var pgSize = 1000;
-        var gender = jQuery("#gender").val();
-        var age = jQuery("#age").val();
-        var ageRange = jQuery("#ageRange").val();
-        var patientMaritalStatus = jQuery("#patientMaritalStatus").val();
+        var gender = jq("#gender").val();
+        var age = jq("#age").val();
+        var ageRange = jq("#ageRange").val();
+        var patientMaritalStatus = jq("#patientMaritalStatus").val();
         var lastDayOfVisit = jq('#lastDayOfVisit-field').val() && moment(jq('#lastDayOfVisit-field').val()).format('DD/MM/YYYY');
-        var lastVisit = jQuery('#lastVisit').val();
-        var phoneNumber = jQuery("#phoneNumber").val();
-        var relativeName = jQuery("#relativeName").val();
-        var nationalId = jQuery("#nationalId").val();
-        var fileNumber = jQuery("#fileNumber").val();
-        jQuery.ajax({
+        var lastVisit = jq('#lastVisit').val();
+        var phoneNumber = jq("#phoneNumber").val();
+        var relativeName = jq("#relativeName").val();
+        var nationalId = jq("#nationalId").val();
+        var fileNumber = jq("#fileNumber").val();
+        jq.ajax({
             type: "POST",
             url: "${ui.actionLink('billingui','searchPatient','searchSystemPatient')}",
             dataType: "json",
@@ -123,54 +125,70 @@
                 lastDayOfVisit: lastDayOfVisit
             }),
             success: function (data) {
-                jQuery("#ajaxLoader").hide();
+                jq("#ajaxLoader").hide();
                 pData = data;
                 updateSystemQueueTable(data);
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert(xhr);
-                jQuery("#ajaxLoader").hide();
+                jq("#ajaxLoader").hide();
             }
         });
     }
     function HideDashboard() {
-        jQuery('#dashboard').hide();
-        jQuery('#patientSystemSearchForm').clearForm();
+        jq('#dashboard').hide();
+        jq('#patientSystemSearchForm').clearForm();
     }
     function ShowDashboard() {
-        jQuery('#dashboard').toggle(500);
-        jQuery('#patientSystemSearchForm').clearForm();
+        jq('#dashboard').toggle(500);
+        jq('#patientSystemSearchForm').clearForm();
     }
 
     //update the queue table
     function updateSystemQueueTable(data) {
-        var jq = jQuery;
         jq('#patient-search-results-table > tbody > tr').remove();
         var tbody = jq('#patient-search-results-table > tbody');
         for (index in data) {
             var item = data[index];
-            var row = '<tr>';
-            <% props.each {
-               if(it == props.last()){
-                  def pageLinkRevisit = ui.pageLink("pharmacyapp", "issueDrug");
-                   %>
-            row += '<td> ' +
-                    '<a title="Issue Slip" onclick="ADVSEARCH.visitaddIssueSlip('+item.patientId +');"><i class="icon-arrow-right small" ></i></a>'+
-                    '</td>';
-                    
-            <% } else {%>
-            row += '<td>' + item.${ it} + '</td>';
-            row=strReplace(row);
-            <% }
-               } %>
-            row += '</tr>';
-            tbody.append(row);
+            var rows 		= '<tr>';
+			var rowsClass 	= '';
+			var gender 		= item.gender;
+			var lastVisit 	= moment(item.formartedVisitDate, 'DD/MM/YYYY HH:mm:ss').fromNow();
+			var names 		= stringReplace(item.names);
+			var visit 		= moment(item.formartedVisitDate,'DD/MM/YYYY HH:mm:ss');
+			var today 		= moment();
+
+			var hours 	= Math.round(moment.duration(today - visit).asHours());
+			
+			console.log(hours +'hrs - >'+ lastVisit);
+			
+			if (hours <= 24){
+				rowsClass	= 'recent-seen';
+				names	   += ' <span class="recent-lozenge">Within 24hrs</span>'
+			}
+			
+			if (gender === 'M'){
+				gender = 'Male';
+			}
+			else {
+				gender = 'Female'
+			}
+			
+            rows = '<tr class=' + rowsClass + '><td>' + (1+parseInt(index)) + '</td>';
+			rows += '<td>'+item.wrapperIdentifier+'</td>';
+			rows += '<td>'+names+'</td>';
+			rows += '<td>'+item.age+'</td>';
+			rows += '<td>'+gender+'</td>';
+			rows += '<td>'+lastVisit+'</td>';
+			rows += '<td><a title="Issue Slip" onclick="ADVSEARCH.visitaddIssueSlip('+item.patientId +');">ISSUE <i class="icon-arrow-right small" ></i></a></td>';											
+            rows += '</tr>';
+			
+            tbody.append(rows);
             
         }
         if (jq('#patient-search-results-table tr').length <= 1){
-            tbody.append('<tr align="center"><td colspan="6">No patients found</td></tr>');
-        }
-        
+            tbody.append('<tr align="center"><td>&nbsp;</td><td colspan="6">No patients found</td></tr>');
+        }        
     }
     
 </script>
@@ -251,8 +269,9 @@
 	table.dataTable thead th, table.dataTable thead td {
 		padding: 5px 10px;
 	}
-	form input:focus {
-		border: 1px solid #00f !important;
+	form input:focus,
+	form select:focus {
+		outline: 2px none #007fff;
 	}
 	input[type="text"], select {
 		border: 1px solid #aaa;
@@ -347,132 +366,186 @@
 	.ui-tabs-panel h2{
 		display: inline-block;
 	}
+	.recent-seen{
+		background: #fff799 none repeat scroll 0 0!important;
+		color: #000 !important;
+	}
+	.recent-lozenge {
+		border: 1px solid #f00;
+		border-radius: 4px;
+		color: #f00;
+		display: inline-block;
+		font-size: 0.7em;
+		padding: 1px 2px;
+		vertical-align: text-bottom;
+	}
 </style>
 
-<form onsubmit="return false" id="patientSystemSearchForm" method="get">
-    <input autocomplete="off" placeholder="Search by ID,Name or BillId" id="searchPhrase"
-           style="float:left; width:70%; padding:6px 10px -1px;" onkeyup="ADVSEARCH.startSearch(event);">
-    <img id="ajaxLoader" style="display:none; float:left; margin: 3px -4%;"
-         src="${ui.resourceLink("pharmacyapp", "images/ajax-loader.gif")}"/>
-         <div class="info-section">
-            
+<div class="clear"></div>
+<div class="container" id="patients-div">
+	<div class="example">
+		<ul id="breadcrumbs">
+			<li>
+				<a href="${ui.pageLink('referenceapplication', 'home')}">
+					<i class="icon-home small"></i></a>
+			</li>
+			
+			<li>
+				<a href="${ui.pageLink('pharmacyapp', 'dashboard')}">
+					<i class="icon-chevron-right link"></i>Pharmacy
+				</a>
+			</li>
 
-    <div id="advanced" class="advanced" onclick="ShowDashboard();"><i class="icon-filter"></i>ADVANCED SEARCH
-    </div>
+			<li>
+				<i class="icon-chevron-right link"></i>
+				Find Patient
+			</li>
+		</ul>
+	</div>
+	
+	<div class="patient-header new-patient-header">
+		<div class="demographics">
+			<h1 class="name" style="border-bottom: 1px solid #ddd;">
+				<span>ISSUE DRUGS TO PATIENT &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+			</h1>
+		</div>
+		
+		<div class="show-icon">
+			&nbsp;
+		</div>			
+	</div>
 
-    <div id="dashboard" class="dashboard" style="display:none;">
-        <div class="info-section">
-            <div class="info-header">
-                <i class="icon-diagnosis"></i>
+	<form onsubmit="return false" id="patientSystemSearchForm" method="get" style="margin-top: 5px;">
+		<input autocomplete="off" placeholder="Search by ID,Name or BillId" id="searchPhrase"
+			   style="float:left; width:70%; padding:6px 10px -1px;" onkeyup="ADVSEARCH.startSearch(event);">
+			   
+		<img id="ajaxLoader" style="display:none; float:left; margin: 3px -4%;"
+			 src="/openmrs/ms/uiframework/resource/registration/images/ajax-loader.gif"/>
+			 <div class="info-section">
+				
 
-                <h3>ADVANCED SEARCH</h3>
-                <span id="as_close" onclick="HideDashboard();">
-                    <div class="identifiers">
-                        <span style="background:#00463f; padding: 1px 8px 5px;">x</span>
-                    </div>
-                </span>
-            </div>
+		<div id="advanced" class="advanced" onclick="ShowDashboard();"><i class="icon-filter"></i>ADVANCED SEARCH
+		</div>
 
-            <div class="info-body" style="min-height: 140px;">
-                <ul>
-                    <li>
-                        <div class="onerow">
-                            <div class="col4">
-                                <label for="gender">Gender</label>
-                                <select style="width: 160px" id="gender" name="gender">
-                                    <option value="Any">Any</option>
-                                    <option value="M">Male</option>
-                                    <option value="F">Female</option>
-                                </select>
-                            </div>
+		<div id="dashboard" class="dashboard" style="display:none;">
+			<div class="info-section">
+				<div class="info-header">
+					<i class="icon-diagnosis"></i>
 
-                            <div class="col4">
-                                <label>Last Visit</label>
-                                ${ui.includeFragment("uicommons", "field/datetimepicker", [formFieldName: 'lastDayOfVisit', id: 'lastDayOfVisit', label: '', useTime: false, defaultToday: false, class: ['newdtp'], endDate: new Date()])}
-                            </div>
+					<h3>ADVANCED SEARCH</h3>
+					<span id="as_close" onclick="HideDashboard();">
+						<div class="identifiers">
+							<span style="background:#00463f; padding: 1px 8px 5px;">x</span>
+						</div>
+					</span>
+				</div>
 
-                            <div class="col4 last">
-                                <label for="relativeName">Relative Name</label>
-                                <input type="text" id="relativeName" name="relativeName" style="width: 160px"
-                                       placeholder="Relative Name">
-                            </div>
-                        </div>
+				<div class="info-body" style="min-height: 140px;">
+					<ul>
+						<li>
+							<div class="onerow">
+								<div class="col4">
+									<label for="gender">Gender</label>
+									<select style="width: 160px" id="gender" name="gender">
+										<option value="Any">Any</option>
+										<option value="M">Male</option>
+										<option value="F">Female</option>
+									</select>
+								</div>
 
-                        <div class="onerow" style="padding-top: 2px;">
-                            <div class="col4">
-                                <label for="age">Age</label>
-                                <input type="text" id="age" name="age" style="width: 160px" placeholder="Patient Age">
-                            </div>
+								<div class="col4">
+									<label>Last Visit</label>
+									${ui.includeFragment("uicommons", "field/datetimepicker", [formFieldName: 'lastDayOfVisit', id: 'lastDayOfVisit', label: '', useTime: false, defaultToday: false, class: ['newdtp'], endDate: new Date()])}
+								</div>
 
-                            <div class="col4">
-                                <label for="gender">Previous Visit</label>
-                                <select style="width: 160px" id="lastVisit">
-                                    <option value="Any">Anytime</option>
-                                    <option value="31">Last month</option>
-                                    <option value="183">Last 6 months</option>
-                                    <option value="366">Last year</option>
-                                </select>
-                            </div>
+								<div class="col4 last">
+									<label for="relativeName">Relative Name</label>
+									<input type="text" id="relativeName" name="relativeName" style="width: 160px"
+										   placeholder="Relative Name">
+								</div>
+							</div>
 
-                            <div class="col4 last">
-                                <label for="nationalId">National ID</label>
-                                <input type="text" id="nationalId" name="nationalId" style="width: 160px"
-                                       placeholder="National ID">
-                            </div>
-                        </div>
+							<div class="onerow" style="padding-top: 2px;">
+								<div class="col4">
+									<label for="age">Age</label>
+									<input type="text" id="age" name="age" style="width: 160px" placeholder="Patient Age">
+								</div>
 
-                        <div class="onerow" style="padding-top:2px;">
-                            <div class="col4">
-                                <label for="ageRange">Range &plusmn;</label>
-                                <select id="ageRange" name="ageRange" style="width: 160px">
-                                    <option value="0">Exact</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                </select>
-                            </div>
+								<div class="col4">
+									<label for="gender">Previous Visit</label>
+									<select style="width: 160px" id="lastVisit">
+										<option value="Any">Anytime</option>
+										<option value="31">Last month</option>
+										<option value="183">Last 6 months</option>
+										<option value="366">Last year</option>
+									</select>
+								</div>
 
-                            <div class="col4">
-                                <label for="phoneNumber">Phone No.</label>
-                                <input type="text" id="phoneNumber" name="phoneNumber" style="width: 160px"
-                                       placeholder="Phone No.">
-                            </div>
+								<div class="col4 last">
+									<label for="nationalId">National ID</label>
+									<input type="text" id="nationalId" name="nationalId" style="width: 160px"
+										   placeholder="National ID">
+								</div>
+							</div>
 
-                            <div class="col4 last">
-                                <label for="fileNumber">File Number</label>
-                                <input type="text" id="fileNumber" name="fileNumber" style="width: 160px"
-                                       placeholder="File Number">
-                            </div>
-                        </div>
+							<div class="onerow" style="padding-top:2px;">
+								<div class="col4">
+									<label for="ageRange">Range &plusmn;</label>
+									<select id="ageRange" name="ageRange" style="width: 160px">
+										<option value="0">Exact</option>
+										<option value="1">1</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+									</select>
+								</div>
 
-                        <div class="onerow" style="padding-top: 1px;">
-                            <div class="col4">
-                                <label for="patientMaritalStatus">Marital Status</label>
-                                <select id="patientMaritalStatus" style="width: 160px">
-                                    <option value="">Any</option>
-                                    <option value="Single">Single</option>
-                                    <option value="Married">Married</option>
-                                    <option value="Divorced">Divorced</option>
-                                    <option value="Widow">Widow</option>
-                                    <option value="Widower">Widower</option>
-                                    <option value="Separated">Separated</option>
-                                </select>
-                            </div>
+								<div class="col4">
+									<label for="phoneNumber">Phone No.</label>
+									<input type="text" id="phoneNumber" name="phoneNumber" style="width: 160px"
+										   placeholder="Phone No.">
+								</div>
 
-                            <div class="col4">
-                                &nbsp;
-                            </div>
+								<div class="col4 last">
+									<label for="fileNumber">File Number</label>
+									<input type="text" id="fileNumber" name="fileNumber" style="width: 160px"
+										   placeholder="File Number">
+								</div>
+							</div>
 
-                            <div class="col4 last">&nbsp;</div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</form>
+							<div class="onerow" style="padding-top: 1px;">
+								<div class="col4">
+									<label for="patientMaritalStatus">Marital Status</label>
+									<select id="patientMaritalStatus" style="width: 160px">
+										<option value="">Any</option>
+										<option value="Single">Single</option>
+										<option value="Married">Married</option>
+										<option value="Divorced">Divorced</option>
+										<option value="Widow">Widow</option>
+										<option value="Widower">Widower</option>
+										<option value="Separated">Separated</option>
+									</select>
+								</div>
+
+								<div class="col4">
+									&nbsp;
+								</div>
+
+								<div class="col4 last">&nbsp;</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</form>
+
+</div>
+
+
+
+
 
 <div id="patient-search-results" style="display: block; margin-top:3px;">
     <div role="grid" class="dataTables_wrapper" id="patient-search-results-table_wrapper">
@@ -480,35 +553,19 @@
                aria-describedby="patient-search-results-table_info">
             <thead>
             <tr role="row">
-                <th class="ui-state-default" role="columnheader" style="width: 220px;">
-                    <div class="DataTables_sort_wrapper">Identifier<span class="DataTables_sort_icon"></span>
-                    </div>
-                </th>
-
-                <th class="ui-state-default" role="columnheader" width="*">
-                    <div class="DataTables_sort_wrapper">Name<span class="DataTables_sort_icon"></span></div>
-                </th>
-
-                <th class="ui-state-default" role="columnheader" style="width: 60px;">
-                    <div class="DataTables_sort_wrapper">Age<span class="DataTables_sort_icon"></span></div>
-                </th>
-
-                <th class="ui-state-default" role="columnheader" style="width: 60px;">
-                    <div class="DataTables_sort_wrapper">Gender<span class="DataTables_sort_icon"></span></div>
-                </th>
-
-                <th class="ui-state-default" role="columnheader" style="width: 100px;">
-                    <div class="DataTables_sort_wrapper">Last Visit<span class="DataTables_sort_icon"></span></div>
-                </th>
-
-                <th class="ui-state-default" role="columnheader" style="width: 60px;">
-                    <div class="DataTables_sort_wrapper">Action<span class="DataTables_sort_icon"></span></div>
-                </th>
+				<th style="width: 5px;"		>#</th>
+                <th style="width: 220px;"	>Identifier</th>
+                <th width="*"				>Name</th>
+                <th style="width: 60px;"	>Age</th>
+                <th style="width: 60px;"	>Gender</th>
+                <th style="width: 130px;"	>Last Visit</th>
+                <th style="width: 80px;"	>Action</th>
             </tr>
             </thead>
 
             <tbody role="alert" aria-live="polite" aria-relevant="all">
             <tr align="center">
+                <td></td>
                 <td colspan="6">No patients found</td>
             </tr>
             </tbody>

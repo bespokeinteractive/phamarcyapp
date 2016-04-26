@@ -2,6 +2,10 @@ table{
 	margin-top: 5px!important;
 }
 
+table a{
+	cursor: pointer;
+}
+
 td a:hover{
 	text-decoration: none;
 	color: #00f;
@@ -59,6 +63,7 @@ td a:hover{
 }
 
 #queue-div .show-icon,
+#patients-div .show-icon,
 #dispense-div .show-icon {
 	display: inline-block;
     float: right;
@@ -73,6 +78,10 @@ td a:hover{
 
 #dispense-div .show-icon {
     background: rgba(0, 0, 0, 0) url("../images/dispense.png") no-repeat scroll 0 0 / 100% auto;
+}
+
+#patients-div .show-icon {
+    background: rgba(0, 0, 0, 0) url("../images/search.png") no-repeat scroll 0 0 / 100% auto;
 }
 
 #dispense-div .add-on {
