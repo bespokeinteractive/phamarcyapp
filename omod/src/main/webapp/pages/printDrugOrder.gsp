@@ -189,7 +189,13 @@
         var orders = new DrugOrderViewModel();
         ko.applyBindings(orders, jq("#dispensedDrugs")[0]);
 
+
+        jq("#printOrder").click(function(f) {
+            window.location.href = emr.pageLink ("pharmacyapp", "main", { "tabId" : "dispense"});
+        });
     });//end of document ready
+
+
 </script>
 
 <div class="container">
