@@ -7,16 +7,29 @@
     var selectDrug;
     jq(function () {
         var cleared = false;
+        var selectedDrugId;
         jq("#drugSelection").hide();
-
+        jq("#addDrugsButton").on("click", function (e) {
+            adddrugdialog.show();
+        });
         var indentName = [];
         var adddrugdialog = emr.setupConfirmationDialog({
             selector: '#addDrugDialog',
             actions: {
                 confirm: function () {
-                    if (jq("#drugCategory").val() == 0) {
+                    var sDrugCategory = jq("#drugCategory").val();
+                    var sDrug = jq("#drugName").val();
+                    var sDrugName;
+                    if (sDrug == 0) {
+                        sDrug = selectedDrugId;
+                        sDrugName = selectDrug;
+                    }else{
+                        sDrugName = jq('#drugName :selected').text();
+                    }
+
+                    if (sDrugCategory == 0) {
                         jq().toastmessage('showNoticeToast', "Select a Drug Category!");
-                    } else if (jq("#drugName").val() == 0) {
+                    } else if (sDrug == 0 || sDrug == null) {
                         jq().toastmessage('showNoticeToast', "Select a Drug Name!");
                     } else if (jq("#drugFormulation").val() == 0) {
                         jq().toastmessage('showNoticeToast', "Select a Formulation!");
@@ -31,20 +44,22 @@
                         var tbody = jq('#addDrugsTable').children('tbody');
                         var table = tbody.length ? tbody : jq('#addDrugsTable');
                         var index = drugOrder.length;
-                        table.append('<tr><td>' + (index + 1) + '</td><td>' + jq("#drugCategory :selected").text() + '</td><td>' + jq("#drugName :selected").text() +
+                        table.append('<tr><td>' + (index + 1) + '</td><td>' + jq("#drugCategory :selected").text() + '</td><td>' + sDrugName +
                                 '</td><td>' + jq("#drugFormulation option:selected").text() + '</td><td>' + jq("#quantity").val() +
                                 '</td><td>' + '<a class="remover" href="#" onclick="removeListItem(' + index + ');"><i class="icon-remove small" style="color:red"></i></a>' + '</td></tr>');
                         drugOrder.push(
                                 {
                                     drugCategoryId: jq("#drugCategory").children(":selected").attr("id"),
-                                    drugId: jq("#drugName").children(":selected").attr("id"),
+                                    drugId: sDrug,
                                     drugFormulationId: jq("#drugFormulation").children(":selected").attr("id"),
                                     quantity: jq("#quantity").val(),
                                     drugCategoryName: jq('#drugCategory :selected').text(),
-                                    drugName: jq('#drugName :selected').text(),
+                                    drugName: sDrugName,
                                     drugFormulationName: jq('#drugFormulation :selected').text()
                                 }
                         );
+
+                        console.log(drugOrder);
 
                         jq("#quantity").val('');
                         jQuery("#drugKey").show();
@@ -104,7 +119,7 @@
                     }
                 },
                 cancel: function () {
-                  jq("#dialogForm").reset();
+                    jq("#dialogForm").reset();
                     addnameforindentslipdialog.close();
                 }
             }
@@ -268,14 +283,14 @@
             select: function (event, ui) {
                 event.preventDefault();
                 selectDrug = ui.item.value.name;
+                selectedDrugId = ui.item.value.id;
+
                 jQuery("#searchPhrase").val(selectDrug);
 
                 //set parent category
                 var catId = ui.item.value.category.id;
-
-
                 jq("#drugCategory").val(catId);
-                //set background drug name - frusemide
+
 
                 var drugName = selectDrug;
                 var drugFormulationData = "";
