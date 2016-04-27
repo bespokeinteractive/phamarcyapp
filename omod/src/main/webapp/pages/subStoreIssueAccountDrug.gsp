@@ -400,6 +400,79 @@
     </div>
 
     <div class="patient-header new-patient-header" id="accountDrugIssue">
+
+        <!-- PRINT DIV -->
+        <div id="printDivAccount" style="display: none;">
+            <div style="margin: 10px auto; width: 981px; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
+
+                <br/>
+                <br/>
+                <center style="float:center;font-size: 2.2em">Issue Drugs To Account: <span data-bind="text: listAccount() ? listAccount().name : 'unknown'"></span></center>
+                <br/>
+                <br/>
+                <span style="float:right;font-size: 1.7em">Date: ${date}</span>
+                <br/>
+                <br/>
+
+                <div>
+                    <table id="addDrugsAccountPrint" class="dataTable">
+                        <thead>
+                        <tr role="row">
+                            <th class="ui-state-default">
+                                <div class="DataTables_sort_wrapper">S.No<span class="DataTables_sort_icon"></span>
+                                </div>
+                            </th>
+
+                            <th class="ui-state-default">
+                                <div class="DataTables_sort_wrapper">Drug Category<span
+                                        class="DataTables_sort_icon"></span>
+                                </div>
+                            </th>
+
+                            <th class="ui-state-default">
+                                <div class="DataTables_sort_wrapper">Drug Name<span class="DataTables_sort_icon"></span>
+                                </div>
+                            </th>
+
+                            <th class="ui-state-default">
+                                <div class="DataTables_sort_wrapper">Formulation<span
+                                        class="DataTables_sort_icon"></span></div>
+                            </th>
+
+                            <th class="ui-state-default">
+                                <div class="DataTables_sort_wrapper">Quantity<span class="DataTables_sort_icon"></span>
+                                </div>
+                            </th>
+                            <th class="ui-state-default">
+
+                            </th>
+                        </tr>
+                        </thead>
+
+                        <tbody data-bind="foreach: selectedDrugs">
+                        <tr>
+                            <td data-bind="text: \$index() + 1"></td>
+                            <td data-bind="text: item().drug.category.name"></td>
+                            <td data-bind="text: item().drug.name"></td>
+                            <td>
+                                <span data-bind="text: item().formulation.name"></span>-
+                                <span data-bind="text: item().formulation.dozage"></span>
+                            </td>
+                            <td data-bind="text: quantity"></td>
+                            <td>
+                                <a class="remover" href="#" data-bind="click: \$root.removeDrugFromList">
+                                    <i class="icon-remove small" style="color:red"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <br/><br/><br/><br/><br/><br/>
+                <span style="float:right;font-size: 1.5em">Signature of inventory clerk/ Stamp</span>
+            </div>
+        </div>
+        <!-- END PRINT DIV -->
         <div class="dashboard clear">
             <div class="info-section">
                 <div class="info-header">
@@ -587,78 +660,6 @@
             </form>
         </div>
 
-        <!-- PRINT DIV -->
-        <div id="printDivAccount" style="display: none;">
-            <div style="margin: 10px auto; width: 981px; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
-
-                <br/>
-                <br/>
-                <center style="float:center;font-size: 2.2em">Issue Drugs To Account:</center>
-                <br/>
-                <br/>
-                <span style="float:right;font-size: 1.7em">Date: ${date}</span>
-                <br/>
-                <br/>
-
-                <div>
-                    <table id="addDrugsAccountPrint" class="dataTable">
-                        <thead>
-                        <tr role="row">
-                            <th class="ui-state-default">
-                                <div class="DataTables_sort_wrapper">S.No<span class="DataTables_sort_icon"></span>
-                                </div>
-                            </th>
-
-                            <th class="ui-state-default">
-                                <div class="DataTables_sort_wrapper">Drug Category<span
-                                        class="DataTables_sort_icon"></span>
-                                </div>
-                            </th>
-
-                            <th class="ui-state-default">
-                                <div class="DataTables_sort_wrapper">Drug Name<span class="DataTables_sort_icon"></span>
-                                </div>
-                            </th>
-
-                            <th class="ui-state-default">
-                                <div class="DataTables_sort_wrapper">Formulation<span
-                                        class="DataTables_sort_icon"></span></div>
-                            </th>
-
-                            <th class="ui-state-default">
-                                <div class="DataTables_sort_wrapper">Quantity<span class="DataTables_sort_icon"></span>
-                                </div>
-                            </th>
-                            <th class="ui-state-default">
-
-                            </th>
-                        </tr>
-                        </thead>
-
-                        <tbody data-bind="foreach: selectedDrugs">
-                        <tr>
-                            <td data-bind="text: \$index() + 1"></td>
-                            <td data-bind="text: item().drug.category.name"></td>
-                            <td data-bind="text: item().drug.name"></td>
-                            <td>
-                                <span data-bind="text: item().formulation.name"></span>-
-                                <span data-bind="text: item().formulation.dozage"></span>
-                            </td>
-                            <td data-bind="text: quantity"></td>
-                            <td>
-                                <a class="remover" href="#" data-bind="click: \$root.removeDrugFromList">
-                                    <i class="icon-remove small" style="color:red"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <br/><br/><br/><br/><br/><br/>
-                <span style="float:right;font-size: 1.5em">Signature of inventory clerk/ Stamp</span>
-            </div>
-        </div>
-        <!-- END PRINT DIV -->
 
     </div>
 
