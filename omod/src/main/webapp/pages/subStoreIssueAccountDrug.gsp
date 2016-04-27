@@ -1,8 +1,6 @@
 <%
     ui.decorateWith("appui", "standardEmrPage", [title: "Pharmacy Module: Issue Account Drug"])
 %>
-
-
 <script>
     jq(function () {
         var accountName;
@@ -18,8 +16,6 @@
             selector: '#addIssueDialog',
             actions: {
                 confirm: function () {
-
-
                     jq("#issueDrugSelection").hide();
                     jq("#issueDrugKey").show();
                     addissuedialog.close();
@@ -282,20 +278,18 @@
             self.processIssueDrugToAccount = function () {
                 if (isAccountCreated) {
                     //process drug addition to issue list
-                    indentName = JSON.stringify(indentName);
+                    accountObject = JSON.stringify(accountObject);
+                    var drugsJson = ko.toJSON(self.selectedDrugs());
 
                     var addIssueDrugsData = {
-                        'drugOrder': drugOrder,
-                        'indentName': indentName,
-                        'send': 1,
-                        'action': 2,
-                        'keepThis': false
+                        'accountObject': accountObject,
+                        'selectedDrugs': drugsJson
                     };
-                    jq.getJSON('${ ui.actionLink("pharmacyapp", "subStoreIndentDrug", "saveIndentSlip") }', addIssueDrugsData)
+                    jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "processIssueDrugAccount") }', addIssueDrugsData)
                             .success(function (data) {
                                 jq().toastmessage('showNoticeToast', "Save Indent Successful!");
                                 window.location.href = emr.pageLink("pharmacyapp", "main", {
-                                    "tabId": "manage"
+                                    "tabId": "accountdrug"
                                 });
 
                             })
@@ -349,15 +343,13 @@
                         };
 
                         jq.ajax({
-                            url:'${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "postAccountName") }',
+                            url: '${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "postAccountName") }',
                             data: addAccountNameData,
                             type: "get",
-                            dataType:"json",
+                            dataType: "json",
                             async: false,
                             success: function (data) {
                                 var result = data.message;
-                                issueList.listAccount(result);
-                                console.log(issueList.listAccount());
                                 if (result === "error") {
                                     jq().toastmessage('showErrorToast', "Error Saving Account!");
                                     issueList.listAccount();
@@ -365,6 +357,7 @@
                                 } else {
                                     jq().toastmessage('showNoticeToast', "Save Account Successful!");
                                     issueList.listAccount(result);
+                                    console.log(issueList.listAccount().name);
                                     accountObject = result;
                                     isAccountCreated = true;
                                 }
@@ -373,8 +366,6 @@
                                 jq().toastmessage('showNoticeToast', "AJAX error!" + err);
                             }
                         });
-
-                        console.log(accountObject);
 
                         addaccountforissueslipdialog.close();
                         printAccountDiv();
@@ -419,7 +410,9 @@
             </div>
 
             <div data-bind="visible: listAccount">
-                <h3>Account: <span data-bind="text: listAccount"></span></h3>
+                <h3>Account: <span data-bind="text: listAccount() ? listAccount().name : 'unknown'"></span></h3>
+
+
             </div>
         </div>
 

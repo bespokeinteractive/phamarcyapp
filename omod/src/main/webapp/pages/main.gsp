@@ -54,7 +54,6 @@
 					<li><a href="#accountdrug">Issue drug to Account</a></li>
 					<li><a href="#manage">Indent Drugs</a></li>
 				</ul>
-				
 				<div id="accountdrug">
 					<div>${ ui.includeFragment("pharmacyapp", "issueDrugAccountList") }</div>
 				</div>

@@ -4,8 +4,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.model.InventoryDrug;
 import org.openmrs.module.hospitalcore.model.InventoryDrugCategory;
 import org.openmrs.module.inventory.InventoryService;
-import org.openmrs.module.inventory.model.InventoryStoreDrugAccount;
-import org.openmrs.module.pharmacyapp.StoreSingleton;
 import org.openmrs.ui.framework.SimpleObject;
 import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
@@ -33,8 +31,5 @@ public class SubStoreIssueAccountDrugPageController {
             model.addAttribute("drugs", SimpleObject.create("drugs",simpleDrugs).toJson());
         }
         model.addAttribute("date", new Date());
-        int userId = Context.getAuthenticatedUser().getId();
-        InventoryStoreDrugAccount issueDrugAccount = (InventoryStoreDrugAccount) StoreSingleton.getInstance().getHash().get("issueDrugAccount_" + userId);
-        model.addAttribute("issueDrugAccount", issueDrugAccount);
     }
 }
