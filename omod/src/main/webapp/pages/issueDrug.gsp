@@ -4,6 +4,8 @@
 
 <script>
     var drugOrder = [];
+	var drugIdnt = 0;
+	
     jq(function () {
         var cleared = false;
         jq("#drugSelection").hide();
@@ -30,9 +32,17 @@
                         var tbody = jq('#addDrugsTable').children('tbody');
                         var table = tbody.length ? tbody : jq('#addDrugsTable');
                         var index = drugOrder.length;
-                        table.append('<tr><td>' + (index + 1) + '</td><td>' + jq("#issueDrugCategory :selected").text() + '</td><td>' + jq("#drugPatientName").val() +
+						
+						var commt = jq('#comment').val().trim();
+						
+						if (commt == ''){
+							commt = 'N/A'
+						}						
+						
+                        table.append('<tr><td>' + (index + 1) + '</td><td>' + jq("#issueDrugCategory :selected").text() + '</td><td>' + jq("#drugPatientName").children(":selected").text() +
                                 '</td><td>' + jq("#drugPatientFormulation option:selected").text() + '</td><td>' + jq("#patientQuantity").val() +
-                                '</td><td>' + '<a class="remover" href="#" onclick="removeListItem(' + index + ');"><i class="icon-remove small" style="color:red"></i></a>' + '</td></tr>');
+								'</td><td>' + commt +
+                                '</td><td style="text-align: center">' + '<a class="remover" href="#" onclick="removeListItem(' + index + ');"><i class="icon-remove small" style="color:red"></i></a>' + '</td></tr>');
                         drugOrder.push(
                                 {
                                     issueDrugCategoryId: jq("#issueDrugCategory").children(":selected").attr("id"),
@@ -64,33 +74,15 @@
         });
 
         jq("#addPatientDrugsButton").on("click", function (e) {
-            jq('#issueDrugCategory option').eq(0).prop('selected', true).change();
+            jq('#issueDrugCategory option').eq(0).prop('selected', true);
+			
+			jq("#searchPhrase").val('');
+			jq("#comment").val('');
+			
+			jq("#drugKey").show();
+            jq("#drugSelection").hide();
 			
             addpatientdrugdialog.show();
-        });
-		
-        jq("#clearSlip").on("click", function (e) {
-            if (drugOrder.length === 0) {
-                jq().toastmessage('showNoticeToast', "Drug List has no Drug!");
-            } else {
-                if (confirm("Are you sure about this?")) {
-                    drugOrder = [];
-                    jq('#addDrugsTable > tbody > tr').remove();
-                    var tbody = jq('#addDrugsTable > tbody');
-                    var row = '<tr align="center"><td colspan="5">No Drugs Listed</td></tr>';
-                    tbody.append(row);
-                    cleared = true;
-                } else {
-                    return false;
-                }
-            }
-
-        });
-		
-        jq("#returnToDrugList").on("click", function (e) {
-            window.location.href = emr.pageLink("pharmacyapp", "main", {
-                "tabId": "manage"
-            });
         });
 
         jq("#printSlip").on("click", function (e) {
@@ -106,6 +98,7 @@
 
 
                 var printDiv = jQuery("#printDiv").html();
+				
                 var printWindow = window.open('', '', 'height=400,width=800');
                 printWindow.document.write('<html><head><title>Drug Slip :-Support by KenyaEHRS</title>');
                 printWindow.document.write('</head>');
@@ -130,8 +123,7 @@
                 jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "fetchDrugNames") }', {
                     categoryId: categoryId
                 }).success(function (data) {
-                    jQuery("#drugKey").hide();
-                    jQuery("#drugSelection").show();
+                    
 
 
                     for (var key in data) {
@@ -153,6 +145,25 @@
 
                     jq(drugPatientNameData).appendTo("#drugPatientName");
                     jq('#drugPatientName').change();
+					
+					if (jq('#searchPhrase').val() !== ""){
+						jq("select option").filter(function() {
+							return jq(this).text() == jq('#searchPhrase').val(); 
+						}).prop('selected', true);
+						
+						if (jq("#drugPatientName").children(":selected").text() != jq('#searchPhrase').val()){
+							jq('#searchPhrase').val('');
+							
+							jq("#drugKey").hide();
+							jq("#drugSelection").show();
+						}
+						
+						jq('#drugPatientName').change();						
+					}
+					else {
+						jq("#drugKey").hide();
+						jq("#drugSelection").show();
+					}
                 }).error(function (xhr, status, err) {
                     jq().toastmessage('showNoticeToast', "AJAX error!" + err);
                 });
@@ -227,54 +238,17 @@
                 //set parent category
                 var catId = ui.item.value.category.id;
                 var drgId = ui.item.value.id;
-                console.log(drgId);
-                jq("#issueDrugCategory").val(catId);
-                jq("#issueDrugCategory").change();
+                console.log(drgId);				
+				
+                jq("#issueDrugCategory").val(catId).change();
                 //set background drug name - frusemide
+				jq('#drugPatientName').val(drgId);
 
 
             }
         });
 
-        jq("#searchPhrase").on("change", function (e) {
-            var drugPatientName = jq(this).val();
-            var drugPatientFormulationData = "";
-            jq('#drugPatientFormulation').empty();
-
-            if (drugPatientName === "") {
-                jq('<option value="">Select Formulation</option>').appendTo("#drugPatientFormulation");
-            } else {
-                jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "getFormulationByDrugName") }', {
-                    drugPatientFormulation: drugPatientFormulation
-                }).success(function (data) {
-                    for (var key in data) {
-                        if (data.hasOwnProperty(key)) {
-                            var val = data[key];
-                            for (var i in val) {
-                                var name, dozage;
-                                if (val.hasOwnProperty(i)) {
-                                    var j = val[i];
-                                    if (i == "id") {
-                                        drugPatientFormulationData = drugPatientFormulationData + '<option id="' + j + '">';
-                                    } else if (i == "name") {
-                                        name = j;
-                                    }
-                                    else {
-                                        dozage = j;
-                                        drugPatientFormulationData = drugPatientFormulationData + (name + "-" + dozage) + '</option>';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    jq(drugPatientFormulationData).appendTo("#drugPatientFormulation");
-                }).error(function (xhr, status, err) {
-                    jq('<option value="">Select Formulation</option>').appendTo("#drugPatientFormulation");
-                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
-                });
-            }
-
-        });
+        
 
         jq("#addPatientDrugsSubmitButton").click(function (event) {
             if (drugOrder.length < 1) {
@@ -304,10 +278,6 @@
         } else {
             return false;
         }
-
-    }
-
-    function loadDrugFormulations() {
 
     }
     
@@ -396,11 +366,46 @@
 	th:first-child{
 		width: 5px;
 	}
-	th:nth-child(5){
-		width: 75px;
+	th:nth-child(4){
+		min-width: 40px;
 	}
-	th:first-child{
-		width: 5px;
+	th:nth-child(5){
+		width: 40px;
+	}
+	th:last-child{
+		width: 55px;
+	}
+	th:nth-child(6){
+		min-width: 40px;
+	}
+	.dialog .dialog-content li {
+		margin-bottom: 0px;
+	}
+	.dialog label{
+		display: inline-block;
+		width: 115px;
+	}
+	.dialog select option {
+		font-size: 1.0em;
+	}
+	.dialog select{
+		display: inline-block;
+		margin: 4px 0 0;
+		width: 270px;
+	}
+	.dialog input {
+		display: inline-block;
+		width: 248px;
+		min-width: 10%;
+	}
+	.dialog textarea {
+		display: inline-block;
+		width: 248px;
+		min-width: 10%;
+		resize: none
+	}
+	form input:focus, form select:focus, form textarea:focus, form ul.select:focus, .form input:focus, .form select:focus, .form textarea:focus, .form ul.select:focus{
+		outline: 2px none #007fff;
 	}
 </style>
 
@@ -483,7 +488,9 @@
 				<th>DRUG CATEGORY</th>
 				<th>DRUG NAME</th>
 				<th>FORMULATION</th>
-				<th>QUANTITY<th>
+				<th>QNTY</th>
+				<th>COMMENT</th>
+				<th>ACTION</th>
 			</tr>
 		</thead>
 
@@ -520,7 +527,7 @@
             <div class="dialog-content">
                 <ul>
                     <li>
-                        <label for="issueDrugCategory"> Issue Drug Category</label>
+                        <label for="issueDrugCategory">Drug Category</label>
                         <select name="issueDrugCategory" id="issueDrugCategory">
                             <option value="0">Select Category</option>
                             <% if (listCategory != null || listCategory != "") { %>
@@ -532,31 +539,31 @@
                     </li>
                     <li>
                         <div id="drugKey">
-                            <label for="searchPhrase"> Issue Drug Name</label>
-                            <input id="searchPhrase" name="searchPhrase" onblur="loadDrugFormulations();"/>
+                            <label for="searchPhrase">Drug Name</label>
+                            <input id="searchPhrase" name="searchPhrase"/>
                         </div>
 
                         <div id="drugSelection">
-                            <label for="drugPatientName">Issue Drug Name</label>
-                            <select name="drugPatientName" id="drugPatientName">
+                            <label for="drugPatientName">Drug Name</label>
+                            <select name="drugPatientName" id="drugPatientName"/>
                                 <option value="0">Select Drug</option>
                             </select>
                         </div>
                     </li>
                     <li>
-                        <lable for="drugPatientFormulation"> Issue Formulation</lable>
-                        <select name="drugPatientFormulation" id="drugPatientFormulation">
+                        <label for="drugPatientFormulation">Formulation</label>
+                        <select name="drugPatientFormulation" id="drugPatientFormulation"/>
                             <option value="0">Select Formulation</option>
                         </select>
                     </li>
 
                     <li>
-                        <label for="patientQuantity">Issue Quantity</label>
-                        <input name="patientQuantity" id="patientQuantity" type="text">
+                        <label for="patientQuantity">Quantity</label>
+                        <input name="patientQuantity" id="patientQuantity" type="text"/>
                     </li>
                      <li>
-                        <label for="comment">Issue Comment</label>
-                        <input name="comment" id="comment" type="text">
+                        <label for="comment">Comments</label>
+                        <textarea name="comment" id="comment" type="text"></textarea>
                     </li>
 
                 </ul>
