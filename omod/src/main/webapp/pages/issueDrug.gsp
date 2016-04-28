@@ -48,7 +48,8 @@
                         jq("#patientQuantity").val('');
                         jQuery("#drugKey").show();
                         jQuery("#drugSelection").hide();
-                        adddrugdialog.close();
+						
+                        addpatientdrugdialog.close();
                     }
 
                 },
@@ -56,64 +57,18 @@
                     jq("#patientQuantity").val('');
                     jQuery("#drugKey").show();
                     jQuery("#drugSelection").hide();
-                    adddrugdialog.close();
+					
+                    addpatientdrugdialog.close();
                 }
             }
         });
-
-
-        var addnameforDrugslipdialog = emr.setupConfirmationDialog({
-            selector: '#addNameForDrugSlip',
-            actions: {
-                confirm: function () {
-                    if (jq("#slipName").val() == '') {
-                        jq().toastmessage('showNoticeToast', "Enter drug slip Name!");
-                    } else if (jq("#mainstore").val() == 0) {
-                        jq().toastmessage('showNoticeToast', "Select a Main Store!");
-                    } else {
-                        indentName.push(
-                                {
-                                    indentName: jq("#indentName").val(),
-                                    mainstore: jq("#mainstore").children(":selected").attr("id")
-                                }
-                        );
-                        drugOrder = JSON.stringify(drugOrder);
-                        indentName = JSON.stringify(indentName);
-
-                        var addDrugsData = {
-                            'drugOrder': drugOrder,
-                            'indentName': indentName,
-                            'send': 1,
-                            'action': 2,
-                            'keepThis': false
-                        };
-                        jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrug", "saveDrugSlip") }', addDrugsData)
-                                .success(function (data) {
-                                    jq().toastmessage('showNoticeToast', "Save Drug Slip Successful!");
-                                    window.location.href = emr.pageLink("pharmacyapp", "main", {
-                                        "tabId": "manage"
-                                    });
-
-                                })
-                                .error(function (xhr, status, err) {
-                                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
-                                })
-                        addnamefordrugslipdialog.close();
-                        jq("#dialogForm").reset();
-                    }
-                },
-                cancel: function () {
-//                    jq("#dialogForm").reset();
-                    addnamefordrugslipdialog.close();
-                }
-            }
-        });
-
 
         jq("#addPatientDrugsButton").on("click", function (e) {
             jq('#issueDrugCategory option').eq(0).prop('selected', true).change();
+			
             addpatientdrugdialog.show();
         });
+		
         jq("#clearSlip").on("click", function (e) {
             if (drugOrder.length === 0) {
                 jq().toastmessage('showNoticeToast', "Drug List has no Drug!");
@@ -131,6 +86,7 @@
             }
 
         });
+		
         jq("#returnToDrugList").on("click", function (e) {
             window.location.href = emr.pageLink("pharmacyapp", "main", {
                 "tabId": "manage"
@@ -332,13 +288,13 @@
 
     function removeListItem(counter) {
         if (confirm("Are you sure about this?")) {
-//            drugOrder.splice(index, 1);
             drugOrder = jq.grep(drugOrder, function (item, index) {
                 return (counter !== index);
             });
+			
             jq('#addDrugsTable > tbody > tr').remove();
             var tbody = jq('#addDrugsTable > tbody');
-//            var table = tbody.length ? tbody : jq('#addDrugsTable');
+			
             jq.each(drugOrder, function (counter, item) {
                 tbody.append('<tr><td>' + (counter + 1) + '</td><td>' + item.issueDrugCategoryName + '</td><td>' + item.drugPatientName +
                         '</td><td>' + item.drugPatientFormulationName + '</td><td>' + item.patientQuantity +
@@ -358,112 +314,190 @@
 
 </script>
 
-<div id="printDiv">
-<div class="clear"></div>
+<style>
+	@media print {
+		.donotprint {
+			display: none;
+		}
+
+		.spacer {
+			margin-top: 100px;
+			font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
+			font-style: normal;
+			font-size: 14px;
+		}
+
+		.printfont {
+			font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
+			font-style: normal;
+			font-size: 14px;
+		}
+	}
+	.name {
+		color: #f26522;
+	}
+	#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
+		text-decoration: none;
+	}
+	.new-patient-header .demographics .gender-age {
+		font-size: 14px;
+		margin-left: -55px;
+		margin-top: 12px;
+	}
+	.new-patient-header .demographics .gender-age span {
+		border-bottom: 1px none #ddd;
+	}
+	.new-patient-header .identifiers {
+		margin-top: 5px;
+	}
+	.tag {
+		padding: 2px 10px;
+	}
+	.tad {
+		background: #666 none repeat scroll 0 0;
+		border-radius: 1px;
+		color: white;
+		display: inline;
+		font-size: 0.8em;
+		padding: 2px 10px;
+	}
+	.status-container {
+		padding: 5px 10px 5px 5px;
+	}
+	.catg{
+		color: #363463;
+		margin: 35px 10px 0 0;
+	}
+	.title{
+		border: 	1px solid #eee;
+		margin: 	3px 0;
+		padding:	5px;
+	}
+	.title i{
+		font-size: 1.5em;
+		padding: 0;
+	}
+	.title span{
+		font-size: 20px;
+	}
+	.title em{
+		border-bottom: 1px solid #ddd;
+		color: #888;
+		display: inline-block;
+		font-size: 0.5em;
+		margin-right: 10px;
+		text-transform: lowercase;
+		width: 200px;
+	}
+	
+	table {
+		font-size: 14px;
+	}
+	th:first-child{
+		width: 5px;
+	}
+	th:nth-child(5){
+		width: 75px;
+	}
+	th:first-child{
+		width: 5px;
+	}
+</style>
 
 <div class="container">
-    <div class="example">
-        <ul id="breadcrumbs">
-            <li>
-                <a href="${ui.pageLink('referenceapplication', 'home')}">
-                    <i class="icon-home small"></i></a>
-            </li>
+	<div class="example">
+		<ul id="breadcrumbs">
+			<li>
+				<a href="${ui.pageLink('referenceapplication', 'home')}">
+					<i class="icon-home small"></i></a>
+			</li>
+			
+			<li>
+				<i class="icon-chevron-right link"></i>
+				<a href="${ui.pageLink('pharmacyapp', 'dashboard')}">Pharmacy</a>
+			</li>
+			
+			<li>
+				<i class="icon-chevron-right link"></i>
+				<a href="${ui.pageLink('pharmacyapp', 'container', [rel:'dispense-drugs'])}">Get Patient</a>
+			</li>
 
-            <li>
-                <i class="icon-chevron-right link"></i>
-                Pharmacy Module
-            </li>
-        </ul>
-    </div>
-    <div class="patient-header new-patient-header">
-        <div class="dashboard clear">
-        <div class="info-header">
-                    <i class="icon-calendar"></i>
+			<li>
+				<i class="icon-chevron-right link"></i>
+				Issue Drug
+			</li>
+		</ul>
+	</div>
+	
+	<div class="patient-header new-patient-header">
+        <div class="demographics">
+            <h1 class="name">
+                <span id="surname">${familyName},<em>surname</em></span>
+                <span id="othname">${givenName} ${middleName}  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<em>other names</em>
+                </span>
 
-                    <h3>Patient Information</h3>
-                </div>
-        <div>
-        <table id="patientTable" class="dataTable">
-                <thead>
-                <tr role="row">
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Patient Identifier<span class="DataTables_sort_icon"></span></div>
-                    </th>
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Patient Name<span class="DataTables_sort_icon"></span></div>
-                    </th>
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Age<span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
+                <span class="gender-age">
+                    <span>
+                        ${gender}
+                    </span>
+                    <span id="agename">${age} years (${ui.formatDatePretty(birthdate)})</span>
 
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Gender<span class="DataTables_sort_icon"></span></div>
-                    </th>
+                </span>
+            </h1>
 
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Category<span class="DataTables_sort_icon"></span></div>
-                    </th>
-                    
-                </tr>
-                </thead>
-
-                <tbody>
-                    <tr>
-                        <td>${patientIdentifier}</td>
-                        <td>${names}</td>
-                        <td>${age}</td>
-                        <td>${gender}</td>
-                        <td>${category}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <br/>
+			
+			<div id="stacont" class="status-container">
+                <span class="status active"></span>
+                Visit Status
             </div>
-        
-        </div>
+			<div class="tag">Outpatient</div>
+			<div class="tad" id="lstdate">Last Visit: ${ui.formatDatetimePretty(lastVisit)}</div>
         </div>
 
-            <div class="info-section">
-                <div class="info-header">
-                    <i class="icon-calendar"></i>
+        <div class="identifiers">
+            <em>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Patient ID</em>
+            <span>${identifier}</span>
+            <br>
 
-                    <h3>Drug Slip of Pharmacy</h3>
-                </div>
+            <div class="catg">
+                <i class="icon-tags small" style="font-size: 16px"></i><small>Category:</small>${category}
+            </div>
+        </div>
+
+        <div class="close"></div>
+    </div>
+	
+	<div class="title">		
+		<i class="icon-quote-left"></i>
+		<span>
+			DRUGS SLIP
+			<em>&nbsp; of pharmacy</em>
+		</span>
+	</div>	
+	
+	<table id="addDrugsTable" class="dataTable">
+		<thead>
+			<tr role="row">
+				<th>#</th>
+				<th>DRUG CATEGORY</th>
+				<th>DRUG NAME</th>
+				<th>FORMULATION</th>
+				<th>QUANTITY<th>
+			</tr>
+		</thead>
+
+		<tbody>
+		</tbody>
+	</table>
+</div>
+
+<div>
+
+<div class="container">
+           
           
         
-        <div>
-            <table id="addDrugsTable" class="dataTable">
-                <thead>
-                <tr role="row">
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Issue S.No<span class="DataTables_sort_icon"></span></div>
-                    </th>
-
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Issue Drug Category<span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Issue Drug Name<span class="DataTables_sort_icon"></span></div>
-                    </th>
-
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Issue Formulation<span class="DataTables_sort_icon"></span></div>
-                    </th>
-
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Issue Quantity<span class="DataTables_sort_icon"></span></div>
-                    </th>
-                    <th class="ui-state-default">
-
-                    </th>
-                </tr>
-                </thead>
-
-                <tbody>
-                </tbody>
-            </table>
 
            
 
@@ -471,7 +505,6 @@
                    style="margin-top:20px;">
             <input type="button" value="Print" class="button confirm" name="printSlip"
                    id="printSlip" style="margin-top:20px;">
-        </div>
 
     </div>
 

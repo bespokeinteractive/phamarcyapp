@@ -6,6 +6,7 @@ import java.util.List;
 import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.hospitalcore.HospitalCoreService;
 import org.openmrs.module.hospitalcore.model.InventoryDrug;
 import org.openmrs.module.hospitalcore.model.InventoryDrugCategory;
 import org.openmrs.module.hospitalcore.model.InventoryStore;
@@ -28,6 +29,8 @@ public class IssueDrugPageController {
 		
 		Patient Patient = Context.getPatientService().getPatient(patientId);
 		InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
+		HospitalCoreService hcs = Context.getService(HospitalCoreService.class);
+
 		List<InventoryDrugCategory> listCategory = inventoryService.findDrugCategory("");
 		model.addAttribute("listCategory", listCategory);
 		model.addAttribute("categoryId", categoryId);
@@ -56,14 +59,30 @@ public class IssueDrugPageController {
 			model.addAttribute("store",store);
 			model.addAttribute("date",new Date());
 			model.addAttribute("patientId", patientId);
-			model.addAttribute("patientIdentifier",Patient.getPatientIdentifier());
+			model.addAttribute("identifier",Patient.getPatientIdentifier());
 			model.addAttribute("category",Patient.getAttribute(14));
 			model.addAttribute("age",Patient.getAge());
-			model.addAttribute("gender",Patient.getGender());
-			String first = Patient.getFamilyName();
-			String anothername = Patient.getGivenName();
-			String names = first + " " + anothername;
-			model.addAttribute("names",names);
+			model.addAttribute("birthdate",Patient.getBirthdate());
+            model.addAttribute("lastVisit", hcs.getLastVisitTime(Patient));
+            model.addAttribute("date", new Date());
+
+			if (Patient.getGender().equals("M")){
+				model.addAttribute("gender", "Male");
+			}
+			else{
+				model.addAttribute("gender", "Female");
+			}
+
+			model.addAttribute("familyName",Patient.getFamilyName());
+			model.addAttribute("givenName",Patient.getGivenName());
+
+			if(Patient.getMiddleName() != null){
+				model.addAttribute("middleName",Patient.getMiddleName());
+			}
+			else{
+				model.addAttribute("middleName","");
+			}
+
 			int userId = Context.getAuthenticatedUser().getId();
 			String fowardParam = "subStoreIndentDrug_"+userId;
 			List<InventoryStoreDrugIndentDetail> list = (List<InventoryStoreDrugIndentDetail> ) StoreSingleton.getInstance().getHash().get(fowardParam);
