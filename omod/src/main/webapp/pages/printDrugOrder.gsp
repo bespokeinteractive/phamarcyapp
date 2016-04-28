@@ -191,7 +191,7 @@
 
 
         jq("#printOrder").click(function(f) {
-            window.location.href = emr.pageLink ("pharmacyapp", "main", { "tabId" : "dispense"});
+            window.location.href = emr.pageLink ("pharmacyapp", "container", { "rel" : "dispense-drugs"});
         });
     });//end of document ready
 
