@@ -1,5 +1,5 @@
 <%
-    ui.decorateWith("appui", "standardEmrPage", [title: "Pharmacy Module"])
+    ui.decorateWith("appui", "standardEmrPage", [title: "Issue Drug"])
 %>
 
 <script>
