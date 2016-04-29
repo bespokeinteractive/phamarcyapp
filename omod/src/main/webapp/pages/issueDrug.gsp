@@ -87,27 +87,40 @@
 
         jq("#printSlip").on("click", function (e) {
             if (drugOrder.length === 0) {
-                jq().toastmessage('showErrorToast', "Drug List has no Drug!");
-            } else {
-                jq('#printList > tbody > tr').remove();
-                var tbody = jq('#printList > tbody');
-
-                jq.each(drugOrder, function (index, value) {
-                    tbody.append('<tr><td>' + (index + 1) + '</td><td>' + value.issueDrugCategoryName + '</td><td>' + value.drugPatientName + '</td><td>' + value.drugPatientFormulationName + '</td><td>' + value.patientQuantity + '</td></tr>');
-                });
-
-
-                var printDiv = jQuery("#printDiv").html();
-				
-                var printWindow = window.open('', '', 'height=400,width=800');
-                printWindow.document.write('<html><head><title>Drug Slip :-Support by KenyaEHRS</title>');
-                printWindow.document.write('</head>');
-                printWindow.document.write(printDiv);
-                printWindow.document.write('</body></html>');
-                printWindow.document.close();
-                printWindow.print();
+                jq().toastmessage('showErrorToast', "No drugs added to the List!");
+				return false;
             }
+			
+			jq('#printList > tbody > tr').remove();
+			var tbody = jq('#printList > tbody');
 
+			jq.each(drugOrder, function (index, value) {
+				tbody.append('<tr><td>' + (index + 1) + '</td><td>' + value.issueDrugCategoryName + '</td><td>' + value.drugPatientName + '</td><td>' + value.drugPatientFormulationName + '</td><td>' + value.patientQuantity + '</td></tr>');
+			});
+
+
+			var printDiv = jQuery("#printDiv").html();
+			
+			var printWindow = window.open('', '', 'height=400,width=800');
+			printWindow.document.write('<html><head><title>Drug Slip :-Support by KenyaEHRS</title>');
+			printWindow.document.write('</head>');
+			printWindow.document.write(printDiv);
+			printWindow.document.write('</body></html>');
+			printWindow.document.close();
+			printWindow.print();
+
+        });
+		
+		jq("#saveSlip").on("click", function () {
+            if (drugOrder.length === 0) {
+                jq().toastmessage('showErrorToast', "No drugs added to the List!");
+				return false
+            } 
+			
+			//Code for Saving here
+			
+			//redirect Successful Saving
+			window.location.href = emr.pageLink ("pharmacyapp", "container", { "rel" : "issue-to-patient"});
         });
 
         jq("#issueDrugCategory").on("change", function (e) {
@@ -246,9 +259,7 @@
 
 
             }
-        });
-
-        
+        });       
 
         jq("#addPatientDrugsSubmitButton").click(function (event) {
             if (drugOrder.length < 1) {
@@ -303,6 +314,9 @@
 			font-size: 14px;
 		}
 	}
+	.toast-item {
+		background-color: #222;
+    }
 	.name {
 		color: #f26522;
 	}
@@ -424,7 +438,7 @@
 			
 			<li>
 				<i class="icon-chevron-right link"></i>
-				<a href="${ui.pageLink('pharmacyapp', 'container', [rel:'dispense-drugs'])}">Get Patient</a>
+				<a href="${ui.pageLink('pharmacyapp', 'container', [rel:'issue-to-patient'])}">Get Patient</a>
 			</li>
 
 			<li>
@@ -497,82 +511,80 @@
 		<tbody>
 		</tbody>
 	</table>
+	
+	<div class="container">
+		<input type="button" value="Issue Drug" class="button confirm" name="addPatientDrugsButton" id="addPatientDrugsButton"
+			   style="margin-top:20px;">
+		
+		<span id="saveSlip" class="button task right" type="button" style="margin-top:20px;">
+			<i class="icon-save small"></i>
+			Finish
+		</span>
+			   
+		<span id="printSlip" class="button task right" type="button" style="margin:20px 5px 0 0;">
+			<i class="icon-print small"></i>
+			Print
+		</span>
+    </div>	
 </div>
 
-<div>
+<div id="addPatientDrugDialog" class="dialog">
+	<div class="dialog-header">
+		<i class="icon-folder-open"></i>
 
-<div class="container">
-           
-          
-        
+		<h3>Drug Information</h3>
+	</div>
 
-           
+	<form id="dialogForm">
+		<div class="dialog-content">
+			<ul>
+				<li>
+					<label for="issueDrugCategory">Drug Category</label>
+					<select name="issueDrugCategory" id="issueDrugCategory">
+						<option value="0">Select Category</option>
+						<% if (listCategory != null || listCategory != "") { %>
+						<% listCategory.each { issueDrugCategory -> %>
+						<option id="${issueDrugCategory.id}" value="${issueDrugCategory.id}">${issueDrugCategory.name}</option>
+						<% } %>
+						<% } %>
+					</select>
+				</li>
+				<li>
+					<div id="drugKey">
+						<label for="searchPhrase">Drug Name</label>
+						<input id="searchPhrase" name="searchPhrase"/>
+					</div>
 
-            <input type="button" value="Issue Drug" class="button confirm" name="addPatientDrugsButton" id="addPatientDrugsButton"
-                   style="margin-top:20px;">
-            <input type="button" value="Print" class="button confirm" name="printSlip"
-                   id="printSlip" style="margin-top:20px;">
+					<div id="drugSelection">
+						<label for="drugPatientName">Drug Name</label>
+						<select name="drugPatientName" id="drugPatientName"/>
+							<option value="0">Select Drug</option>
+						</select>
+					</div>
+				</li>
+				<li>
+					<label for="drugPatientFormulation">Formulation</label>
+					<select name="drugPatientFormulation" id="drugPatientFormulation"/>
+						<option value="0">Select Formulation</option>
+					</select>
+				</li>
 
-    </div>
+				<li>
+					<label for="patientQuantity">Quantity</label>
+					<input name="patientQuantity" id="patientQuantity" type="text"/>
+				</li>
+				 <li>
+					<label for="comment">Comments</label>
+					<textarea name="comment" id="comment" type="text"></textarea>
+				</li>
 
-    <div id="addPatientDrugDialog" class="dialog">
-        <div class="dialog-header">
-            <i class="icon-folder-open"></i>
+			</ul>
 
-            <h3>Drug Information</h3>
-        </div>
-
-        <form id="dialogForm">
-
-            <div class="dialog-content">
-                <ul>
-                    <li>
-                        <label for="issueDrugCategory">Drug Category</label>
-                        <select name="issueDrugCategory" id="issueDrugCategory">
-                            <option value="0">Select Category</option>
-                            <% if (listCategory != null || listCategory != "") { %>
-                            <% listCategory.each { issueDrugCategory -> %>
-                            <option id="${issueDrugCategory.id}" value="${issueDrugCategory.id}">${issueDrugCategory.name}</option>
-                            <% } %>
-                            <% } %>
-                        </select>
-                    </li>
-                    <li>
-                        <div id="drugKey">
-                            <label for="searchPhrase">Drug Name</label>
-                            <input id="searchPhrase" name="searchPhrase"/>
-                        </div>
-
-                        <div id="drugSelection">
-                            <label for="drugPatientName">Drug Name</label>
-                            <select name="drugPatientName" id="drugPatientName"/>
-                                <option value="0">Select Drug</option>
-                            </select>
-                        </div>
-                    </li>
-                    <li>
-                        <label for="drugPatientFormulation">Formulation</label>
-                        <select name="drugPatientFormulation" id="drugPatientFormulation"/>
-                            <option value="0">Select Formulation</option>
-                        </select>
-                    </li>
-
-                    <li>
-                        <label for="patientQuantity">Quantity</label>
-                        <input name="patientQuantity" id="patientQuantity" type="text"/>
-                    </li>
-                     <li>
-                        <label for="comment">Comments</label>
-                        <textarea name="comment" id="comment" type="text"></textarea>
-                    </li>
-
-                </ul>
-
-                <span class="button confirm right">Confirm</span>
-                <span class="button cancel">Cancel</span>
-            </div>
-        </form>
-    </div>
+			<span class="button confirm right">Confirm</span>
+			<span class="button cancel">Cancel</span>
+		</div>
+	</form>
+</div>
 
   
 
