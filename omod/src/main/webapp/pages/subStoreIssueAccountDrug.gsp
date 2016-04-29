@@ -262,10 +262,10 @@
 
             };
 
-            self.returnToList = function () {
-                window.location.href = emr.pageLink("pharmacyapp", "main", {
-                    "tabId": "accountdrug"
-                });
+            self.returnToList = function () {				
+				window.location.href = emr.pageLink("pharmacyapp", "container", {
+					"rel": "issue-to-account"
+				});
             };
 
             self.printList = function () {

@@ -1,7 +1,9 @@
 <%
     ui.decorateWith("appui", "standardEmrPage", [title: "Inventory Module"])
     ui.includeCss("billingui", "jquery.dataTables.min.css")
+	
     ui.includeCss("registration", "onepcssgrid.css")
+    ui.includeCss("pharmacyapp", "container.css")
 
     ui.includeJavascript("billingui", "moment.js")
     ui.includeJavascript("billingui", "jquery.dataTables.min.js")
@@ -35,42 +37,101 @@
         jQuery("#printButton").on("click", function (e) {
             print().show();
         });
+		
         jq("#returnToDrugList").on("click", function (e) {
-            window.location.href = emr.pageLink("pharmacyapp", "main", {
-                "tabId": "accountdrug"
+            window.location.href = emr.pageLink("pharmacyapp", "container", {
+                "rel": "issue-to-account"
             });
         });
     });
 </script>
 
+<style>
+	#queueList td:first-child{
+		width: 5px;
+	}
+	
+	#queueList td:last-child{
+		width: 85px;
+	}
+</style>
+
+<div class="clear"></div>
+<div id="accounts-div">
+	<div class="container">
+		<div class="example">
+			<ul id="breadcrumbs">
+				<li>
+					<a href="${ui.pageLink('referenceapplication', 'home')}">
+						<i class="icon-home small"></i></a>
+				</li>
+				
+				<li>
+					<a href="${ui.pageLink('pharmacyapp', 'dashboard')}">
+						<i class="icon-chevron-right link"></i>
+						Pharmacy
+					</a>
+				</li>
+				
+				<li>
+					<a href="${ui.pageLink('pharmacyapp', 'container', [rel:'issue-to-account'])}">
+						<i class="icon-chevron-right link"></i>
+						Drug List
+					</a>
+				</li>
+
+				<li>
+					<i class="icon-chevron-right link"></i>
+					View Details
+				</li>
+			</ul>
+		</div>
+		
+		<div class="patient-header new-patient-header">
+			<div class="demographics">
+				<h1 class="name" style="border-bottom: 1px solid #ddd;">
+					<span>&nbsp; ACCOUNT DRUG ITEMS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+				</h1>				
+			</div>			
+			
+			<div class="show-icon">
+				&nbsp;
+			</div>		
+		</div>
+	</div>
+</div>
+
 <div id="print">
     <table cellpadding="5" cellspacing="0" width="100%" id="queueList">
         <tr align="center">
-            <th>category</th>
-            <th>name</th>
-            <th>formulation</th>
-            <th>Date</th>
-            <th>Quantity</th>
+			<thead>
+				<th>#</th>
+				<th>CATEGORY</th>
+				<th>NAME</th>
+				<th>FORMULATION</th>
+				<th>DATE</th>
+				<th>QUANTITY</th>			
+			</thead>
         </tr>
         <% if (listDrugIssue != null || listDrugIssue != "") { %>
-        <% listDrugIssue.each { pTransaction -> %>
-        <tr align="center" class=' '>
+        <% listDrugIssue.eachWithIndex { pTransaction, index -> %>
+        <tr>
+            <td>${index+1}</td>
             <td>${pTransaction.transactionDetail.drug.category.name}</td>
             <td>${pTransaction.transactionDetail.drug.name}</td>
             <td>${pTransaction.transactionDetail.formulation.name}-${pTransaction.transactionDetail.formulation.dozage}</td>
-            <td>${pTransaction.transactionDetail.dateExpiry}</td>
+            <td>${ui.formatDatePretty(pTransaction.transactionDetail.dateExpiry)}</td>
             <td>${pTransaction.quantity}</td>
-            <% } %>
-            <% } else { %>
-        <tr align="center">
-            <td colspan="9">No drug found</td>
-        </tr>
+		<% } %>
+		<% } else { %>
+			<tr align="center">
+				<td colspan="6">No drug found</td>
+			</tr>
         <% } %>
     </table>
 </div>
 
 <div>
-    <button class="button" type="button" id="printButton">Print</button>
-    <input type="button" value="Back To Drug List" name="returnToDrugList"
-           id="returnToDrugList" style="margin-top:20px;">
+    <span class="button task right" id="printButton" style="margin-top:5px;"><i class="icon-print small"></i> Print List</span>
+    <span class="button cancel" id="returnToDrugList" style="margin-top:5px;">Return To List</span>
 </div>

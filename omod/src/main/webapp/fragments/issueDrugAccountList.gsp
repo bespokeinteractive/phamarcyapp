@@ -54,7 +54,7 @@
                     'accountDetail(id);' +
                     '">' + item.name + '  <a/></td>'
             row += '<td>N/A</td>'
-            row += '<td><a onclick="accountDetail(' + item.id + ');"><i class=" icon-upload small"></i>ISSUE</a></td>'
+            row += '<td><a onclick="accountDetail(' + item.id + ');"><i class="icon-bar-chart small"></i>VIEW</a></td>'
 
             row += '</tr>';
             tbody.append(row);
@@ -138,14 +138,14 @@
 	td a{
 		text-transform: uppercase;
 	}
-	td:first-child{
+	#issue-drug-account-list-table td:first-child{
 		width: 5px;
 	}
-	td:nth-child(2){
+	#issue-drug-account-list-table td:nth-child(2){
 		width: 105px;
 	}
-	th:last-child,
-	td:last-child{
+	#issue-drug-account-list-table th:last-child,
+	#issue-drug-account-list-table td:last-child{
 		text-align: center;
 		width: 70px;
 	}
