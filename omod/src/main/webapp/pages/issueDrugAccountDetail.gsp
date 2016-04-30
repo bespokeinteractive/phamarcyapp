@@ -1,5 +1,5 @@
 <%
-    ui.decorateWith("appui", "standardEmrPage", [title: "Inventory Module"])
+    ui.decorateWith("appui", "standardEmrPage", [title: "View Drug List Items"])
     ui.includeCss("billingui", "jquery.dataTables.min.css")
 	
     ui.includeCss("registration", "onepcssgrid.css")

@@ -68,31 +68,30 @@
     }
 	
     function getAccountList(issueName, fromDate, toDate) {
-        jq.getJSON('${ui.actionLink("pharmacyapp", "issueDrugAccountList", "fetchList")}',
-                {
-                    issueName: issueName,
-                    fromDate: fromDate,
-                    toDate: toDate,
-                }).success(function (data) {
-                    if (data.length === 0 && data != null) {
-                        jq().toastmessage('showNoticeToast', "No account found!");
-                        jq('#issue-drug-account-list-table > tbody > tr').remove();
-                        var tbody = jq('#issue-drug-account-list-table > tbody');
-                        var row = '<tr align="center"><td colspan="5">No accounts found</td></tr>';
-                        tbody.append(row);
+        jq.getJSON('${ui.actionLink("pharmacyapp", "issueDrugAccountList", "fetchList")}',{
+			issueName: issueName,
+			fromDate: fromDate,
+			toDate: toDate,
+		}).success(function (data) {
+			if (data.length === 0 && data != null) {
+				jq().toastmessage('showNoticeToast', "No account found!");
+				jq('#issue-drug-account-list-table > tbody > tr').remove();
+				var tbody = jq('#issue-drug-account-list-table > tbody');
+				var row = '<tr align="center"><td colspan="5">No accounts found</td></tr>';
+				tbody.append(row);
 
-                    } else {
-                        QueueTable(data);
+			} else {
+				QueueTable(data);
 
-                    }
-                }).error(function () {
-                    jq().toastmessage('showNoticeToast', "An Error Occured while Fetching List");
-                    jq('#issue-drug-account-list-table > tbody > tr').remove();
-                    var tbody = jq('#issue-drug-account-list-table > tbody');
-                    var row = '<tr align="center"><td colspan="5">No Accounts found</td></tr>';
-                    tbody.append(row);
+			}
+		}).error(function () {
+			jq().toastmessage('showNoticeToast', "An Error Occured while Fetching List");
+			jq('#issue-drug-account-list-table > tbody > tr').remove();
+			var tbody = jq('#issue-drug-account-list-table > tbody');
+			var row = '<tr align="center"><td colspan="5">No Accounts found</td></tr>';
+			tbody.append(row);
 
-                });
+		});
     }
 </script>
 
@@ -187,6 +186,7 @@
 			</div>
 			
 			<span id='issue-button' class="button confirm" id="getOrders" style="float: right; margin: 12px 5px 0 0;">
+				<i class="icon-plus-sign small"></i>
 				Issue Drugs
 			</span>
 			
