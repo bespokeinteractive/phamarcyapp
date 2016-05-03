@@ -69,6 +69,7 @@ td a:hover{
 }
 
 #current-div .show-icon,
+#indents-div .show-icon,
 #queue-div .show-icon,
 #expired-div .show-icon,
 #patients-div .show-icon,
@@ -102,7 +103,9 @@ td a:hover{
 #current-div .show-icon {
     background: rgba(0, 0, 0, 0) url("../images/current.png") no-repeat scroll 0 0 / 100% auto;
 }
-
+#indents-div .show-icon {
+    background: rgba(0, 0, 0, 0) url("../images/indents.png") no-repeat scroll 0 0 / 100% auto;
+}
 #dispense-div .add-on {
 	color: #f26522;
 	float: right;
