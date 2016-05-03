@@ -55,8 +55,6 @@ public class ViewExpiredDrugsFragmentController {
 
         }
 
-        List<SimpleObject> expiredDetails = null;
-
         // ghanshyam 7-august-2013 code review bug
         if (store != null) {
             int total = inventoryService.countViewStockBalance(store.getId(),
@@ -108,11 +106,13 @@ public class ViewExpiredDrugsFragmentController {
                     .listDrugCategory("", 0, 0);
             if (stockBalances != null) {
                 Collections.sort(stockBalances);
+            }else{
+                stockBalances = new ArrayList<InventoryStoreDrugTransactionDetail>();
             }
 
         }
-        expiredDetails = SimpleObject.fromCollection(stockBalances, uiUtils, "drug.id", "drug.name", "drug.category.name", "formulation.id","formulation.name", "formulation.dozage", "currentQuantity", "reorderPoint");
-        return expiredDetails;
+        return SimpleObject.fromCollection(stockBalances, uiUtils, "drug.id", "drug.name", "drug.category.name", "formulation.id", "formulation.name", "formulation.dozage", "currentQuantity", "reorderPoint");
+
     }
 }
 
