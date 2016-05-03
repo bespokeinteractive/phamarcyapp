@@ -1,5 +1,6 @@
 <%
-    ui.decorateWith("appui", "standardEmrPage", [title: "Pharmacy Module"])
+    ui.decorateWith("appui", "standardEmrPage", [title: "Add Indent Drug"])
+	ui.includeCss("pharmacyapp", "container.css")
 %>
 
 <script>
@@ -8,10 +9,13 @@
     jq(function () {
         var cleared = false;
         var selectedDrugId;
+		
         jq("#drugSelection").hide();
         jq("#addDrugsButton").on("click", function (e) {
+			jq('#drugCategory option').eq(0).prop('selected', true).change();
             adddrugdialog.show();
         });
+		
         var indentName = [];
         var adddrugdialog = emr.setupConfirmationDialog({
             selector: '#addDrugDialog',
@@ -28,13 +32,13 @@
                     }
                     
                     if (sDrugCategory == 0) {
-                        jq().toastmessage('showNoticeToast', "Select a Drug Category!");
+                        jq().toastmessage('showErrorToast', "Select a Drug Category!");
                     } else if (sDrug == 0 || sDrug == null) {
-                        jq().toastmessage('showNoticeToast', "Select a Drug Name!");
+                        jq().toastmessage('showErrorToast', "Select a Drug Name!");
                     } else if (jq("#drugFormulation").val() == 0) {
-                        jq().toastmessage('showNoticeToast', "Select a Formulation!");
+                        jq().toastmessage('showErrorToast', "Select a Formulation!");
                     } else if (isNaN(parseInt(jq("#quantity").val()))) {
-                        jq().toastmessage('showNoticeToast', "Enter correct quantity!");
+                        jq().toastmessage('showErrorToast', "Enter correct quantity!");
                     } else {
                         if (cleared) {
                             jq('#addDrugsTable > tbody > tr').remove();
@@ -81,9 +85,9 @@
             actions: {
                 confirm: function () {
                     if (jq("#indentName").val() == '') {
-                        jq().toastmessage('showNoticeToast', "Enter Indent Name!");
+                        jq().toastmessage('showErrorToast', "Enter Indent Name!");
                     } else if (jq("#mainstore").val() == 0) {
-                        jq().toastmessage('showNoticeToast', "Select a Main Store!");
+                        jq().toastmessage('showErrorToast', "Select a Main Store!");
                     } else {
                         indentName.push(
                                 {
@@ -103,14 +107,14 @@
                         };
                         jq.getJSON('${ ui.actionLink("pharmacyapp", "subStoreIndentDrug", "saveIndentSlip") }', addDrugsData)
                                 .success(function (data) {
-                                    jq().toastmessage('showNoticeToast', "Save Indent Successful!");
-                                    window.location.href = emr.pageLink("pharmacyapp", "main", {
-                                        "tabId": "manage"
+                                    jq().toastmessage('showErrorToast', "Save Indent Successful!");
+                                    window.location.href = emr.pageLink("pharmacyapp", "container", {
+                                        "rel": "indent-drugs"
                                     });
 
                                 })
                                 .error(function (xhr, status, err) {
-                                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                                    jq().toastmessage('showErrorToast', "AJAX error!" + err);
                                 })
                         addnameforindentslipdialog.close();
                         jq("#dialogForm").reset();
@@ -122,15 +126,10 @@
                 }
             }
         });
-
-
-        jq("#addDrugsButton").on("click", function (e) {
-            jq('#drugCategory option').eq(0).prop('selected', true).change();
-            adddrugdialog.show();
-        });
+		
         jq("#clearIndent").on("click", function (e) {
             if (drugOrder.length === 0) {
-                jq().toastmessage('showNoticeToast', "Indent List has no Drug!");
+                jq().toastmessage('showErrorToast', "Indent List has no Drug!");
             } else {
                 if (confirm("Are you sure about this?")) {
                     drugOrder = [];
@@ -146,8 +145,8 @@
 
         });
         jq("#returnToDrugList").on("click", function (e) {
-            window.location.href = emr.pageLink("pharmacyapp", "main", {
-                "tabId": "manage"
+            window.location.href = emr.pageLink("pharmacyapp", "container", {
+                "rel": "indent-drugs"
             });
         });
 
@@ -212,7 +211,7 @@
                     jq(drugNameData).appendTo("#drugName");
                     jq('#drugName').change();
                 }).error(function (xhr, status, err) {
-                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                    jq().toastmessage('showErrorToast', "AJAX error!" + err);
                 });
 
             }
@@ -252,7 +251,7 @@
                     }
                     jq(drugFormulationData).appendTo("#drugFormulation");
                 }).error(function (xhr, status, err) {
-                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                    jq().toastmessage('showErrorToast', "AJAX error!" + err);
                 });
             }
 
@@ -325,7 +324,7 @@
                         jq(drugFormulationData).appendTo("#drugFormulation");
                     }).error(function (xhr, status, err) {
                         jq('<option value="">Select Formulation</option>').appendTo("#drugFormulation");
-                        jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                        jq().toastmessage('showErrorToast', "AJAX error!" + err);
                     });
                 }
 
@@ -335,7 +334,7 @@
 
         jq("#addDrugsSubmitButton").click(function (event) {
             if (drugOrder.length < 1) {
-                jq().toastmessage('showNoticeToast', "Indent List has no Drug!");
+                jq().toastmessage('showErrorToast', "Indent List has no Drug!");
             } else {
                 addnameforindentslipdialog.show();
             }
@@ -368,84 +367,134 @@
 
 </script>
 
+<style>
+	th:first-child{
+		width: 5px;
+	}
+	th:last-child {
+		width: 30px;
+	}
+	th:nth-child(5){
+		width: 85px;
+	}
+	.dialog .dialog-content {
+		padding: 20px 30px 50px;
+	}
+	.dialog .dialog-content li {
+		margin-bottom: 0px;
+	}
+	.dialog label{
+		display: inline-block;
+		width: 115px;
+	}
+	.dialog select option {
+		font-size: 1.0em;
+	}
+	.dialog select{
+		display: inline-block;
+		margin: 4px 0 0;
+		width: 270px;
+		height: 38px;
+	}
+	.dialog input {
+		display: inline-block;
+		width: 248px;
+		min-width: 10%;
+		margin: 4px 0 0;
+	}
+	.dialog ul {
+		margin-bottom: 10px;
+	}
+	form input:focus, form select:focus, form textarea:focus, form ul.select:focus, .form input:focus, .form select:focus, .form textarea:focus, .form ul.select:focus{
+		outline: 1px none #007fff;
+	}
+</style>
+
 <div class="clear"></div>
+<div id="indents-div">
+	<div class="container">
+		<div class="example">
+			<ul id="breadcrumbs">
+				<li>
+					<a href="${ui.pageLink('referenceapplication', 'home')}">
+						<i class="icon-home small"></i></a>
+				</li>
+				
+				<li>
+					<a href="${ui.pageLink('pharmacyapp', 'dashboard')}">
+						<i class="icon-chevron-right link"></i>
+						Pharmacy
+					</a>
+				</li>
+				
+				<li>
+					<a href="${ui.pageLink('pharmacyapp', 'container', [rel:'issue-to-account'])}">
+						<i class="icon-chevron-right link"></i>
+						Drug List
+					</a>
+				</li>
+
+				<li>
+					<i class="icon-chevron-right link"></i>
+					Add Drugs
+				</li>
+			</ul>
+		</div>
+		
+		<div class="patient-header new-patient-header">
+			<div class="demographics">
+				<h1 class="name" style="border-bottom: 1px solid #ddd;">
+					<span>&nbsp; ISSUE DRUGS TO ACCOUNT &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+				</h1>				
+			</div>			
+			
+			<div class="show-icon">
+				&nbsp;
+			</div>
+			
+			<span class="button confirm right" id="addDrugsButton" style="margin-top:15px;">
+				<i class="icon-plus-sign small"></i>
+				Add Drug		   
+			</span>
+		</div>
+		
+		<table id="addDrugsTable" class="dataTable">
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>CATEGORY</th>
+					<th>NAME</th>
+					<th>FORMULATION</th>
+					<th>QUANTITY</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+
+			<tbody>
+			</tbody>
+		</table>
+		
+		<div style="margin-top: 10px">
+            <span class="button confirm right" id="addDrugsSubmitButton" style="margin-right: 0px; margin-left: 5px;">
+				<i class="icon-save small"> </i>
+				Finish
+			</span>
+			
+            <span class="button task right" id="printIndent">
+				<i class="icon-print small"> </i>
+				Print
+			</span>
+			
+            <span class="button cancel" id="returnToDrugList">
+				Return To List
+			</span>
+				   
+				   
+		</div>		
+	</div>
+</div>
 
 <div class="container">
-    <div class="example">
-        <ul id="breadcrumbs">
-            <li>
-                <a href="${ui.pageLink('referenceapplication', 'home')}">
-                    <i class="icon-home small"></i></a>
-            </li>
-
-            <li>
-                <i class="icon-chevron-right link"></i>
-                Pharmacy Module
-            </li>
-        </ul>
-    </div>
-
-    <div class="patient-header new-patient-header">
-        <div class="dashboard clear">
-            <div class="info-section">
-                <div class="info-header">
-                    <i class="icon-calendar"></i>
-
-                    <h3>Indent Slip of Pharmacy</h3>
-                </div>
-            </div>
-        </div>
-
-        <div>
-            <table id="addDrugsTable" class="dataTable">
-                <thead>
-                <tr role="row">
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">S.No<span class="DataTables_sort_icon"></span></div>
-                    </th>
-
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Drug Category<span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Drug Name<span class="DataTables_sort_icon"></span></div>
-                    </th>
-
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Formulation<span class="DataTables_sort_icon"></span></div>
-                    </th>
-
-                    <th class="ui-state-default">
-                        <div class="DataTables_sort_wrapper">Quantity<span class="DataTables_sort_icon"></span></div>
-                    </th>
-                    <th class="ui-state-default">
-
-                    </th>
-                </tr>
-                </thead>
-
-                <tbody>
-                </tbody>
-            </table>
-
-            <input type="button" value="Clear Indent" class="button cancel" name="clearIndent" id="clearIndent"
-                   style="float: right; margin-top:20px;">
-
-
-            <input type="button" value="Add Drug" class="button confirm" name="addDrugsButton" id="addDrugsButton"
-                   style="margin-top:20px;">
-            <input type="button" value="Save and Send" class="button confirm" name="addDrugsSubmitButton"
-                   id="addDrugsSubmitButton" style="margin-top:20px;">
-            <input type="button" value="Back To Drug List" class="button confirm" name="returnToDrugList"
-                   id="returnToDrugList" style="margin-top:20px;">
-            <input type="button" value="Print" class="button confirm" name="printIndent"
-                   id="printIndent" style="margin-top:20px;">
-        </div>
-
-    </div>
-
     <div id="addDrugDialog" class="dialog">
         <div class="dialog-header">
             <i class="icon-folder-open"></i>
@@ -482,7 +531,7 @@
                         </div>
                     </li>
                     <li>
-                        <lable for="drugFormulation">Formulation</lable>
+                        <label for="drugFormulation">Formulation</label>
                         <select name="drugFormulation" id="drugFormulation">
                             <option value="0">Select Formulation</option>
                         </select>
@@ -490,12 +539,12 @@
 
                     <li>
                         <label for="quantity">Quantity</label>
-                        <input name="quantity" id="quantity" type="text">
+                        <input name="quantity" id="quantity"/>
                     </li>
 
                 </ul>
 
-                <span class="button confirm right">Confirm</span>
+                <span class="button confirm right" style="margin-right: 0px">Confirm</span>
                 <span class="button cancel">Cancel</span>
             </div>
         </form>
@@ -507,29 +556,32 @@
 
             <h3>Add Name For Indent Slip</h3>
         </div>
+		
+		<form id="finalizeForm">
+			<div class="dialog-content">
+				<ul>
+					<li>
+						<label for="indentName">Name</label>
+						<input name="indentName" id="indentName"/>
+					</li>
+					<li>
+						<label for="mainstore">Select Store</label>
+						<select name="mainstore" id="mainstore">
+							<option value="0">Select Store</option>
+							<% if (store != null || store != "") { %>
+							<% store.parentStores.each { vparent -> %>
+							<option id="${vparent.id}">${vparent.name}</option>
+							<% } %>
+							<% } %>
+						</select>
+					</li>
+				</ul>
 
-        <div class="dialog-content">
-            <ul>
-                <li>
-                    <lable for="indentName">Name</lable>
-                    <input type="text" name="indentName" id="indentName"/>
-                </li>
-                <li>
-                    <label for="mainstore">Select Main Store Indent</label>
-                    <select name="mainstore" id="mainstore">
-                        <option value="0">Select Store</option>
-                        <% if (store != null || store != "") { %>
-                        <% store.parentStores.each { vparent -> %>
-                        <option id="${vparent.id}">${vparent.name}</option>
-                        <% } %>
-                        <% } %>
-                    </select>
-                </li>
-            </ul>
+				<span class="button confirm right">Confirm</span>
+				<span class="button cancel">Cancel</span>
+			</div>		
+		</form>
 
-            <span class="button confirm right">Confirm</span>
-            <span class="button cancel">Cancel</span>
-        </div>
     </div>
 
 
@@ -547,11 +599,11 @@
             <table border="1" id="printList">
                 <thead>
                 <tr role="row">
-                    <th style="width: 5%">S.No</th>
-                    <th style="width: 5%">Drug Category</th>
-                    <th style="width: 5%">Drug Name</th>
-                    <th style="width: 5%">Formulation</th>
-                    <th style="width: 5%">Quantity</th>
+                    <th style="width: 5%">#</th>
+                    <th style="width: 5%">CATEGORY</th>
+                    <th style="width: 5%">NAME</th>
+                    <th style="width: 5%">FORMULATION</th>
+                    <th style="width: 5%">QUANTITY</th>
                 </tr>
                 </thead>
 
