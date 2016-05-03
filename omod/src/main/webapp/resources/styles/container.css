@@ -68,6 +68,7 @@ td a:hover{
     width: 500px;
 }
 
+#current-div .show-icon,
 #queue-div .show-icon,
 #expired-div .show-icon,
 #patients-div .show-icon,
@@ -97,6 +98,9 @@ td a:hover{
 }
 #expired-div .show-icon {
     background: rgba(0, 0, 0, 0) url("../images/expired.png") no-repeat scroll 0 0 / 100% auto;
+}
+#current-div .show-icon {
+    background: rgba(0, 0, 0, 0) url("../images/current.png") no-repeat scroll 0 0 / 100% auto;
 }
 
 #dispense-div .add-on {

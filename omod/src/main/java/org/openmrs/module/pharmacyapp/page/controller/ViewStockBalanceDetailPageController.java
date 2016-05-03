@@ -26,9 +26,8 @@ public class ViewStockBalanceDetailPageController {
         pageModel.addAttribute("expiry",expiry );
 
         InventoryDrug drug = inventoryService.getDrugById(drugId);
-        Set<InventoryDrugFormulation> formulations = drug.getFormulations();
-
         InventoryDrugFormulation formulation = inventoryService.getDrugFormulationById(formulationId);
+
         pageModel.addAttribute("formulation",formulation);
         pageModel.addAttribute("drug",drug);
 

@@ -82,12 +82,6 @@
             tbody.append(row);
         }
     }
-
-    function accountDetail(id) {
-        window.location.href = emr.pageLink("pharmacyapp", "issueDrugAccountDetail", {
-            "issueId": id
-        });
-    }
 </script>
 
 <style>

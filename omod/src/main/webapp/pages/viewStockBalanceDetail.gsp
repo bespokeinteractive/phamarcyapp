@@ -70,7 +70,7 @@
 </style>
 
 <div class="clear"></div>
-<div class="container">
+<div id="expired" class="container">
 	<div class="example">
         <ul id="breadcrumbs">
             <li>
@@ -102,7 +102,7 @@
             </h1>
         </div>
 
-		<div id="show-icon">
+		<div class="show-icon">
 			&nbsp;
 		</div>
 

@@ -10,14 +10,22 @@
 #breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
 	text-decoration: none;
 }
-#show-icon{
-	background: rgba(0, 0, 0, 0) url("../images/expired-icon.png") no-repeat scroll 0 0 / 100% auto;
+#expired .show-icon,
+#current .show-icon{
 	display: inline-block;
 	float: right;
 	height: 50px;
 	margin-bottom: -40px;
 	margin-top: 10px;
+}
+#expired .show-icon{
+	background: rgba(0, 0, 0, 0) url("../images/expired-icon.png") no-repeat scroll 0 0 / 100% auto;	
 	width: 115px;
+}
+#current .show-icon{
+	background: rgba(0, 0, 0, 0) url("../images/current-icon.png") no-repeat scroll 0 0 / 100% auto;
+	width: 128px;
+
 }
 .exampler {
 	background-color: #fff;
