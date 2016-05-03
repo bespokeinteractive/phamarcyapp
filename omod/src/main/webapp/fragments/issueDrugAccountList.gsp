@@ -177,7 +177,7 @@
 		<div class="patient-header new-patient-header">
 			<div class="demographics">
 				<h1 class="name" style="border-bottom: 1px solid #ddd;">
-					<span>&nbsp; ISSUE TO ACCOUNT &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+					<span>&nbsp;ISSUE TO ACCOUNT &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
 				</h1>				
 			</div>			
 			

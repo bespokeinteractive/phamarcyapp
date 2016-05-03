@@ -204,7 +204,7 @@
 		<div class="patient-header new-patient-header">
 			<div class="demographics">
 				<h1 class="name" style="border-bottom: 1px solid #ddd;">
-					<span>&nbsp; INDENT DRUGS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+					<span>&nbsp;INDENT DRUGS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
 				</h1>				
 			</div>			
 			
@@ -267,25 +267,6 @@
 				<td colspan="5">No indent found</td>
 			</tr>
 			</tbody>
-		</table>
-		
-		
-		
-		
+		</table>		
 	</div>
-</div>
-
-               
-
-
-
-
-<div>
-    
-
-    <div id="indent-search-result" style="display: block; margin-top:3px;">
-        <div role="grid" class="dataTables_wrapper" id="indent-search-result-table_wrapper">
-
-        </div>
-    </div>
 </div>
