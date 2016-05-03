@@ -23,10 +23,10 @@
                     if (sDrug == 0) {
                         sDrug = selectedDrugId;
                         sDrugName = selectDrug;
-                    }else{
+                    } else {
                         sDrugName = jq('#drugName :selected').text();
                     }
-
+                    
                     if (sDrugCategory == 0) {
                         jq().toastmessage('showNoticeToast', "Select a Drug Category!");
                     } else if (sDrug == 0 || sDrug == null) {
@@ -50,7 +50,7 @@
                         drugOrder.push(
                                 {
                                     drugCategoryId: jq("#drugCategory").children(":selected").attr("id"),
-                                    drugId: sDrug,
+                                    drugId: sDrug + "",
                                     drugFormulationId: jq("#drugFormulation").children(":selected").attr("id"),
                                     quantity: jq("#quantity").val(),
                                     drugCategoryName: jq('#drugCategory :selected').text(),
@@ -58,8 +58,6 @@
                                     drugFormulationName: jq('#drugFormulation :selected').text()
                                 }
                         );
-
-                        console.log(drugOrder);
 
                         jq("#quantity").val('');
                         jQuery("#drugKey").show();
