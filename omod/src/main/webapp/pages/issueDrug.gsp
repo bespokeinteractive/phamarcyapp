@@ -470,15 +470,15 @@ th:nth-child(4) {
 }
 
 th:nth-child(5) {
-    width: 40px;
-}
-
-th:last-child {
-    width: 55px;
+    width: 85px;
 }
 
 th:nth-child(6) {
-    min-width: 40px;
+    width: 50px;
+}
+th:nth-child(10),
+th:last-child {
+    width: 55px;
 }
 
 .dialog .dialog-content li {
@@ -596,11 +596,11 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
         <thead>
         <tr role="row">
             <th>#</th>
-            <th>DRUG CATEGORY</th>
-            <th>DRUG NAME</th>
+            <th>CATEGORY</th>
+            <th>NAME</th>
             <th>FORMULATION</th>
             <th>FREQUENCY</th>
-            <th># Of DAYS</th>
+            <th>#DAYS</th>
             <th>COMMENT</th>
             <th>QUANTITY</th>
             <th>PRICE</th>
