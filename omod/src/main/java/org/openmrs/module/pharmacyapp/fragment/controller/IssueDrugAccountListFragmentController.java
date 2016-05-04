@@ -181,7 +181,7 @@ public class IssueDrugAccountListFragmentController {
         }
 
         return SimpleObject.fromCollection(listReceiptDrugReturn, uiUtils, "id", "drug.id", "formulation.id", "formulation.name", "formulation.dozage", "drug.name", "drug.category.id", "drug.category.name", "dateExpiry", "dateManufacture",
-                "companyName", "companyNameShort", "batchNo", "currentQuantity");
+                "companyName", "companyNameShort", "batchNo", "currentQuantity","costToPatient");
     }
 
     public SimpleObject postAccountName(HttpServletRequest request, UiUtils uiUtils) {

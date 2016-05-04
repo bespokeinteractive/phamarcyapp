@@ -22,9 +22,27 @@
 //            List of Drugs By Formulation
             self.listReceiptDrug = ko.observableArray([]);
 
+            self.runningQuantities = ko.computed(function () {
+                var total = 0;
+                ko.utils.arrayForEach(self.listReceiptDrug(), function (item) {
+                    total += Number(item.quantity());
+                });
+                return total;
+            });
+            self.issueTotal = ko.computed(function () {
+                var total = 0;
+                ko.utils.arrayForEach(self.drugOrder(), function (item) {
+                    total += Number(item.drugTotal);
+
+                });
+                return total;
+            });
 //            Operations
             self.addDrugToList = function (item, quantity) {
                 self.drugOrder.push(new DrugIssue(item, quantity));
+            };
+            self.addDrugToFormulationList = function (item, quantity) {
+                self.listReceiptDrug.push(new DrugIssue(item, quantity));
             };
 
 
@@ -93,6 +111,47 @@
 
         }
 
+        function DrugIssue(item, quantity) {
+            var self = this;
+            self.item = ko.observable(item);
+            self.quantity = ko.observable(quantity);
+            self.itemTotal = ko.computed(function () {
+                return self.item().costToPatient * self.quantity();
+            });
+            self.quantity.subscribe(function (newValue) {
+                if (newValue > self.item().currentQuantity) {
+                    jq().toastmessage('showErrorToast', "Issue quantity is greater that available quantity!");
+                    self.quantity(0);
+                }
+            });
+        }
+
+        jq("#drugPatientFormulation").on("change", function (e) {
+            var formulationId = jQuery(this).children(":selected").attr("id");
+            var drugId = jq("#drugPatientName").children(":selected").attr("id");
+            jQuery.ajax({
+                type: "GET"
+                , dataType: "json"
+                , url: '${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "listReceiptDrug") }'
+                , data: ({drugId: drugId, formulationId: formulationId})
+                , async: false
+                , success: function (response) {
+                    issueList.listReceiptDrug.removeAll();
+                    jq.map(response, function (val, i) {
+                        issueList.addDrugToFormulationList(val, 0);
+                    });
+                    if (issueList.listReceiptDrug().length === 0) {
+                        jq("#issueDetails").show();
+                    } else {
+                        jq("#issueDetails").hide();
+                    }
+                },
+                error: function (xhr) {
+                    alert("An Error occurred");
+                }
+            })
+        });
+
         var addpatientdrugdialog = emr.setupConfirmationDialog({
             selector: '#addPatientDrugDialog',
             actions: {
@@ -118,25 +177,42 @@
                             commt = 'N/A'
                         }
 
-                        issueList.drugOrder.push(
-                                {
-                                    issueDrugCategoryId: jq("#issueDrugCategory").children(":selected").attr("id"),
-                                    drugId: jq("#drugPatientName").children(":selected").attr("id"),
-                                    drugPatientFormulationId: jq("#drugPatientFormulation").children(":selected").attr("id"),
-                                    noOfDays: jq("#patientNoOfDays").val(),
-                                    issueDrugCategoryName: jq('#issueDrugCategory :selected').text(),
-                                    drugPatientName: jq('#drugPatientName :selected').text(),
-                                    drugPatientFormulationName: jq('#drugPatientFormulation :selected').text(),
-                                    drugPatientFrequencyName: jq('#patientFrequency :selected').text(),
-                                    drugPatientFrequencyId: jq("#patientFrequency").children(":selected").attr("id"),
-                                    issueComment: commt
+                        if (issueList.runningQuantities() === 0) {
+                            jq().toastmessage('showErrorToast', "Enter Correct Quantities!");
+                            return;
+                        } else {
+                            jq.each(issueList.listReceiptDrug(), function (index, value) {
+                                if (value.quantity() > 0) {
+                                    issueList.drugOrder.push(
+                                            {
+                                                issueDrugCategoryId: jq("#issueDrugCategory").children(":selected").attr("id"),
+                                                drugId: jq("#drugPatientName").children(":selected").attr("id"),
+                                                drugPatientFormulationId: jq("#drugPatientFormulation").children(":selected").attr("id"),
+                                                noOfDays: jq("#patientNoOfDays").val(),
+                                                issueDrugCategoryName: jq('#issueDrugCategory :selected').text(),
+                                                drugPatientName: jq('#drugPatientName :selected').text(),
+                                                drugPatientFormulationName: jq('#drugPatientFormulation :selected').text(),
+                                                drugPatientFrequencyName: jq('#patientFrequency :selected').text(),
+                                                drugPatientFrequencyId: jq("#patientFrequency").children(":selected").attr("id"),
+                                                issueComment: commt,
+                                                id: value.item().id,
+                                                drugQuantity: value.quantity(),
+                                                drugPrice: value.item().costToPatient,
+                                                drugTotal: value.itemTotal()
+
+
+                                            }
+                                    );
                                 }
-                        );
+                            });
+                        }
+
 
                         jq("#patientQuantity").val('');
+                        jq("#patientFrequency").val('0');
                         jQuery("#drugKey").show();
                         jQuery("#drugSelection").hide();
-
+                        issueList.listReceiptDrug.removeAll();
                         addpatientdrugdialog.close();
                     }
 
@@ -168,10 +244,6 @@
                 return false;
             }
 
-            jq('#printList > tbody > tr').remove();
-            var tbody = jq('#printList > tbody');
-
-
             var printDiv = jQuery("#printDiv").html();
 
             var printWindow = window.open('', '', 'height=400,width=800');
@@ -190,11 +262,11 @@
                 return false
             } else {
                 //process drug addition to issue list
-                accountObject = JSON.stringify(accountObject);
-                var drugsJson = ko.toJSON(self.selectedDrugs());
+                var patientId = "${patientId}";
+                var drugsJson = ko.toJSON(issueList.drugOrder());
 
                 var addIssueDrugsData = {
-                    'accountObject': accountObject,
+                    'patientId': patientId,
                     'selectedDrugs': drugsJson
                 };
                 jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "processIssueDrugAccount") }', addIssueDrugsData)
@@ -344,8 +416,6 @@
                 //set parent category
                 var catId = ui.item.value.category.id;
                 var drgId = ui.item.value.id;
-                console.log(drgId);
-
                 jq("#issueDrugCategory").val(catId).change();
                 //set background drug name - frusemide
                 jq('#drugPatientName').val(drgId);
@@ -519,6 +589,59 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
 </style>
 
 <div class="container" id="accountDrugIssue">
+    <!-- PRINT DIV -->
+    <div id="printDiv" style="display: none;">
+        <div style="margin: 10px auto; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
+            <br/>
+            <br/>
+            <center style="font-size: 2.2em">Drug Slip From ${store.name}</center>
+            <br/>
+            <br/>
+            <span style="float:right;font-size: 1.7em">Date: ${date}</span>
+            <br/>
+            <br/>
+
+            <table border="1" id="printList">
+                <thead>
+                <tr role="row">
+                    <th style="width: 5%">S.No</th>
+                    <th style="width: 5%">Drug Category</th>
+                    <th style="width: 5%">Drug Name</th>
+                    <th style="width: 5%">Formulation</th>
+                    <th style="width: 5%">Frequency</th>
+                    <th style="width: 5%">Quantity</th>
+                </tr>
+                </thead>
+
+                <tbody data-bind="foreach: drugOrder">
+                <tr>
+                    <td data-bind="text: \$index() + 1"></td>
+                    <td data-bind="text: issueDrugCategoryName"></td>
+                    <td data-bind="text: drugPatientName"></td>
+                    <td data-bind="text: drugPatientFormulationName"></td>
+                    <td data-bind="text: drugPatientFrequencyName"></td>
+                    <td data-bind="text: noOfDays"></td>
+                    <td data-bind="text: issueComment"></td>
+                    <td data-bind="text: drugQuantity"></td>
+                    <td data-bind="text: drugPrice"></td>
+                    <td data-bind="text: drugTotal"></td>
+                    <td>
+                        <a class="remover" href="#" data-bind="click: \$root.removeDrugFromList">
+                            <i class="icon-remove small" style="color:red"></i>
+                        </a>
+                    </td>
+
+                </tr>
+                </tbody>
+
+            </table>
+            <br/><br/><br/><br/><br/><br/>
+            <span style="float:left;font-size: 1.5em">Signature of Pharmacist/ Stamp</span>
+            <br/><br/><br/><br/><br/><br/>
+            <span style="margin-left: 13em;font-size: 1.5em">Signature of Medical Superintendent/ Stamp</span>
+        </div>
+    </div>
+    <!-- END PRINT DIV -->
     <div class="example">
         <ul id="breadcrumbs">
             <li>
@@ -605,9 +728,10 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
             <th>QUANTITY</th>
             <th>PRICE</th>
             <th>TOTAL</th>
+            <th></th>
         </tr>
         </thead>
-
+        Total: <span data-bind="text: issueTotal().toFixed(2)"></span>
         <tbody data-bind="foreach: drugOrder">
         <tr>
             <td data-bind="text: \$index() + 1"></td>
@@ -617,12 +741,18 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
             <td data-bind="text: drugPatientFrequencyName"></td>
             <td data-bind="text: noOfDays"></td>
             <td data-bind="text: issueComment"></td>
-            <td data-bind="text: issueComment"></td>
-            <td data-bind="text: issueComment"></td>
-            <td data-bind="text: issueComment"></td>
+            <td data-bind="text: drugQuantity"></td>
+            <td data-bind="text: drugPrice"></td>
+            <td data-bind="text: drugTotal"></td>
+            <td>
+                <a class="remover" href="#" data-bind="click: \$root.removeDrugFromList">
+                    <i class="icon-remove small" style="color:red"></i>
+                </a>
+            </td>
 
         </tr>
         </tbody>
+
     </table>
 
     <div class="container">
@@ -683,7 +813,7 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
                     </select>
                     </li>
                     <li>
-                        <label for="drugPatientFormulation">Frequency</label>
+                        <label for="patientFrequency">Frequency</label>
                         <select name="patientFrequency" id="patientFrequency"/>
                         <option value="0">Select Frequency</option>
                         <% drugFrequencyList.each { dfl -> %>
@@ -733,6 +863,7 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
                             </table>
                             <br/>
                         </form>
+
                     </div>
 
                 </ul>
@@ -742,40 +873,6 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
             </div>
         </form>
     </div>
-    <!-- PRINT DIV -->
-    <div id="printDiv" style="display: none;">
-        <div style="margin: 10px auto; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
-            <br/>
-            <br/>
-            <center style="font-size: 2.2em">Drug Slip From ${store.name}</center>
-            <br/>
-            <br/>
-            <span style="float:right;font-size: 1.7em">Date: ${date}</span>
-            <br/>
-            <br/>
-
-            <table border="1" id="printList">
-                <thead>
-                <tr role="row">
-                    <th style="width: 5%">S.No</th>
-                    <th style="width: 5%">Drug Category</th>
-                    <th style="width: 5%">Drug Name</th>
-                    <th style="width: 5%">Formulation</th>
-                    <th style="width: 5%">Quantity</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                </tbody>
-
-            </table>
-            <br/><br/><br/><br/><br/><br/>
-            <span style="float:left;font-size: 1.5em">Signature of Pharmacist/ Stamp</span>
-            <br/><br/><br/><br/><br/><br/>
-            <span style="margin-left: 13em;font-size: 1.5em">Signature of Medical Superintendent/ Stamp</span>
-        </div>
-    </div>
-    <!-- END PRINT DIV -->
 
 </div>
 
