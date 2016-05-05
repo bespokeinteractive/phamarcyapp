@@ -11,12 +11,18 @@ import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.hospitalcore.HospitalCoreService;
 import org.openmrs.module.hospitalcore.InventoryCommonService;
 import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.ActionValue;
+import org.openmrs.module.hospitalcore.util.HospitalCoreConstants;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.model.InventoryStoreDrugIndentDetail;
 import org.openmrs.module.inventory.util.DateUtils;
+import org.openmrs.module.pharmacyapp.PatientWrapper;
+import org.openmrs.ui.framework.SimpleObject;
+import org.openmrs.ui.framework.UiUtils;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
@@ -297,6 +303,73 @@ public class IssuePatientDrugFragmentController {
 
     public String processIssueDrugForIpdPatient() {
         throw new NotYetImplementedException("Not Yet Implemented for IPD");
+    }
+
+
+    /**
+     * Searches for and returns a list of patients given thePatient Identifier or Patient details(firstname,lastname.gender...e.t.c)
+     *
+     * @param phrase
+     * @param currentPage
+     * @param pageSize
+     * @param uiUtils
+     * @param request
+     * @return
+     */
+    public List<SimpleObject> searchSystemPatient(
+            @RequestParam(value = "phrase", required = false) String phrase,
+            @RequestParam(value = "currentPage", required = false) Integer currentPage,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            UiUtils uiUtils, HttpServletRequest request) {
+        String prefix = Context.getAdministrationService().getGlobalProperty(
+                HospitalCoreConstants.PROPERTY_IDENTIFIER_PREFIX);
+
+        String gender = request.getParameter("gender");
+        if (gender.equalsIgnoreCase("any")) {
+            gender = null;
+        }
+        Integer age = getInt(request.getParameter("age"));
+        Integer ageRange = getInt(request.getParameter("ageRange"));
+        String relativeName = request.getParameter("relativeName");
+        String lastDayOfVisit = request.getParameter("lastDayOfVisit");
+        Integer lastVisitRange = getInt(request.getParameter("lastVisit"));
+        String maritalStatus = request.getParameter("patientMaritalStatus");
+        String phoneNumber = request.getParameter("phoneNumber");
+        String nationalId = request.getParameter("nationalId");
+        String fileNumber = request.getParameter("fileNumber");
+        HospitalCoreService hcs = (HospitalCoreService) Context
+                .getService(HospitalCoreService.class);
+        List<Patient> patients = hcs.searchPatient(phrase, gender, age, ageRange, lastDayOfVisit, lastVisitRange, relativeName
+                , maritalStatus, phoneNumber, nationalId, fileNumber);
+
+
+        List<PatientWrapper> wrapperList = patientsWithLastVisit(patients);
+
+        return SimpleObject.fromCollection(wrapperList, uiUtils, "patientId", "wrapperIdentifier", "names", "age", "gender", "formartedVisitDate");
+    }
+
+    /**
+     * Converts a String representation of a number to its Integer equivalent, otherwise returns 0
+     *
+     * @param value - the String to parse
+     * @return the integer equivalent of the string, otherwise returns a 0
+     */
+    private Integer getInt(String value) {
+        try {
+            Integer number = Integer.parseInt(value);
+            return number;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private List<PatientWrapper> patientsWithLastVisit(List<Patient> patients) {
+        HospitalCoreService hcs = Context.getService(HospitalCoreService.class);
+        List<PatientWrapper> wrappers = new ArrayList<PatientWrapper>();
+        for (Patient patient : patients) {
+            wrappers.add(new PatientWrapper(patient, hcs.getLastVisitTime(patient)));
+        }
+        return wrappers;
     }
 
 

@@ -107,7 +107,7 @@
         var fileNumber = jq("#fileNumber").val();
         jq.ajax({
             type: "POST",
-            url: "${ui.actionLink('billingui','searchPatient','searchSystemPatient')}",
+            url: "${ui.actionLink('pharmacyapp','issuePatientDrug','searchSystemPatient')}",
             dataType: "json",
             data: ({
                 gender: gender,
