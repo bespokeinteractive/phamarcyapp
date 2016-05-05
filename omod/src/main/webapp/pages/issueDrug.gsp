@@ -188,12 +188,12 @@
                                                 issueDrugCategoryId: jq("#issueDrugCategory").children(":selected").attr("id"),
                                                 drugId: jq("#drugPatientName").children(":selected").attr("id"),
                                                 drugPatientFormulationId: jq("#drugPatientFormulation").children(":selected").attr("id"),
+                                                drugPatientFrequencyId: jq("#patientFrequency").children(":selected").attr("value"),
                                                 noOfDays: jq("#patientNoOfDays").val(),
                                                 issueDrugCategoryName: jq('#issueDrugCategory :selected').text(),
                                                 drugPatientName: jq('#drugPatientName :selected').text(),
                                                 drugPatientFormulationName: jq('#drugPatientFormulation :selected').text(),
                                                 drugPatientFrequencyName: jq('#patientFrequency :selected').text(),
-                                                drugPatientFrequencyId: jq("#patientFrequency").children(":selected").attr("id"),
                                                 issueComment: commt,
                                                 id: value.item().id,
                                                 drugQuantity: value.quantity(),
@@ -264,29 +264,45 @@
                 //process drug addition to issue list
                 var patientId = "${patientId}";
                 var drugsJson = ko.toJSON(issueList.drugOrder());
+                var patientType = "${patientType}";
 
                 var addIssueDrugsData = {
                     'patientId': patientId,
-                    'selectedDrugs': drugsJson
+                    'selectedDrugs': drugsJson,
+                    'patientType': patientType
                 };
-                jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "processIssueDrugAccount") }', addIssueDrugsData)
-                        .success(function (data) {
-                            jq().toastmessage('showNoticeToast', "Save Indent Successful!");
-                            window.location.href = emr.pageLink("pharmacyapp", "main", {
-                                "tabId": "accountdrug"
-                            });
 
-                        })
-                        .error(function (xhr, status, err) {
-                            jq().toastmessage('showNoticeToast', "AJAX error!" + err);
-                        })
+                if (patientType == "opdPatient") {
+                    jq.getJSON('${ ui.actionLink("pharmacyapp", "issuePatientDrug", "processIssueDrug") }', addIssueDrugsData)
+                            .success(function (data) {
+                                jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+                                //redirect Successful Saving
+                                window.location.href = emr.pageLink("pharmacyapp", "container", {
+                                    "rel": "issue-to-patient"
+                                });
+
+                            })
+                            .error(function (xhr, status, err) {
+                                jq().toastmessage('showErrorToast', "AJAX error!" + err);
+                            });
+                }
+                else {
+                    jq.getJSON('${ ui.actionLink("pharmacyapp", "issuePatientDrug", "processIssueDrugForIpdPatient") }', addIssueDrugsData)
+                            .success(function (data) {
+                                jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+                                //redirect Successful Saving
+                                window.location.href = emr.pageLink("pharmacyapp", "container", {
+                                    "rel": "issue-to-patient"
+                                });
+
+                            })
+                            .error(function (xhr, status, err) {
+                                jq().toastmessage('showErrorToast', "AJAX error!" + err);
+                            });
+                }
+
             }
 
-
-            //Code for Saving here
-
-            //redirect Successful Saving
-            window.location.href = emr.pageLink("pharmacyapp", "container", {"rel": "issue-to-patient"});
         });
 
         jq("#issueDrugCategory").on("change", function (e) {
@@ -546,6 +562,7 @@ th:nth-child(5) {
 th:nth-child(6) {
     width: 50px;
 }
+
 th:nth-child(10),
 th:last-child {
     width: 55px;
@@ -591,6 +608,47 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
 <div class="container" id="accountDrugIssue">
     <!-- PRINT DIV -->
     <div id="printDiv" style="display: none;">
+        <div class="patient-header new-patient-header">
+            <div class="demographics">
+                <h1 class="name">
+                    <span>${familyName},<em>surname</em></span>
+                    <span>${givenName} ${middleName}  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<em>other names</em>
+                    </span>
+
+                    <span class="gender-age">
+                        <span>
+                            ${gender}
+                        </span>
+                        <span>${age} years (${ui.formatDatePretty(birthdate)})</span>
+
+                    </span>
+                </h1>
+
+                <br/>
+
+                <div class="status-container">
+                    <span class="status active"></span>
+                    Visit Status
+                </div>
+
+                <div class="tag">Outpatient</div>
+
+                <div class="tad">Last Visit: ${ui.formatDatetimePretty(lastVisit)}</div>
+            </div>
+
+            <div class="identifiers">
+                <em>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Patient ID</em>
+                <span>${identifier}</span>
+                <br>
+
+                <div class="catg">
+                    <i class="icon-tags small" style="font-size: 16px"></i><small>Category:</small>${category}
+                </div>
+            </div>
+
+            <div class="close"></div>
+        </div>
+
         <div style="margin: 10px auto; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
             <br/>
             <br/>
@@ -620,17 +678,7 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
                     <td data-bind="text: drugPatientName"></td>
                     <td data-bind="text: drugPatientFormulationName"></td>
                     <td data-bind="text: drugPatientFrequencyName"></td>
-                    <td data-bind="text: noOfDays"></td>
-                    <td data-bind="text: issueComment"></td>
                     <td data-bind="text: drugQuantity"></td>
-                    <td data-bind="text: drugPrice"></td>
-                    <td data-bind="text: drugTotal"></td>
-                    <td>
-                        <a class="remover" href="#" data-bind="click: \$root.removeDrugFromList">
-                            <i class="icon-remove small" style="color:red"></i>
-                        </a>
-                    </td>
-
                 </tr>
                 </tbody>
 

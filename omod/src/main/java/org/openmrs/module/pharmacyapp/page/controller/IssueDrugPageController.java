@@ -69,6 +69,8 @@ public class IssueDrugPageController {
         model.addAttribute("birthdate", patient.getBirthdate());
         model.addAttribute("lastVisit", hcs.getLastVisitTime(patient));
         model.addAttribute("date", new Date());
+        String patientType = hcs.getPatientType(patient);
+        model.addAttribute("patientType", patientType);
 
 
         if (patient.getGender().equals("M")) {

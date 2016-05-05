@@ -253,13 +253,10 @@ public class IssueDrugAccountListFragmentController {
         List<InventoryStoreDrugAccountDetail> list = new ArrayList<InventoryStoreDrugAccountDetail>();
         for (int i = 0; i < selectedDrugsJson.length(); i++) {
             JSONObject incomingItem = selectedDrugsJson.getJSONObject(i);
-            System.out.println(incomingItem);
             JSONObject transactionD = incomingItem.getJSONObject("item");
             String qnty = incomingItem.getString("quantity");
             Integer temp = NumberUtils.toInt(qnty);
 
-            System.out.println(transactionD);
-            System.out.println(qnty);
             InventoryStoreDrugTransactionDetail transactionDetail = inventoryService.getStoreDrugTransactionDetailById(transactionD.getInt("id"));
             InventoryStoreDrugAccountDetail issueDrugDetail = new InventoryStoreDrugAccountDetail();
             issueDrugDetail.setTransactionDetail(transactionDetail);
