@@ -72,7 +72,6 @@ public class IssueDrugPageController {
         String patientType = hcs.getPatientType(patient);
         model.addAttribute("patientType", patientType);
 
-
         if (patient.getGender().equals("M")) {
             model.addAttribute("gender", "Male");
         } else {

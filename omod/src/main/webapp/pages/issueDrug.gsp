@@ -1,5 +1,6 @@
 <%
     ui.decorateWith("appui", "standardEmrPage", [title: "Issue Drug"])
+	ui.includeJavascript("billingui", "moment.js")
 %>
 
 <script>
