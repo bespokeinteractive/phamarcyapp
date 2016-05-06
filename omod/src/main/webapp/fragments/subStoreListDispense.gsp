@@ -42,7 +42,6 @@
             self.drugDispenseList(mappedDrugItems);
             self.viewDetails = function (item) {
                 var url = '${ui.pageLink("pharmacyapp","printDrugOrder")}';
-//                window.location.replace("detailedDispenseDrug.page?receiptId=" + item.id);
                 window.location.href = url + "?issueId=" + item.id;
             };
         }

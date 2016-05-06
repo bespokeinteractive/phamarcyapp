@@ -113,7 +113,7 @@
                         jq(drugFormulationData).appendTo("#issueDrugFormulation");
                     }).error(function (xhr, status, err) {
                         jq('<option value="">Select Formulation</option>').appendTo("#issueDrugFormulation");
-                        jq().toastmessage('showErrorToast', "AJAX error!" + err);
+                        jq().toastmessage('showNoticeToast', "AJAX error!" + err);
                     });
                 }
 
@@ -156,7 +156,7 @@
                     jq(drugNameData).appendTo("#issueDrugName");
                     jq('#issueDrugName').change();
                 }).error(function (xhr, status, err) {
-                    jq().toastmessage('showErrorToast', "AJAX error!" + err);
+                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
                 });
 
             }
@@ -201,7 +201,7 @@
                     }
                     jq(drugFormulationData).appendTo("#issueDrugFormulation");
                 }).error(function (xhr, status, err) {
-                    jq().toastmessage('showErrorToast', "AJAX error!" + err);
+                    jq().toastmessage('showNoticeToast', "AJAX error!" + err);
                 });
             }
 
@@ -288,15 +288,43 @@
                 });
             };
 
-            self.processIssueDrugToAccount = function () {				
-				if (self.selectedDrugs().length == 0){
-					jq().toastmessage('showErrorToast', "No Drugs added to the List!");
-					return false;
-				}
-				
-				jq("#accountName").val('');
-				addaccountforissueslipdialog.show();
+            self.printList = function () {
+                if (isAccountCreated) {
+                    printAccountDiv();
+                } else {
+                    jq().toastmessage('showErrorToast', "Create Issue Account!");
+                }
             };
+            self.processIssueDrugToAccount = function () {
+                if (isAccountCreated) {
+                    //process drug addition to issue list
+                    accountObject = JSON.stringify(accountObject);
+                    var drugsJson = ko.toJSON(self.selectedDrugs());
+
+                    var addIssueDrugsData = {
+                        'accountObject': accountObject,
+                        'selectedDrugs': drugsJson
+                    };
+                    jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "processIssueDrugAccount") }', addIssueDrugsData)
+                            .success(function (data) {
+                                jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+                                window.location.href = emr.pageLink("pharmacyapp", "container", {
+                                    "rel": "issue-to-account"
+                                });
+
+                            })
+                            .error(function (xhr, status, err) {
+                                jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                            })
+
+                } else {
+                    jq().toastmessage('showErrorToast', "Create Issue Account!");
+                }
+            };
+
+            self.createAccount = function () {
+                addaccountforissueslipdialog.show();
+            }
         }
 
         function DrugIssue(item, quantity) {
@@ -318,51 +346,48 @@
             printWindow.document.write('</head>');
             printWindow.document.write(printDiv);
             printWindow.document.write('</body></html>');
-            printWindow.document.close();
             printWindow.print();
+            printWindow.document.close();
         }
 
         var addaccountforissueslipdialog = emr.setupConfirmationDialog({
             selector: '#addAccountForIssueSlip',
             actions: {
                 confirm: function () {
-                    if (jq("#accountName").val().trim() == '') {
-                        jq().toastmessage('showErrorToast', "Enter Account Name!");
+                    if (jq("#accountName").val() == '') {
+                        jq().toastmessage('showNoticeToast', "Enter Account Name!");
                     } else {
-						var drugsJson 	= ko.toJSON(issueList.selectedDrugs());
-						var accountName = jq("#accountName").val().trim();
-						
-						issueList.listAccount(accountName);
-						
-						var addIssueDrugsData = {
-							'selectedDrugs': drugsJson,
-							'accountName': accountName
-						};
-						
-						jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "processIssueDrugAccount") }', addIssueDrugsData)
-						.success(function (data) {
-							jq().toastmessage('showSuccessToast', "Save Indent Successful!");
-							
-							//call print
-							var printDiv = jQuery("#printDivAccount").html();
-							var printWindow = window.open('', '', 'height=400,width=800');
-							
-							printWindow.document.write('<html><head><title>Indent Slip :-Support by KenyaEHRS</title>');
-							printWindow.document.write('</head>');
-							printWindow.document.write(printDiv);
-							printWindow.document.write('</body></html>');
-							printWindow.print();
-							printWindow.close();
-							
-							window.location.href = emr.pageLink("pharmacyapp", "container", {
-								"rel": "issue-to-account"
-							});
+                        accountName = jq("#accountName").val();
+                        var addAccountNameData = {
+                            'accountName': accountName
+                        };
 
-						})
-						.error(function (xhr, status, err) {
-							jq().toastmessage('showErrorToast', "AJAX error!" + err);
-						});
-                    
+                        jq.ajax({
+                            url: '${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "postAccountName") }',
+                            data: addAccountNameData,
+                            type: "get",
+                            dataType: "json",
+                            async: false,
+                            success: function (data) {
+                                var result = data.message;
+                                if (result === "error") {
+                                    jq().toastmessage('showErrorToast', "Error Saving Account!");
+                                    issueList.listAccount();
+                                    isAccountCreated = false;
+                                } else {
+                                    jq().toastmessage('showNoticeToast', "Account Creation Successful!");
+                                    issueList.listAccount(result);
+                                    jq("#accountHeader").append(issueList.listAccount().name);
+                                    accountObject = result;
+                                    isAccountCreated = true;
+                                    jq("#accountHeader").show();
+                                    jq("#createAccount").hide();
+                                }
+                            },
+                            error: function (xhr, status, err) {
+                                jq().toastmessage('showNoticeToast', "AJAX error!" + err);
+                            }
+                        });
                         addaccountforissueslipdialog.close();
                     }
                 },
@@ -508,7 +533,7 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
             <br/>
             <br/>
             <center style="float:center;font-size: 2.2em">Issue Drugs To Account: <span
-                    data-bind="text: listAccount() ? listAccount() : 'unknown'"></span></center>
+                    data-bind="text: listAccount() ? listAccount().name : 'unknown'"></span></center>
             <br/>
             <br/>
             <span style="float:right;font-size: 1.7em">Date: ${date}</span>
@@ -598,14 +623,29 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
         </tbody>
     </table>
 
+
+
+
     <input type="button" value="Back To List" class="button cancel" name="returnToDrugList"
            id="returnToDrugList" style="margin-top:5px;" data-bind="click: \$root.returnToList">
 
     <span class="button confirm right" name="addDrugsSubmitButton" id="addDrugsSubmitButton"
           style="margin: 5px 0px 0px;"
-          data-bind="click: \$root.processIssueDrugToAccount">
+          data-bind="click: \$root.processIssueDrugToAccount,visible: \$root.selectedDrugs().length > 0">
         <i class="icon-save small"></i>
-        Save & Print
+        Finish
+    </span>
+
+    <span class="button task right" id="printIndent" style="margin: 5px 5px 0px;"
+          data-bind="click: \$root.printList,visible: \$root.selectedDrugs().length > 0">
+        <i class="icon-print small"></i>
+        Print
+    </span>
+
+    <span class="button task right" id="createAccount" style="margin: 5px 5px 0px;"
+          data-bind="click: \$root.createAccount">
+        <i class="icon-user small"></i>
+        Create Account
     </span>
 
     <div id="addIssueDialog" class="dialog" style="display: none; width: 900px">

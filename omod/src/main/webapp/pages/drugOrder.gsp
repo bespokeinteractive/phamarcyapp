@@ -590,10 +590,6 @@
 					PROCESSED
 					<em style="width: 80px;">&nbsp; processed drugs</em>
 				</span>
-				
-				<span style="float: right; color: rgb(170, 170, 170); margin: 4px 5px 0px 0px;" data-bind="text: \$root.computedTotal()" style="text-align: right; font-weight: bold;">
-					PROCESSED
-				</span>
 			</div>
 			
             <table id="orderListTable">

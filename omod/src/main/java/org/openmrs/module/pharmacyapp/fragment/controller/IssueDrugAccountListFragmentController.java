@@ -139,7 +139,7 @@ public class IssueDrugAccountListFragmentController {
                             if (drugDetail.getId().equals(
                                     drugPatient.getTransactionDetail().getId())) {
                                 drugDetail.setCurrentQuantity(drugDetail
-                                                .getCurrentQuantity()
+                                        .getCurrentQuantity()
                                 );
 
                             }
@@ -161,7 +161,7 @@ public class IssueDrugAccountListFragmentController {
                             if (drugDetail.getId().equals(
                                     drugAccount.getTransactionDetail().getId())) {
                                 drugDetail.setCurrentQuantity(drugDetail
-                                                .getCurrentQuantity()
+                                        .getCurrentQuantity()
                                 );
 
                             }
@@ -181,40 +181,41 @@ public class IssueDrugAccountListFragmentController {
         }
 
         return SimpleObject.fromCollection(listReceiptDrugReturn, uiUtils, "id", "drug.id", "formulation.id", "formulation.name", "formulation.dozage", "drug.name", "drug.category.id", "drug.category.name", "dateExpiry", "dateManufacture",
-                "companyName", "companyNameShort", "batchNo", "currentQuantity","costToPatient");
+                "companyName", "companyNameShort", "batchNo", "currentQuantity", "costToPatient");
     }
 
-    public SimpleObject postAccountName(HttpServletRequest request, UiUtils uiUtils) {
-        String account = request.getParameter("accountName");
-        if (!StringUtils.isBlank(account)) {
-            InventoryService inventoryService = Context.getService(InventoryService.class);
-            List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
-            InventoryStoreRoleRelation srl = null;
-            Role rl = null;
-            for (Role r : role) {
-                if (inventoryService.getStoreRoleByName(r.toString()) != null) {
-                    srl = inventoryService.getStoreRoleByName(r.toString());
-                    rl = r;
-                }
+    public InventoryStoreDrugAccount postAccountName(String account) {
+        InventoryService inventoryService = Context.getService(InventoryService.class);
+        List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
+        InventoryStoreRoleRelation srl = null;
+        Role rl = null;
+        for (Role r : role) {
+            if (inventoryService.getStoreRoleByName(r.toString()) != null) {
+                srl = inventoryService.getStoreRoleByName(r.toString());
+                rl = r;
             }
-            InventoryStore store = null;
-            if (srl != null) {
-                store = inventoryService.getStoreById(srl.getStoreid());
-            }
-            InventoryStoreDrugAccount issueAccount = new InventoryStoreDrugAccount();
-            issueAccount.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
-            issueAccount.setCreatedOn(new Date());
-            issueAccount.setName(account);
-            issueAccount.setStore(store);
-            SimpleObject simpleObject = SimpleObject.fromObject(issueAccount, uiUtils, "id", "name", "store.id", "store.name");
-            return SimpleObject.create("message", simpleObject);
         }
+        InventoryStore store = null;
+        if (srl != null) {
+            store = inventoryService.getStoreById(srl.getStoreid());
+        }
+        InventoryStoreDrugAccount issueAccount = new InventoryStoreDrugAccount();
+        issueAccount.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
+        issueAccount.setCreatedOn(new Date());
+        issueAccount.setName(account);
+        issueAccount.setStore(store);
 
-        return SimpleObject.create("message", "error");
+        return issueAccount;
     }
 
 
     public String processIssueDrugAccount(HttpServletRequest request, UiUtils uiUtils) {
+        String account = request.getParameter("accountName");
+        System.out.println(account);
+        InventoryStoreDrugAccount issueDrugAccount = postAccountName(account);
+        System.out.println(issueDrugAccount.getCreatedBy());
+        System.out.println(issueDrugAccount.getName());
+        System.out.println(issueDrugAccount.getStore());
 
         InventoryService inventoryService = Context.getService(InventoryService.class);
         int userId = Context.getAuthenticatedUser().getId();
@@ -233,19 +234,9 @@ public class IssueDrugAccountListFragmentController {
             store = inventoryService.getStoreById(srl.getStoreid());
 
         }
-        String accountObject = request.getParameter("accountObject");
-        JSONObject accountJson = new JSONObject(accountObject);
+
         String selectedDrugs = request.getParameter("selectedDrugs");
         JSONArray selectedDrugsJson = new JSONArray(selectedDrugs);
-
-//        Form the InventoryStoreDrugAccount
-        InventoryStoreDrugAccount issueDrugAccount = new InventoryStoreDrugAccount();
-        int storeId = accountJson.getJSONObject("store").getInt("id");
-        String storeDrugAccountName = accountJson.getString("name");
-        issueDrugAccount.setCreatedOn(new Date());
-        issueDrugAccount.setName(storeDrugAccountName);
-        issueDrugAccount.setStore(inventoryService.getStoreById(storeId));
-        issueDrugAccount.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
 
 //        Form the InventoryStoreDrugAccountDetail  from the JSONArray received at the Server level
         //loop over the incoming items
@@ -263,8 +254,6 @@ public class IssueDrugAccountListFragmentController {
             issueDrugDetail.setQuantity(temp);
             list.add(issueDrugDetail);
         }
-
-
 //
         if (issueDrugAccount != null && list != null && list.size() > 0) {
             Date date = new Date();
@@ -339,14 +328,9 @@ public class IssueDrugAccountListFragmentController {
                 // save issue to patient detail
                 inventoryService.saveStoreDrugAccountDetail(pDetail);
                 // save issues transaction detail
-
             }
         }
 
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("tabId", "accountdrug");
-        return "redirect:" + uiUtils.pageLink("pharmacyapp", "main", params);
+        return "success";
     }
-
-
 }
