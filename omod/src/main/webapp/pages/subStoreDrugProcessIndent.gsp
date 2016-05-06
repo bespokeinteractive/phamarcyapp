@@ -48,8 +48,8 @@
 
             }
             self.returnList = function () {
-                window.location.href = emr.pageLink("pharmacyapp", "main",{
-                    "tabId":"manage"
+                window.location.href = emr.pageLink("pharmacyapp", "container",{
+                    "rel":"indent-drugs"
                 });
 
             }

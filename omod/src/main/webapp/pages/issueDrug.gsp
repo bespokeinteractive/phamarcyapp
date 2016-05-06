@@ -96,8 +96,8 @@
                     jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "processIssueDrugAccount") }', addIssueDrugsData)
                             .success(function (data) {
                                 jq().toastmessage('showNoticeToast', "Save Indent Successful!");
-                                window.location.href = emr.pageLink("pharmacyapp", "main", {
-                                    "tabId": "accountdrug"
+                                window.location.href = emr.pageLink("pharmacyapp", "container", {
+                                    "rel": "issue-to-patient"
                                 });
 
                             })

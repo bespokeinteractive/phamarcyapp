@@ -48,7 +48,7 @@
             var item = tests[index];
             var row = '<tr>';
 
-            row += '<td>' + parseInt(index) + 1 + '</td>'
+            row += '<td>' + (parseInt(index)+1) + '</td>'
             row += '<td>' + item.createdOn.toString().substring(0, 11).replaceAt(2, ",").replaceAt(6, " ").insertAt(3, 0, " ") + '</td>'
             row += '<td><a href="#" onclick="accountDetail(' + item.id + ');"' +
                     'accountDetail(id);' +
