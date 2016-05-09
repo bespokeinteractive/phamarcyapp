@@ -98,7 +98,11 @@ public class SubStoreListDispenseFragmentController {
             inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
             List<InventoryStoreDrugPatientDetail> inventoryStoreDrugPatientDetails = inventoryService.listStoreDrugPatientDetail(inventoryStoreDrugPatient.getId());
 
-            Integer flags = inventoryStoreDrugPatientDetails.get(inventoryStoreDrugPatientDetails.size() - 1).getTransactionDetail().getFlag();
+            Integer flags = 0;
+
+            if(inventoryStoreDrugPatientDetails.size() >0){
+                flags = inventoryStoreDrugPatientDetails.get(inventoryStoreDrugPatientDetails.size() - 1).getTransactionDetail().getFlag();
+            }
 
             if (flags == null){
                 flags = 0;
