@@ -197,7 +197,15 @@
                 <td>
                     <a class="remover" href="#" data-bind="click: \$root.viewDetails"
                        title="Detail issue drug to this patient">
-                        <i class="icon-cogs small"> </i>PROCESS
+						<span data-bind="visible: flag == 0">
+							<i class="icon-cogs small"></i>
+							PROCESS						
+						</span>
+						
+						<span data-bind="visible: flag == 1">
+							<i class="icon-bar-chart small"></i>
+							VIEW						
+						</span>
                     </a>
                 </td>
 
