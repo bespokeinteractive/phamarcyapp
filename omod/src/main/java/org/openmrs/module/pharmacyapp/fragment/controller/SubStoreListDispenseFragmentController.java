@@ -35,7 +35,9 @@ public class SubStoreListDispenseFragmentController {
             @RequestParam(value = "searchIssueName", required = false) String searchIssueName,
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate, UiUtils uiUtils,
-            @RequestParam(value = "receiptId", required = false) Integer receiptId, HttpServletRequest request) {
+            @RequestParam(value = "receiptId", required = false) Integer receiptId,
+            @RequestParam(value = "processed", required = false) Integer processed,
+            HttpServletRequest request) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         InventoryService inventoryService = Context.getService(InventoryService.class);
         List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
@@ -93,6 +95,19 @@ public class SubStoreListDispenseFragmentController {
         List<InventoryStoreDrugPatient> listIssue = inventoryService.listStoreDrugPatient(store.getId(), receiptId, searchIssueName, fromDate, toDate, pagingUtil.getStartPos(), pagingUtil.getPageSize());
 
         for (InventoryStoreDrugPatient inventoryStoreDrugPatient : listIssue) {
+            inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
+            List<InventoryStoreDrugPatientDetail> inventoryStoreDrugPatientDetails = inventoryService.listStoreDrugPatientDetail(inventoryStoreDrugPatient.getId());
+
+            Integer flags = inventoryStoreDrugPatientDetails.get(inventoryStoreDrugPatientDetails.size() - 1).getTransactionDetail().getFlag();
+
+            if (flags == null){
+                flags = 0;
+            }
+
+            if (flags == 1 && processed == 0){
+                continue;
+            }
+
             String created = sdf.format(inventoryStoreDrugPatient.getCreatedOn());
             String changed = sdf.format(new Date());
             int value = changed.compareTo(created);
@@ -109,13 +124,7 @@ public class SubStoreListDispenseFragmentController {
             dispenseDrug.put("middleName", inventoryStoreDrugPatient.getPatient().getMiddleName());
             dispenseDrug.put("age", inventoryStoreDrugPatient.getPatient().getAge());
             dispenseDrug.put("gender", inventoryStoreDrugPatient.getPatient().getGender());
-
-            inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
-            List<InventoryStoreDrugPatientDetail> inventoryStoreDrugPatientDetails = inventoryService.listStoreDrugPatientDetail(inventoryStoreDrugPatient.getId());
-
-
-            dispenseDrug.put("flag",inventoryStoreDrugPatientDetails.get(inventoryStoreDrugPatientDetails.size() - 1).getTransactionDetail().getFlag());
-
+            dispenseDrug.put("flag",flags);
             dispenseList.add(dispenseDrug);
         }
 

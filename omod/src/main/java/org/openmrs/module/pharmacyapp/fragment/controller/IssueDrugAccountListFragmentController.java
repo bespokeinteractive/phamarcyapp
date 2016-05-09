@@ -211,11 +211,7 @@ public class IssueDrugAccountListFragmentController {
 
     public String processIssueDrugAccount(HttpServletRequest request, UiUtils uiUtils) {
         String account = request.getParameter("accountName");
-        System.out.println(account);
         InventoryStoreDrugAccount issueDrugAccount = postAccountName(account);
-        System.out.println(issueDrugAccount.getCreatedBy());
-        System.out.println(issueDrugAccount.getName());
-        System.out.println(issueDrugAccount.getStore());
 
         InventoryService inventoryService = Context.getService(InventoryService.class);
         int userId = Context.getAuthenticatedUser().getId();

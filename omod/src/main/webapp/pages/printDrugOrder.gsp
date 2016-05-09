@@ -152,18 +152,9 @@ table {
 
 
             //submit bill
-            self.submitBill = function () {
-                var printDiv = jQuery("#printDiv").html();
-                var printWindow = window.open('', '', 'height=400,width=800');
-                printWindow.document.write('<html><head><title>Print Drug Order :-Support by KenyaEHRS</title>');
-                printWindow.document.write('</head>');
-                printWindow.document.write(printDiv);
-                printWindow.document.write('</body></html>');
-                printWindow.print();
-                printWindow.close();
-
+            self.submitBill = function () {      
                 var flag =${flag};
-                var ids =${receiptid};
+                var ids  =${receiptid};
                 if (flag === 0) {
                     var data = jQuery.ajax({
                         type: "GET"
@@ -173,7 +164,22 @@ table {
                         , cache: false
                     }).responseText;
                 }
+				
+				window.location.href = emr.pageLink ("pharmacyapp", "container", { "rel" : "dispense-drugs"});
             };
+			
+			self.printBill = function () {
+				var printDiv = jQuery("#printDiv").html();
+                var printWindow = window.open('', '', 'height=400,width=800');
+                printWindow.document.write('<html><head><title>Print Drug Order :-Support by KenyaEHRS</title>');
+                printWindow.document.write('</head>');
+                printWindow.document.write(printDiv);
+                printWindow.document.write('</body></html>');
+                printWindow.print();
+                printWindow.close();
+				
+				window.location.href = emr.pageLink ("pharmacyapp", "container", { "rel" : "dispense-drugs"});
+			};
 
             self.isNonPaying = ko.computed(function () {
                 var cat = "${paymentSubCategory}";
@@ -204,7 +210,6 @@ table {
 
         var orders = new DrugOrderViewModel();
         ko.applyBindings(orders, jq("#dispensedDrugs")[0]);
-
 
         jq("#printOrder").click(function (f) {
             window.location.href = emr.pageLink("pharmacyapp", "container", {"rel": "dispense-drugs"});
@@ -279,22 +284,20 @@ table {
 
         <div class="close"></div>
     </div>
-
-    <div class="title">
-        <i class="icon-time"></i>
-        <span style="text-transform: uppercase;">
-            ${ui.formatDatetimePretty(date)}
-            <em style="width: 80px;">order date</em>
-        </span>
-
-        <i class="icon-quote-left"></i>
-        <span>
-            ${receiptid}
-            <em>receipt number</em>
-        </span>
-    </div>
-
-    ${flag}
+	
+	<div class="title">
+		<i class="icon-time"></i>
+		<span style="text-transform: uppercase;">
+			${ui.formatDatetimePretty(date)}
+			<em style="width: 80px;">  order date</em>
+		</span>
+		
+		<i class="icon-quote-left"></i>
+		<span>
+			${receiptid}
+			<em>  receipt number</em>
+		</span>
+	</div>
 
     <div class="dashboard clear" id="dispensedDrugs">
         <table width="100%" id="orderBillingTable" class="tablesorter thickbox">
@@ -405,11 +408,17 @@ table {
         <input type="button" class="button cancel"
                onclick="javascript:window.location.href = 'container.page?rel=dispense-drugs'"
                value="Cancel"/>
-
-        <input type="button" id="printOrder" name="printOrder" style="float:right; margin-right: 0px;"
-               class="button confirm"
-               value="Finish" data-bind="click: submitBill, enable: availableOrders().length > 0 ">
-
+			   
+        <span id="finishOrder" style="margin-right: 0px;" class="button task right" data-bind="visible: flag() == 0, click: submitBill">
+			<i class="icon-save small"></i>
+			Finish
+		</span>
+			   
+		<span id="printOrder" style="margin-right: 5px;" class="button task right" data-bind="click: printBill">
+			<i class="icon-print small"></i>
+			<span data-bind="visible: flag() == 0">Print</span>
+			<span data-bind="visible: flag() == 1">Reprint</span>
+		</span>
 
         <!-- PRINT DIV -->
         <div id="printDiv" style="display: none;">
