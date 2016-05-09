@@ -5,6 +5,7 @@ import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.model.InventoryStore;
 import org.openmrs.module.hospitalcore.model.InventoryStoreDrugPatient;
+import org.openmrs.module.hospitalcore.model.InventoryStoreDrugPatientDetail;
 import org.openmrs.module.hospitalcore.model.InventoryStoreRoleRelation;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.util.PagingUtil;
@@ -51,6 +52,9 @@ public class SubStoreListDispenseFragmentController {
             store = inventoryService.getStoreById(srl.getStoreid());
 
         }
+
+        List<SimpleObject> dispenseList = new ArrayList<SimpleObject>();
+
         int total = inventoryService.countStoreDrugPatient(store.getId(), searchIssueName, fromDate, toDate);
         String temp = "";
 
@@ -88,15 +92,34 @@ public class SubStoreListDispenseFragmentController {
         }
         List<InventoryStoreDrugPatient> listIssue = inventoryService.listStoreDrugPatient(store.getId(), receiptId, searchIssueName, fromDate, toDate, pagingUtil.getStartPos(), pagingUtil.getPageSize());
 
-        for (InventoryStoreDrugPatient in : listIssue) {
-            String created = sdf.format(in.getCreatedOn());
+        for (InventoryStoreDrugPatient inventoryStoreDrugPatient : listIssue) {
+            String created = sdf.format(inventoryStoreDrugPatient.getCreatedOn());
             String changed = sdf.format(new Date());
             int value = changed.compareTo(created);
-            in.setValues(value);
-            in = inventoryService.saveStoreDrugPatient(in);
+            inventoryStoreDrugPatient.setValues(value);
+            inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
+            SimpleObject dispenseDrug = new SimpleObject();
+            dispenseDrug.put("id", inventoryStoreDrugPatient.getId());
+            dispenseDrug.put("identifier", inventoryStoreDrugPatient.getIdentifier());
+            dispenseDrug.put("values", inventoryStoreDrugPatient.getValues());
+            dispenseDrug.put("statuss", inventoryStoreDrugPatient.getStatuss());
+            dispenseDrug.put("createdOn", inventoryStoreDrugPatient.getCreatedOn());
+            dispenseDrug.put("givenName", inventoryStoreDrugPatient.getPatient().getGivenName());
+            dispenseDrug.put("familyName", inventoryStoreDrugPatient.getPatient().getFamilyName());
+            dispenseDrug.put("middleName", inventoryStoreDrugPatient.getPatient().getMiddleName());
+            dispenseDrug.put("age", inventoryStoreDrugPatient.getPatient().getAge());
+            dispenseDrug.put("gender", inventoryStoreDrugPatient.getPatient().getGender());
+
+            inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
+            List<InventoryStoreDrugPatientDetail> inventoryStoreDrugPatientDetails = inventoryService.listStoreDrugPatientDetail(inventoryStoreDrugPatient.getId());
+
+
+            dispenseDrug.put("flag",inventoryStoreDrugPatientDetails.get(inventoryStoreDrugPatientDetails.size() - 1).getTransactionDetail().getFlag());
+
+            dispenseList.add(dispenseDrug);
         }
-        return SimpleObject.fromCollection(listIssue, uiUtils, "id", "identifier", "values", "statuss", "createdOn", "patient.givenName", "patient.familyName",
-                "patient.middleName", "patient.age", "patient.gender");
+
+        return dispenseList;
 
     }
 }
