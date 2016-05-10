@@ -78,8 +78,8 @@
 
 <style>
 	#divSeachProcessed{
-		margin-right: 20px;
-		margin-top: 25px;
+		margin-right: 5px;
+		margin-top: 23px;
 	}
 	#divSeachProcessed label{
 		cursor: pointer;
@@ -137,7 +137,7 @@
 			</div>
 			
 			<div id="divSeachProcessed" class="right">
-				<label>
+				<label style="padding: 3px 10px; border: 1px solid rgb(238, 238, 238); background: #fff799 none repeat scroll 0px 0px;">
 					<input id="searchProcessed" type="checkbox" name="searchProcessed">
 					Include Processed
 				</label>
