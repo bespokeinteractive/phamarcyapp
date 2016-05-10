@@ -187,7 +187,7 @@ public class DrugOrderPageController {
                 transDetail.setFrequency(fCon);
                 transDetail.setNoOfDays(noOfDays);
                 transDetail.setComments(comments);
-                transDetail.setFlag(0);
+
                 BigDecimal moneyUnitPrice = inventoryStoreDrugTransactionDetail.getCostToPatient().multiply(new BigDecimal(quantity));
                 // moneyUnitPrice = moneyUnitPrice.add(moneyUnitPrice.multiply(inventoryStoreDrugTransactionDetail.getVAT().divide(new BigDecimal(100))));
                 transDetail.setTotalPrice(moneyUnitPrice);

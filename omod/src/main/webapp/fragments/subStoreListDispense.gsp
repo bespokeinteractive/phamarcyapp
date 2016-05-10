@@ -183,7 +183,7 @@
 				</tr>
             </thead>
             <tbody data-bind="foreach: drugDispenseList">
-            <tr data-bind="css: {'process-seen': flag == 1}">
+            <tr data-bind="css: {'process-seen': flag == 2}">
                 <td data-bind="text: \$index() + 1"></td>
                 <td data-bind="text: id"></td>
                 <td data-bind="text: identifier"></td>
@@ -191,18 +191,18 @@
                     <span data-bind="text: givenName"></span>&nbsp;
                     <span data-bind="text: familyName"></span>&nbsp;
                     <span data-bind="text: middleName"></span>
-                    <span data-bind="visible: flag == 1" class="process-lozenge">Processed</span>
+                    <span data-bind="visible: flag == 2" class="process-lozenge">Processed</span>
                 </td>
                 <td data-bind="text: moment(new Date(createdOn)).format('DD, MMM YYYY')"></td>
                 <td>
                     <a class="remover" href="#" data-bind="click: \$root.viewDetails"
                        title="Detail issue drug to this patient">
-						<span data-bind="visible: flag == 0">
+						<span data-bind="visible: flag == 1">
 							<i class="icon-cogs small"></i>
 							PROCESS						
 						</span>
 						
-						<span data-bind="visible: flag == 1">
+						<span data-bind="visible: flag == 2">
 							<i class="icon-bar-chart small"></i>
 							VIEW						
 						</span>

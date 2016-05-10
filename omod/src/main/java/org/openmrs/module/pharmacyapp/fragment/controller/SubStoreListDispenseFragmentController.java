@@ -98,17 +98,17 @@ public class SubStoreListDispenseFragmentController {
             inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
             List<InventoryStoreDrugPatientDetail> inventoryStoreDrugPatientDetails = inventoryService.listStoreDrugPatientDetail(inventoryStoreDrugPatient.getId());
 
-            Integer flags = 0;
+            Integer flags = 1;
 
             if(inventoryStoreDrugPatientDetails.size() >0){
                 flags = inventoryStoreDrugPatientDetails.get(inventoryStoreDrugPatientDetails.size() - 1).getTransactionDetail().getFlag();
             }
 
-            if (flags == null){
-                flags = 0;
+            if (flags == null || flags == 0){
+                flags = 1;
             }
 
-            if (flags == 1 && processed == 0){
+            if (flags == 2 && processed == 0){
                 continue;
             }
 

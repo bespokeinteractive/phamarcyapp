@@ -155,7 +155,7 @@ table {
             self.submitBill = function () {      
                 var flag =${flag};
                 var ids  =${receiptid};
-                if (flag === 0) {
+                if (flag === 1) {
                     var data = jQuery.ajax({
                         type: "GET"
                         , url: '${ ui.actionLink("pharmacyapp", "drugOrder", "subStoreIssueDrugDeduct") }'
@@ -409,15 +409,15 @@ table {
                onclick="javascript:window.location.href = 'container.page?rel=dispense-drugs'"
                value="Cancel"/>
 			   
-        <span id="finishOrder" style="margin-right: 0px;" class="button task right" data-bind="visible: flag() == 0, click: submitBill">
+        <span id="finishOrder" style="margin-right: 0px;" class="button task right" data-bind="visible: flag() == 1, click: submitBill">
 			<i class="icon-save small"></i>
 			Finish
 		</span>
 			   
 		<span id="printOrder" style="margin-right: 5px;" class="button task right" data-bind="click: printBill">
 			<i class="icon-print small"></i>
-			<span data-bind="visible: flag() == 0">Print</span>
-			<span data-bind="visible: flag() == 1">Reprint</span>
+			<span data-bind="visible: flag() == 1">Print</span>
+			<span data-bind="visible: flag() == 2">Reprint</span>
 		</span>
 
         <!-- PRINT DIV -->
