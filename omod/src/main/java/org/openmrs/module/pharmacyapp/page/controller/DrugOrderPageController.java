@@ -54,13 +54,21 @@ public class DrugOrderPageController {
         PatientSearch patientSearch = hospitalCoreService.getPatientByPatientId(patientId);
 
         Patient patient = Context.getPatientService().getPatient(patientId);
+        Integer prescriberId = 0;
+        String doctor = "Unknown";
+
+        if (drugOrderList.get(0).getCreator() != null){
+            prescriberId = drugOrderList.get(0).getCreator().getId();
+            doctor = drugOrderList.get(0).getCreator().getGivenName();
+        }
 
         model.addAttribute("patientCategory", patient.getAttribute(14));
         model.addAttribute("previousVisit",hospitalCoreService.getLastVisitTime(patient));
         model.addAttribute("patientSearch", patientSearch);
         model.addAttribute("patientType", patientType);
         model.addAttribute("date", dateStr);
-        model.addAttribute("doctor", drugOrderList.get(0).getCreator().getGivenName());
+        model.addAttribute("doctor", doctor);
+        model.addAttribute("prescriberId", prescriberId);
 
         InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
 
@@ -74,6 +82,15 @@ public class DrugOrderPageController {
         String paymentMode = request.getParameter("paymentMode");
         int encounterId = Integer.parseInt(request.getParameter("encounterId"));
         int patientId = Integer.parseInt(request.getParameter("patientId"));
+        int presciberId = Integer.parseInt(request.getParameter("prescriberId"));
+        User prescriber = Context.getUserService().getUser(presciberId);
+
+        BigDecimal waiverAmount = null;
+        if(StringUtils.isNotEmpty(request.getParameter("waiverAmount"))){
+            waiverAmount = new BigDecimal(request.getParameter("waiverAmount"));
+        }
+
+        String comment = request.getParameter("comment");
 
         JSONArray orders = new JSONArray(order);
 
@@ -115,6 +132,7 @@ public class DrugOrderPageController {
         inventoryStoreDrugPatient.setIdentifier(patient.getPatientIdentifier().getIdentifier());
         inventoryStoreDrugPatient.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
         inventoryStoreDrugPatient.setCreatedOn(date);
+        inventoryStoreDrugPatient.setPrescriber(prescriber);
         inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
 
         InventoryStoreDrugTransaction transaction = new InventoryStoreDrugTransaction();

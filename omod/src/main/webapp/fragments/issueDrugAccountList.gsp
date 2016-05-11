@@ -137,12 +137,15 @@
 	td a{
 		text-transform: uppercase;
 	}
+	
 	#issue-drug-account-list-table td:first-child{
 		width: 5px;
 	}
+	
 	#issue-drug-account-list-table td:nth-child(2){
 		width: 105px;
 	}
+	
 	#issue-drug-account-list-table th:last-child,
 	#issue-drug-account-list-table td:last-child{
 		text-align: center;

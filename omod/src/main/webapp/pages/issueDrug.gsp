@@ -148,7 +148,7 @@
                     }
                 },
                 error: function (xhr) {
-                    alert("An Error occurred");
+                    //alert("An Error occurred");
                 }
             })
         });
@@ -398,7 +398,7 @@
                             }
                         }
                     }
-                    jq(drugPatientFormulationData).appendTo("#drugPatientFormulation");
+                    jq(drugPatientFormulationData).appendTo("#drugPatientFormulation").change();
                 }).error(function (xhr, status, err) {
                     jq().toastmessage('showNoticeToast', "AJAX error!" + err);
                 });
@@ -851,15 +851,15 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
                         <div id="drugSelection">
                             <label for="drugPatientName">Drug Name</label>
                             <select name="drugPatientName" id="drugPatientName"/>
-                            <option value="0">Select Drug</option>
-                        </select>
+								<option value="0">Select Drug</option>
+							</select>
                         </div>
                     </li>
                     <li>
                         <label for="drugPatientFormulation">Formulation</label>
                         <select name="drugPatientFormulation" id="drugPatientFormulation"/>
-                        <option value="0">Select Formulation</option>
-                    </select>
+							<option value="0">Select Formulation</option>
+						</select>
                     </li>
                     <li>
                         <label for="patientFrequency">Frequency</label>
