@@ -261,7 +261,6 @@ public class DrugOrderFragmentController {
 
                 //TODO ends here
 
-
             }
 
         }

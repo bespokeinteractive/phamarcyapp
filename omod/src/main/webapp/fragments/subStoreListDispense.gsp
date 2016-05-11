@@ -45,7 +45,6 @@
                 window.location.href = url + "?issueId=" + item.id;
             };
         }
-
         var list = new IssueDrugViewModel();
         ko.applyBindings(list, jq("#orderDrugList")[0]);
     }); //end of document ready

@@ -1,6 +1,5 @@
 package org.openmrs.module.pharmacyapp.page.controller;
 
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openmrs.*;
@@ -75,13 +74,6 @@ public class DrugOrderPageController {
         String paymentMode = request.getParameter("paymentMode");
         int encounterId = Integer.parseInt(request.getParameter("encounterId"));
         int patientId = Integer.parseInt(request.getParameter("patientId"));
-        BigDecimal waiverAmount = null;
-        if(StringUtils.isNotEmpty(request.getParameter("waiverAmount"))){
-            waiverAmount = new BigDecimal(request.getParameter("waiverAmount"));
-        }
-
-        String comment = request.getParameter("comment");
-
 
         JSONArray orders = new JSONArray(order);
 
@@ -160,6 +152,9 @@ public class DrugOrderPageController {
                 InventoryDrugFormulation inventoryDrugFormulation = inventoryCommonService.getDrugFormulationById(formulationId);
                 InventoryStoreDrugPatientDetail pDetail = new InventoryStoreDrugPatientDetail();
                 InventoryStoreDrugTransactionDetail inventoryStoreDrugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(listOfDrugQuantity);
+                System.out.println("Store id: "+store.getId());
+                System.out.println("Drug id: "+inventoryStoreDrugTransactionDetail.getDrug().getId());
+                System.out.println("Formulation id: "+inventoryDrugFormulation.getId());
                 Integer totalQuantity = inventoryService.sumCurrentQuantityDrugOfStore(store.getId(), inventoryStoreDrugTransactionDetail.getDrug().getId(), inventoryDrugFormulation.getId());
                 int t = totalQuantity;
                 InventoryStoreDrugTransactionDetail drugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(inventoryStoreDrugTransactionDetail.getId());
@@ -209,15 +204,6 @@ public class DrugOrderPageController {
 
                 BillingService billingService = Context.getService(BillingService.class);
                 IndoorPatientServiceBill bill = new IndoorPatientServiceBill();
-                /*added waiver amount */
-                if (waiverAmount != null) {
-                    bill.setWaiverAmount(waiverAmount);
-                } else {
-                    BigDecimal wavAmt = new BigDecimal(0);
-                    bill.setWaiverAmount(wavAmt);
-                }
-                bill.setComment(comment);
-                bill.setPaymentMode(paymentMode);
                 bill.setActualAmount(moneyUnitPrice);
                 bill.setAmount(moneyUnitPrice);
 

@@ -45,9 +45,7 @@ public class PrintDrugOrderPageController {
         }
         List<InventoryStoreDrugPatientDetail> listDrugIssue = inventoryService
                 .listStoreDrugPatientDetail(issueId);
-        InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
-
-        if (inventoryStoreDrugPatient != null && listDrugIssue != null && listDrugIssue.size() > 0) {
+        if (listDrugIssue != null && listDrugIssue.size() > 0) {
             InventoryStoreDrugTransaction transaction = new InventoryStoreDrugTransaction();
             transaction.setDescription("ISSUE DRUG TO PATIENT " + DateUtils.getDDMMYYYY());
             transaction.setStore(store);
@@ -129,6 +127,12 @@ public class PrintDrugOrderPageController {
                 "transactionDetail.formulation.name", "transactionDetail.formulation.dozage", "transactionDetail.frequency.name", "transactionDetail.noOfDays",
                 "transactionDetail.comments", "transactionDetail.dateExpiry");
         model.addAttribute("listDrugIssue", SimpleObject.create("listDrugIssue", dispensedDrugs).toJson());
+        if (listDrugIssue.size() > 0) {
+            model.addAttribute("waiverAmount", listDrugIssue.get(0).getStoreDrugPatient().getWaiverAmount());
+            model.addAttribute("waiverComment", listDrugIssue.get(0).getStoreDrugPatient().getComment());
+        }
+
+
         if (CollectionUtils.isNotEmpty(listDrugIssue)) {
             model.addAttribute("issueDrugPatient", listDrugIssue.get(0)
                     .getStoreDrugPatient());
