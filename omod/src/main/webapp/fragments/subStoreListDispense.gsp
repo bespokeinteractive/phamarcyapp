@@ -6,7 +6,7 @@
         var receiptsData = getOrderList();
         jQuery('.date-pick').datepicker({minDate: '-100y', dateFormat: 'dd/mm/yy'});
 
-		jq('#toDate, #fromDate').change(function(){
+		jq('#toDate, #fromDate, #searchProcessed').change(function(){
 			var issueName	= jq("#dIssueName").val();			
             var fromDate 	= moment(jq("#fromDate-field").val()).format('DD/MM/YYYY');
             var toDate 		= moment(jq("#toDate-field").val()).format('DD/MM/YYYY');			
@@ -42,16 +42,18 @@
             self.drugDispenseList(mappedDrugItems);
             self.viewDetails = function (item) {
                 var url = '${ui.pageLink("pharmacyapp","printDrugOrder")}';
-//                window.location.replace("detailedDispenseDrug.page?receiptId=" + item.id);
                 window.location.href = url + "?issueId=" + item.id;
             };
         }
-
         var list = new IssueDrugViewModel();
         ko.applyBindings(list, jq("#orderDrugList")[0]);
     }); //end of document ready
 
-    function getOrderList(searchIssueName, fromDate, toDate, receiptId) {
+    function getOrderList(searchIssueName, fromDate, toDate, receiptId, processed) {
+		if (typeof processed == 'undefined'){
+			processed = jq('#searchProcessed:checked').length;
+		}
+		
         jQuery.ajax({
             type: "GET",
             url: '${ui.actionLink("pharmacyapp", "subStoreListDispense", "getDispenseList")}',
@@ -62,15 +64,43 @@
                 searchIssueName: searchIssueName,
                 fromDate: fromDate,
                 toDate: toDate,
+                processed: processed,
                 receiptId: receiptId
             },
             success: function (data) {
                 toReturn = data;
             }
         });
+		
         return toReturn;
     }
 </script>
+
+<style>
+	#divSeachProcessed{
+		margin-right: 5px;
+		margin-top: 23px;
+	}
+	#divSeachProcessed label{
+		cursor: pointer;
+	}
+	#divSeachProcessed input{
+		cursor: pointer;
+	}
+	.process-lozenge {
+		border: 1px solid #f00;
+		border-radius: 4px;
+		color: #f00;
+		display: inline-block;
+		font-size: 0.7em;
+		padding: 1px 2px;
+		vertical-align: text-bottom;
+	}
+	.process-seen {
+		background: #fff799 none repeat scroll 0 0 !important;
+		color: #000 !important;
+	}
+</style>
 
 <div class="clear"></div>
 <div id="dispense-div">
@@ -104,6 +134,13 @@
 			
 			<div class="show-icon">
 				&nbsp;
+			</div>
+			
+			<div id="divSeachProcessed" class="right">
+				<label style="padding: 3px 10px; border: 1px solid rgb(238, 238, 238); background: #fff799 none repeat scroll 0px 0px;">
+					<input id="searchProcessed" type="checkbox" name="searchProcessed">
+					Include Processed
+				</label>
 			</div>
 			
 			<div class="filter">
@@ -146,20 +183,29 @@
 				</tr>
             </thead>
             <tbody data-bind="foreach: drugDispenseList">
-            <tr>
+            <tr data-bind="css: {'process-seen': flag == 2}">
                 <td data-bind="text: \$index() + 1"></td>
                 <td data-bind="text: id"></td>
                 <td data-bind="text: identifier"></td>
                 <td>
-                    <span data-bind="text: patient.givenName"></span>&nbsp;
-                    <span data-bind="text: patient.familyName"></span>&nbsp;
-                    <span data-bind="text: patient.middleName"></span>
+                    <span data-bind="text: givenName"></span>&nbsp;
+                    <span data-bind="text: familyName"></span>&nbsp;
+                    <span data-bind="text: middleName"></span>
+                    <span data-bind="visible: flag == 2" class="process-lozenge">Processed</span>
                 </td>
-                <td data-bind="text: (createdOn.toString().substring(0, 11))"></td>
+                <td data-bind="text: moment(new Date(createdOn)).format('DD, MMM YYYY')"></td>
                 <td>
                     <a class="remover" href="#" data-bind="click: \$root.viewDetails"
                        title="Detail issue drug to this patient">
-                        <i class="icon-check small"> </i>VIEW / PRINT
+						<span data-bind="visible: flag == 1">
+							<i class="icon-cogs small"></i>
+							PROCESS						
+						</span>
+						
+						<span data-bind="visible: flag == 2">
+							<i class="icon-bar-chart small"></i>
+							VIEW						
+						</span>
                     </a>
                 </td>
 

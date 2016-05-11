@@ -7,23 +7,26 @@
         getIndentList();
 
         //action when the searchField change occurs
-        jq(".searchFieldChange").on("change", function () {
+		jq("#indentName").on("keyup", function (){
             reloadList();
-
         });
-
-        //action when the searchField blur occurs
-        jq(".searchFieldBlur").on("blur", function () {
+		
+        jq("#statusId, #fromDate-display, #toDate-display").on("change", function () {
             reloadList();
         });
 
         function reloadList() {
-            var statusId = jq("#statusId").val();
-            var indentName = jq("#indentName").val();
-            var fromDate = jq("#fromDate").val();
-            var toDate = jq("#toDate").val();
+            var statusId 	= jq("#statusId").val();
+            var indentName	= jq("#indentName").val();
+            var fromDate 	= moment(jq("#fromDate-field").val()).format('DD/MM/YYYY');
+            var toDate 		= moment(jq("#toDate-field").val()).format('DD/MM/YYYY');
+			
             getIndentList(statusId, indentName, fromDate, toDate);
         }
+		
+		jq('#issue-button').click(function(){
+			window.location.href = emr.pageLink("pharmacyapp", "subStoreIndentDrug");
+		});
     });//end of doc ready
 
 
@@ -72,8 +75,8 @@
             var item = tests[index];
 
             row += '<td>' + c + '</td>'
+            row += '<td>' + item.createdOn.substring(0, 11).replaceAt(2, ",").replaceAt(6, " ").insertAt(3, 0, " ") + '</td>'
             row += '<td><a  href="#" onclick="detailDrugIndentPrint(' + item.id + ');">' + item.name + ' </a></td>'
-            row += '<td>' + item.createdOn + '</td>'
             row += '<td>' + item.subStoreStatusName + '</td>'
             var link = "";
             if (item.subStoreStatus == 1) {
@@ -81,7 +84,8 @@
             } else if (item.subStoreStatus == 3) {
                 link += '<a href="#" title="Process Indent" onclick="processDrugIndent(' + item.id + ');" >Process Indent</a>';
             }
-            row += '<td><a href="#" >' + link + '<a/></td>'
+            
+            row += '<td><a  href="#" onclick="detailDrugIndentPrint(' + item.id + ');"><i class="icon-bar-chart small"></i>VIEW</a></td>'
             row += '</tr>';
             tbody.append(row);
         }
@@ -97,94 +101,172 @@
             "indentId": indentId
         });
     }
-    function subStoreIndentDrug() {
-        window.location.href = emr.pageLink("pharmacyapp", "subStoreIndentDrug");
-    }
 
 </script>
 
-<div>
-    <div class="dashboard clear">
-        <div class="info-section">
-            <div class="info-header">
-                <i class="icon-external-link"></i>
+<style>
+	.dashboard {
+		border: 1px solid #eee;
+		padding: 2px 0 0;
+		margin-bottom: 5px;
+	}
 
-                <h3>Indent</h3>
-                <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" value="Add Indent Slip"
-                       style="float: right" onclick="subStoreIndentDrug();"/>
-            </div>
-        </div>
-    </div>
+	.dashboard .info-header i {
+		font-size: 2.5em !important;
+		margin-right: 0;
+		padding-right: 0;
+	}
 
-    <div id="indent-search-result" style="display: block; margin-top:3px;">
-        <div role="grid" class="dataTables_wrapper" id="indent-search-result-table_wrapper">
-            <table id="indent-search-result-table" class="dataTable" aria-describedby="indent-search-result-table_info">
+	.info-header div {
+		display: inline-block;
+		float: right;
+		margin-top: 7px;
+	}
 
-                <select name="statusId" id="statusId" class="searchFieldChange" title="Select Status">
-                    <option value>Select Status</option>
-                    <% listSubStoreStatus.each { %>
-                    <option value="${it.id}" title="${it.name}">
-                        ${it.name}
-                    </option>
-                    <% } %>
-                </select>
-                <label for="indentName">Drug Name</label>
-                <input type="text" id="indentName" name="indentName" placeholder="Drug Name" class="searchFieldBlur"
-                       title="Enter Drug Name"/>
-                <label for="fromDate">From</label>
-                <input type="text" id="fromDate" class="date-pick searchFieldChange searchFieldBlur" readonly="readonly"
-                       name="fromDate"
-                       title="Double Click to Clear" ondblclick="this.value = '';"/>
-                <label for="toDate">To</label>
-                <input type="text" id="toDate" class="date-pick searchFieldChange searchFieldBlur" readonly="readonly"
-                       name="toDate"
-                       title="Double Click to Clear" ondblclick="this.value = '';"/>
-                <thead>
-                <tr role="row">
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>S.No.</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Drug Name</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
+	.info-header div label {
+		color: #f26522;
+	}	
+	
+	.filter #indentName {
+		padding-left: 30px;
+		width: 100%;
+	}
+	
+	.second-col{
+		width: 32%;
+	}
 
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Date Created</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
+	.add-on {
+		color: #f26522;
+		left: auto;
+		margin-left: -29px;
+		margin-top: 4px !important;
+		position: absolute;
+	}
 
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Status</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
+	#fromDate,
+	#toDate {
+		float: none;
+		margin-bottom: -9px;
+		margin-top: 12px;
+		padding-right: 0;
+	}
+	
+	td a{
+		text-transform: uppercase;
+	}
+	#issue-drug-account-list-table td:first-child{
+		width: 5px;
+	}
+	#issue-drug-account-list-table td:nth-child(2){
+		width: 105px;
+	}
+	#issue-drug-account-list-table th:last-child,
+	#issue-drug-account-list-table td:last-child{
+		text-align: center;
+		width: 70px;
+	}
+	th:first-child{
+		width: 5px;
+	}
+	th:nth-child(2){
+		width: 110px;
+	}
+	th:last-child{
+		width: 70px;
+	}
+</style>
 
-                    <th class="ui-state-default" role="columnheader">
-                        <div class="DataTables_sort_wrapper">
-                            <span>Action</span>
-                            <span class="DataTables_sort_icon"></span>
-                        </div>
-                    </th>
+<div class="clear"></div>
+<div id="indents-div">
+	<div class="container">
+		<div class="example">
+			<ul id="breadcrumbs">
+				<li>
+					<a href="${ui.pageLink('referenceapplication', 'home')}">
+						<i class="icon-home small"></i></a>
+				</li>
+				
+				<li>
+					<a href="${ui.pageLink('pharmacyapp', 'dashboard')}">
+						<i class="icon-chevron-right link"></i>
+						Pharmacy
+					</a>
+				</li>
 
-                </tr>
-                </thead>
+				<li>
+					<i class="icon-chevron-right link"></i>
+					Ident Drugs
+				</li>
+			</ul>
+		</div>
+		
+		<div class="patient-header new-patient-header">
+			<div class="demographics">
+				<h1 class="name" style="border-bottom: 1px solid #ddd;">
+					<span>&nbsp;INDENT DRUGS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+				</h1>				
+			</div>			
+			
+			<div class="show-icon">
+				&nbsp;
+			</div>
+			
+			<span id='issue-button' class="button confirm" id="getOrders" style="float: right; margin: 12px 5px 0 0;">
+				<i class="icon-plus-sign small"></i>
+				Add Indent Slip
+			</span>
+			
+			<div class="filter">
+				<i class="icon-filter" style="color: rgb(91, 87, 166); float: left; font-size: 52px ! important; padding: 0px 10px 0px 0px;"></i>				
+				
+				<div class="second-col">
+					<label for="indentName">Filter Account</label><br/>
+                    <input type="text" id="indentName" name="indentName" placeholder="Enter Drug Name"/>
+					<i class="icon-search" style="color: rgb(170, 170, 170); float: right; position: absolute; font-size: 16px ! important; margin-left: -31%; margin-top: 3px;"></i>
+				</div>
+				
+				<div class="first-col">
+					<label for="fromDate-display">From Date</label><br/>
+					${ui.includeFragment("uicommons", "field/datetimepicker", [formFieldName: 'fromDate', id: 'fromDate', label: '', useTime: false, defaultToday: false, class: ['searchFieldChange', 'date-pick', 'searchFieldBlur']])}
+				</div>
+				
+				<div class="first-col">
+					<label for="toDate-display">To Date</label><br/>
+					${ui.includeFragment("uicommons", "field/datetimepicker", [formFieldName: 'toDate', id: 'toDate', label: '', useTime: false, defaultToday: false, class: ['searchFieldChange', 'date-pick', 'searchFieldBlur']])}
+				</div>
 
-                <tbody role="alert" aria-live="polite" aria-relevant="all">
-                <tr align="center">
-                    <td colspan="5">No indent found</td>
-                </tr>
-                </tbody>
-            </table>
+				<div class="first-col">
+					<label for="toDate-display">To Date</label><br/>
+					<select name="statusId" id="statusId" class="searchFieldChange" title="Select Status">
+						<option value="">Select Status</option>
+						<% listSubStoreStatus.each { %>
+						<option value="${it.id}" title="${it.name}">
+							${it.name}
+						</option>
+						<% } %>
+					</select>
+				</div>
+			</div>
+		</div>
+		
+		<table id="indent-search-result-table">
+			<thead>
+				<tr role="row">
+					<th>#</th>
+					<th>DATE</th>
+					<th>RECEIPT NAME</th>
+					<th>STATUS</th>
+					<th>ACTION</th>
+				</tr>
+			</thead>
 
-        </div>
-    </div>
+			<tbody>
+			<tr align="center">
+				<td>&nbsp;</td>
+				<td colspan="5">No indent found</td>
+			</tr>
+			</tbody>
+		</table>		
+	</div>
 </div>

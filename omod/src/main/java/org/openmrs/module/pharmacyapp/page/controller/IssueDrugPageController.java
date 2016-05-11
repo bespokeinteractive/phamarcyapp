@@ -1,73 +1,94 @@
 package org.openmrs.module.pharmacyapp.page.controller;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
+import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.hospitalcore.HospitalCoreService;
+import org.openmrs.module.hospitalcore.InventoryCommonService;
 import org.openmrs.module.hospitalcore.model.InventoryDrug;
 import org.openmrs.module.hospitalcore.model.InventoryDrugCategory;
 import org.openmrs.module.hospitalcore.model.InventoryStore;
 import org.openmrs.module.hospitalcore.model.InventoryStoreRoleRelation;
 import org.openmrs.module.inventory.InventoryService;
-import org.openmrs.module.inventory.model.InventoryStoreDrugIndentDetail;
-import org.openmrs.module.pharmacyapp.StoreSingleton;
 import org.openmrs.ui.framework.page.PageModel;
 import org.springframework.web.bind.annotation.RequestParam;
 
-public class IssueDrugPageController {
-	public void controller(){
-		}
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-	public void get
-	(@RequestParam(value = "categoryId", required = false) Integer categoryId,
-			@RequestParam(value="patientId",required=false) Integer patientId,
-			
-            PageModel model) {
-		
-		Patient Patient = Context.getPatientService().getPatient(patientId);
-		InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
-		List<InventoryDrugCategory> listCategory = inventoryService.findDrugCategory("");
-		model.addAttribute("listCategory", listCategory);
-		model.addAttribute("categoryId", categoryId);
-		if(categoryId != null && categoryId > 0){
-		    List<InventoryDrug> drugs = inventoryService.findDrug(categoryId, null);
-		    model.addAttribute("drugs",drugs);
-		    
-		
-		}
-		// InventoryStore store = inventoryService.getStoreByCollectionRole(new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles()));
-		List <Role>role=new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
-		
-		InventoryStoreRoleRelation srl=null;
-		Role rl = null;
-		for(Role r: role){
-		    if(inventoryService.getStoreRoleByName(r.toString())!=null){
-		        srl = inventoryService.getStoreRoleByName(r.toString());
-		        rl=r;
-		    }
-		}
-		InventoryStore store =null;
-		if(srl!=null){
-		    store = inventoryService.getStoreById(srl.getStoreid());
-		
-		}
-			model.addAttribute("store",store);
-			model.addAttribute("date",new Date());
-			model.addAttribute("patientId", patientId);
-			model.addAttribute("patientIdentifier",Patient.getPatientIdentifier());
-			model.addAttribute("category",Patient.getAttribute(14));
-			model.addAttribute("age",Patient.getAge());
-			model.addAttribute("gender",Patient.getGender());
-			String first = Patient.getFamilyName();
-			String anothername = Patient.getGivenName();
-			String names = first + " " + anothername;
-			model.addAttribute("names",names);
-			int userId = Context.getAuthenticatedUser().getId();
-			String fowardParam = "subStoreIndentDrug_"+userId;
-			List<InventoryStoreDrugIndentDetail> list = (List<InventoryStoreDrugIndentDetail> ) StoreSingleton.getInstance().getHash().get(fowardParam);
-			model.addAttribute("listIndent", list);
-			
-	}
+public class IssueDrugPageController {
+    public void controller() {
+    }
+
+    public void get(@RequestParam(value = "categoryId", required = false) Integer categoryId,
+                    @RequestParam(value = "patientId", required = false) Integer patientId, PageModel model) {
+        InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
+        InventoryCommonService inventoryCommonService = Context.getService(InventoryCommonService.class);
+        List<Concept> drugFrequencyConcept = inventoryCommonService.getDrugFrequency();
+        Patient patient = Context.getPatientService().getPatient(patientId);
+        HospitalCoreService hcs = Context.getService(HospitalCoreService.class);
+        model.addAttribute("drugFrequencyList", drugFrequencyConcept);
+        List<InventoryDrugCategory> listCategory = inventoryService.findDrugCategory("");
+        model.addAttribute("listCategory", listCategory);
+        model.addAttribute("categoryId", categoryId);
+        if (categoryId != null && categoryId > 0) {
+            List<InventoryDrug> drugs = inventoryService.findDrug(categoryId, null);
+            model.addAttribute("drugs", drugs);
+
+        } else {
+            List<InventoryDrug> drugs = inventoryService.getAllDrug();
+            model.addAttribute("drugs", drugs);
+        }
+
+        model.addAttribute("date", new Date());
+        int userId = Context.getAuthenticatedUser().getId();
+        // InventoryStore store = inventoryService.getStoreByCollectionRole(new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles()));
+        List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
+
+        InventoryStoreRoleRelation srl = null;
+        Role rl = null;
+        for (Role r : role) {
+            if (inventoryService.getStoreRoleByName(r.toString()) != null) {
+                srl = inventoryService.getStoreRoleByName(r.toString());
+                rl = r;
+            }
+        }
+        InventoryStore store = null;
+        if (srl != null) {
+            store = inventoryService.getStoreById(srl.getStoreid());
+
+        }
+        model.addAttribute("store", store);
+        model.addAttribute("date", new Date());
+        model.addAttribute("patientId", patientId);
+        model.addAttribute("identifier", patient.getPatientIdentifier());
+        model.addAttribute("category", patient.getAttribute(14));
+        model.addAttribute("age", patient.getAge());
+        model.addAttribute("birthdate", patient.getBirthdate());
+        model.addAttribute("lastVisit", hcs.getLastVisitTime(patient));
+        model.addAttribute("date", new Date());
+        String patientType = hcs.getPatientType(patient);
+        model.addAttribute("patientType", patientType);
+
+        if (patient.getGender().equals("M")) {
+            model.addAttribute("gender", "Male");
+        } else {
+            model.addAttribute("gender", "Female");
+        }
+
+        model.addAttribute("familyName", patient.getFamilyName());
+        model.addAttribute("givenName", patient.getGivenName());
+
+        if (patient.getMiddleName() != null) {
+            model.addAttribute("middleName", patient.getMiddleName());
+        } else {
+            model.addAttribute("middleName", "");
+        }
+
+
+    }
+
+
 }

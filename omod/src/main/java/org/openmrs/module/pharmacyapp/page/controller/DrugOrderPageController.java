@@ -1,6 +1,5 @@
 package org.openmrs.module.pharmacyapp.page.controller;
 
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openmrs.*;
@@ -55,13 +54,21 @@ public class DrugOrderPageController {
         PatientSearch patientSearch = hospitalCoreService.getPatientByPatientId(patientId);
 
         Patient patient = Context.getPatientService().getPatient(patientId);
+        Integer prescriberId = 0;
+        String doctor = "Unknown";
+
+        if (drugOrderList.get(0).getCreator() != null){
+            prescriberId = drugOrderList.get(0).getCreator().getId();
+            doctor = drugOrderList.get(0).getCreator().getGivenName();
+        }
 
         model.addAttribute("patientCategory", patient.getAttribute(14));
         model.addAttribute("previousVisit",hospitalCoreService.getLastVisitTime(patient));
         model.addAttribute("patientSearch", patientSearch);
         model.addAttribute("patientType", patientType);
         model.addAttribute("date", dateStr);
-        model.addAttribute("doctor", drugOrderList.get(0).getCreator().getGivenName());
+        model.addAttribute("doctor", doctor);
+        model.addAttribute("prescriberId", prescriberId);
 
         InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
 
@@ -75,13 +82,15 @@ public class DrugOrderPageController {
         String paymentMode = request.getParameter("paymentMode");
         int encounterId = Integer.parseInt(request.getParameter("encounterId"));
         int patientId = Integer.parseInt(request.getParameter("patientId"));
+        int presciberId = Integer.parseInt(request.getParameter("prescriberId"));
+        User prescriber = Context.getUserService().getUser(presciberId);
+
         BigDecimal waiverAmount = null;
         if(StringUtils.isNotEmpty(request.getParameter("waiverAmount"))){
             waiverAmount = new BigDecimal(request.getParameter("waiverAmount"));
         }
 
         String comment = request.getParameter("comment");
-
 
         JSONArray orders = new JSONArray(order);
 
@@ -123,6 +132,7 @@ public class DrugOrderPageController {
         inventoryStoreDrugPatient.setIdentifier(patient.getPatientIdentifier().getIdentifier());
         inventoryStoreDrugPatient.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
         inventoryStoreDrugPatient.setCreatedOn(date);
+        inventoryStoreDrugPatient.setPrescriber(prescriber);
         inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
 
         InventoryStoreDrugTransaction transaction = new InventoryStoreDrugTransaction();
@@ -160,6 +170,9 @@ public class DrugOrderPageController {
                 InventoryDrugFormulation inventoryDrugFormulation = inventoryCommonService.getDrugFormulationById(formulationId);
                 InventoryStoreDrugPatientDetail pDetail = new InventoryStoreDrugPatientDetail();
                 InventoryStoreDrugTransactionDetail inventoryStoreDrugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(listOfDrugQuantity);
+                System.out.println("Store id: "+store.getId());
+                System.out.println("Drug id: "+inventoryStoreDrugTransactionDetail.getDrug().getId());
+                System.out.println("Formulation id: "+inventoryDrugFormulation.getId());
                 Integer totalQuantity = inventoryService.sumCurrentQuantityDrugOfStore(store.getId(), inventoryStoreDrugTransactionDetail.getDrug().getId(), inventoryDrugFormulation.getId());
                 int t = totalQuantity;
                 InventoryStoreDrugTransactionDetail drugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(inventoryStoreDrugTransactionDetail.getId());
@@ -192,7 +205,7 @@ public class DrugOrderPageController {
                 transDetail.setFrequency(fCon);
                 transDetail.setNoOfDays(noOfDays);
                 transDetail.setComments(comments);
-                transDetail.setFlag(0);
+
                 BigDecimal moneyUnitPrice = inventoryStoreDrugTransactionDetail.getCostToPatient().multiply(new BigDecimal(quantity));
                 // moneyUnitPrice = moneyUnitPrice.add(moneyUnitPrice.multiply(inventoryStoreDrugTransactionDetail.getVAT().divide(new BigDecimal(100))));
                 transDetail.setTotalPrice(moneyUnitPrice);
@@ -209,15 +222,6 @@ public class DrugOrderPageController {
 
                 BillingService billingService = Context.getService(BillingService.class);
                 IndoorPatientServiceBill bill = new IndoorPatientServiceBill();
-                /*added waiver amount */
-                if (waiverAmount != null) {
-                    bill.setWaiverAmount(waiverAmount);
-                } else {
-                    BigDecimal wavAmt = new BigDecimal(0);
-                    bill.setWaiverAmount(wavAmt);
-                }
-                bill.setComment(comment);
-                bill.setPaymentMode(paymentMode);
                 bill.setActualAmount(moneyUnitPrice);
                 bill.setAmount(moneyUnitPrice);
 

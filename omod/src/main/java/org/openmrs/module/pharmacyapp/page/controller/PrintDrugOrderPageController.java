@@ -45,9 +45,7 @@ public class PrintDrugOrderPageController {
         }
         List<InventoryStoreDrugPatientDetail> listDrugIssue = inventoryService
                 .listStoreDrugPatientDetail(issueId);
-        InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
-
-        if (inventoryStoreDrugPatient != null && listDrugIssue != null && listDrugIssue.size() > 0) {
+        if (listDrugIssue != null && listDrugIssue.size() > 0) {
             InventoryStoreDrugTransaction transaction = new InventoryStoreDrugTransaction();
             transaction.setDescription("ISSUE DRUG TO PATIENT " + DateUtils.getDDMMYYYY());
             transaction.setStore(store);
@@ -81,7 +79,13 @@ public class PrintDrugOrderPageController {
                 inventoryStoreDrugTransactionDetail.setCurrentQuantity(drugTransactionDetail.getCurrentQuantity());
 
                 Integer flags = pDetail.getTransactionDetail().getFlag();
+
+                if (flags == null || flags == 0){
+                    flags = 1;
+                }
+
                 model.addAttribute("flag", flags);
+
                 inventoryService.saveStoreDrugTransactionDetail(inventoryStoreDrugTransactionDetail);
                 // save transactiondetail first
                 InventoryStoreDrugTransactionDetail transDetail = new InventoryStoreDrugTransactionDetail();
@@ -116,7 +120,6 @@ public class PrintDrugOrderPageController {
                 transDetail.setComments(pDetail.getTransactionDetail().getComments());
                 transDetail.setFlag(1);
 
-
                 BigDecimal moneyUnitPrice = pDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(pDetail.getQuantity()));
                 transDetail.setTotalPrice(moneyUnitPrice);
                 transDetail.setParent(pDetail.getTransactionDetail());
@@ -129,6 +132,12 @@ public class PrintDrugOrderPageController {
                 "transactionDetail.formulation.name", "transactionDetail.formulation.dozage", "transactionDetail.frequency.name", "transactionDetail.noOfDays",
                 "transactionDetail.comments", "transactionDetail.dateExpiry");
         model.addAttribute("listDrugIssue", SimpleObject.create("listDrugIssue", dispensedDrugs).toJson());
+        if (listDrugIssue.size() > 0) {
+            model.addAttribute("waiverAmount", listDrugIssue.get(0).getStoreDrugPatient().getWaiverAmount());
+            model.addAttribute("waiverComment", listDrugIssue.get(0).getStoreDrugPatient().getComment());
+        }
+
+
         if (CollectionUtils.isNotEmpty(listDrugIssue)) {
             model.addAttribute("issueDrugPatient", listDrugIssue.get(0)
                     .getStoreDrugPatient());

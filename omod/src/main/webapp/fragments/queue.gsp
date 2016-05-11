@@ -135,7 +135,7 @@
 				<div class="second-col">
 					<label for="phrase">Filter Patient in Queue:</label><br/>
 					<input id="phrase" type="text" name="phrase" placeholder="Enter Patient Name / Identifier">
-					<i class="icon-search" style="color: #aaa; float: right; position: absolute; font-size: 16px ! important; margin-left: -495px; margin-top: 4px;"></i>
+					<i class="icon-search" style="color: #aaa; float: right; position: absolute; font-size: 16px ! important; margin-left: -495px; margin-top: 3px;"></i>
 				</div>
 				
 				<a class="button confirm" id="getOrders" style="float: right; margin: 15px 5px 0 0;">

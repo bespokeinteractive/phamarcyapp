@@ -2,6 +2,8 @@ package org.openmrs.module.pharmacyapp.page.controller;
 
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.hospitalcore.model.InventoryDrugFormulation;
+import org.openmrs.module.hospitalcore.model.InventoryDrug;
 import org.openmrs.module.hospitalcore.model.InventoryStore;
 import org.openmrs.module.hospitalcore.model.InventoryStoreDrugTransactionDetail;
 import org.openmrs.module.hospitalcore.model.InventoryStoreRoleRelation;
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by USER on 4/8/2016.
+ * Created by Dennys Henry on 4/8/2016.
  */
 public class ViewCurrentStockBalanceDetailPageController {
 
@@ -22,8 +24,11 @@ public class ViewCurrentStockBalanceDetailPageController {
             @RequestParam(value = "formulationId", required = false) Integer formulationId,
             @RequestParam(value = "expiry", required = false) Integer expiry,
             PageModel model) {
-        InventoryService inventoryService = (InventoryService) Context
-                .getService(InventoryService.class);
+
+        InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
+        InventoryDrug drug = inventoryService.getDrugById(drugId);
+        InventoryDrugFormulation formulation = inventoryService.getDrugFormulationById(formulationId);
+
         List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
 
         InventoryStoreRoleRelation storeRoleRelation = null;
@@ -43,6 +48,8 @@ public class ViewCurrentStockBalanceDetailPageController {
                 .listStoreDrugTransactionDetail(store.getId(), drugId,
                         formulationId, expiry);
         model.addAttribute("listViewStockBalance", listViewStockBalance);
+        model.addAttribute("formulation",formulation);
+        model.addAttribute("drug",drug);
     }
 }
 
