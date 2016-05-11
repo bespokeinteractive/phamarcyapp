@@ -4,6 +4,7 @@ import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.hospitalcore.HospitalCoreService;
 import org.openmrs.module.hospitalcore.InventoryCommonService;
 import org.openmrs.module.hospitalcore.model.InventoryDrug;
@@ -11,7 +12,10 @@ import org.openmrs.module.hospitalcore.model.InventoryDrugCategory;
 import org.openmrs.module.hospitalcore.model.InventoryStore;
 import org.openmrs.module.hospitalcore.model.InventoryStoreRoleRelation;
 import org.openmrs.module.inventory.InventoryService;
+import org.openmrs.module.referenceapplication.ReferenceApplicationWebConstants;
+import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
+import org.openmrs.ui.framework.page.PageRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
@@ -23,7 +27,14 @@ public class IssueDrugPageController {
     }
 
     public void get(@RequestParam(value = "categoryId", required = false) Integer categoryId,
-                    @RequestParam(value = "patientId", required = false) Integer patientId, PageModel model) {
+                    @RequestParam(value = "patientId", required = false) Integer patientId,
+                    UiSessionContext sessionContext,
+                    PageRequest pageRequest,
+                    UiUtils ui,
+                    PageModel model) {
+        pageRequest.getSession().setAttribute(ReferenceApplicationWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL,ui.thisUrl());
+        sessionContext.requireAuthentication();
+
         InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
         InventoryCommonService inventoryCommonService = Context.getService(InventoryCommonService.class);
         List<Concept> drugFrequencyConcept = inventoryCommonService.getDrugFrequency();
