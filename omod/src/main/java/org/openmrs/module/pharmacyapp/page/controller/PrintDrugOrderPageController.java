@@ -85,7 +85,6 @@ public class PrintDrugOrderPageController {
                 }
 
                 model.addAttribute("flag", flags);
-                System.out.println(flags);
 
                 inventoryService.saveStoreDrugTransactionDetail(inventoryStoreDrugTransactionDetail);
                 // save transactiondetail first

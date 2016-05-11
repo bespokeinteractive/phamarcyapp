@@ -217,7 +217,7 @@
 			<tr>
 				<th>#</th>
 				<th>DATE</th>
-				<th>ACCOUNT</th>
+				<th>ACCOUNT NAME</th>
 				<th>NOTES</th>
 				<th>ACTION</th>
 			</tr>
