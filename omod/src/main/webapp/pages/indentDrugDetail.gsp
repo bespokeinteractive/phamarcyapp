@@ -1,5 +1,6 @@
 <%
     ui.decorateWith("appui", "standardEmrPage", [title: "Pharmacy Module"])
+	ui.includeCss("pharmacyapp", "container.css")
 %>
 
 <script>
@@ -17,28 +18,67 @@
         printWindow.print();
     }
     function mainPage() {
-        window.location.href = emr.pageLink("pharmacyapp", "main", {
-            "tabId": "manage"
+        window.location.href = emr.pageLink("pharmacyapp", "container", {
+            "rel": "indent-drugs"
         });
     }
 
 </script>
 
+<style>
+	table{
+		font-size: 14px;
+	}
+</style>
 
+<div id="indents-div">
+	<div class="container">
+		<div class="example">
+			<ul id="breadcrumbs">
+				<li>
+					<a href="${ui.pageLink('referenceapplication', 'home')}">
+						<i class="icon-home small"></i></a>
+				</li>
+				
+				<li>
+					<a href="${ui.pageLink('pharmacyapp', 'dashboard')}">
+						<i class="icon-chevron-right link"></i>
+						Pharmacy
+					</a>
+				</li>
+				
+				<li>
+					<a href="${ui.pageLink('pharmacyapp', 'container',['rel':'indent-drugs'])}">
+						<i class="icon-chevron-right link"></i>
+						Indent List
+					</a>
+				</li>
 
-<div class="dashboard clear">
-    <div class="info-section">
-        <div class="info-header">
-            <i class="icon-external-link"></i>
-
-            <h3>Detail Drug Indent</h3>
-        </div>
-    </div>
+				<li>
+					<i class="icon-chevron-right link"></i>
+					Ident Details
+				</li>
+			</ul>
+		</div>
+		
+		<div class="patient-header new-patient-header">
+			<div class="demographics" style="margin-bottom: 2px;">
+				<h1 class="name" style="border-bottom: 1px solid #ddd;">
+					<span>&nbsp;INDENT DRUG DETAILS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+				</h1>				
+			</div>			
+			
+			<div class="show-icon">
+				&nbsp;
+			</div>
+		</div>
+		
+	</div>
 </div>
 
 <% if (listTransactionDetail == null) { %>
 <table width="100%" cellpadding="5" cellspacing="0">
-    <tr align="center">
+    <tr>
         <th>S.No</th>
         <th>Category</th>
         <th>Drug Name</th>
@@ -61,9 +101,19 @@
     <% }
     } %>
 </table>
-<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" value="Print" onClick="printDiv();"/>
-<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all"
-       value="Back" onClick="mainPage();"/>
+
+<div style="margin-top: 10px;">
+	<span class="button task right" onClick="printDiv();">
+		<i class="icon-print small"> </i>Print		
+	</span>
+	
+	<span class="button cancel" onClick="mainPage();">
+		Return to List  
+	</span>
+</div>
+	   
+	   
+	   
 <!-- PRINT DIV -->
 <div id="printDiv" style="display: none;">
     <div style="margin: 10px auto; width: 981px; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
@@ -76,7 +126,7 @@
         <br/>
         <br/>
         <table border="1">
-            <tr align="center">
+            <tr>
                 <th>S.No</th>
                 <th>Category</th>
                 <th>Drug Name</th>
@@ -114,23 +164,25 @@
 <% } else { %>
 
 <table width="100%" cellpadding="5" cellspacing="0">
-			<tr align="center">
-			<th>S.No</th>
-			<th>Category</th>
-            <th>Drug Name</th>
-            <th>Formulation</th>
-            <th>Quantity Indent</th>
-            <th>Batch No.</th>
-            <th>Date of Expiry</th>
-            <th>Company Name</th>
-            <th>Transfer Quantity</th>
+			<tr>
+				<thead>
+					<th>#</th>
+					<th>CATEGORY</th>
+					<th>DRUG</th>
+					<th>FORMULATION</th>
+					<th>QUANTITY</th>
+					<th>BATCH#</th>
+					<th>EXPIRY</th>
+					<th>COMPANY</th>
+					<th>TRANSFER</th>
+				</thead>
             </tr>
 
 <% if (listIndentDetail != null) {
     def count = 0;
     def check = 0;
     listIndentDetail.eachWithIndex { indent, varStatus -> %>
-<tr align="center" class='${varStatus % 2 == 0 ? "oddRow" : "evenRow"} '>
+<tr class='${varStatus % 2 == 0 ? "oddRow" : "evenRow"} '>
     <td>${varStatus +1}</td>
     <td>${indent.drug.category.name}</td>
     <td>${indent.drug.name}</td>
@@ -140,22 +192,16 @@
     <% if (trDetail.drug.id == indent.drug.id && trDetail.formulation.id == indent.formulation.id) {
         check = 1; %>
     <% if (count > 0) { %>
-</tr>
-<tr align="center" class='${varStatus % 2 == 0 ? "oddRow" : "evenRow"} '>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
+	
     <td>${trDetail.batchNo}</td>
-    <td>${trDetail.dateExpiry}</td>
+    <td>${ui.formatDatePretty(trDetail.dateExpiry)}</td>
     <td>${trDetail.companyName}</td>
     <td>${trDetail.issueQuantity}</td>
 </tr>
 
 <% } else { %>
 <td>${trDetail.batchNo}</td>
-<td>${trDetail.dateExpiry}</td>
+<td>${ui.formatDatePretty(trDetail.dateExpiry)}</td>
 <td>${trDetail.companyName}</td>
 <td>${trDetail.issueQuantity}</td>
 </tr>
@@ -177,10 +223,16 @@
 } %>
 
 </table>
-<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all"
-       value="Print" onClick="printDiv();"/>
-<input type="button" class="ui-button ui-widget ui-state-default ui-corner-all"
-       value="Back" onClick="mainPage();"/>
+
+<div style="margin-top: 10px;">
+	<span class="button task right" onClick="printDiv();">
+		<i class="icon-print small"> </i>Print		
+	</span>
+	
+	<span class="button cancel" onClick="mainPage();">
+		Return to List  
+	</span>
+</div>
 
 <!-- PRINT DIV -->
 <div id="printDiv" style="display: none;">
@@ -194,16 +246,18 @@
         <br/>
         <br/>
         <table border="1">
-            <tr align="center">
-                <th>S.No</th>
-                <th>Category</th>
-                <th>Drug Name</th>
-                <th>Formulation</th>
-                <th>Quantity Indent</th>
-                <th>Batch No.</th>
-                <th>Date of Expiry</th>
-                <th>Company Name</th>
-                <th>Transfer Quantity</th>
+            <tr>
+				<thead>
+					<th>#</th>
+					<th>CATEGORY</th>
+					<th>DRUG</th>
+					<th>FORMULATION</th>
+					<th>QUANTITY</th>
+					<th>BATCH#</th>
+					<th>EXPIRY</th>
+					<th>COMPANY</th>
+					<th>TRANSFER</th>
+				</thead>
             </tr>
 
             <% if (listIndentDetail != null) {
@@ -220,22 +274,16 @@
                 <% if (trDetail.drug.id == indent.drug.id && trDetail.formulation.id == indent.formulation.id) {
                     check = 1; %>
                 <% if (count > 0) { %>
-            </tr>
-            <tr align="center" class='${varStatus % 2 == 0 ? "oddRow" : "evenRow"} '>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+           
                 <td>${trDetail.batchNo}</td>
-                <td>${trDetail.dateExpiry}</td>
+                <td>${ui.formatDatePretty(trDetail.dateExpiry)}</td>
                 <td>${trDetail.companyName}</td>
                 <td>${trDetail.issueQuantity}</td>
             </tr>
 
             <% } else { %>
             <td>${trDetail.batchNo}</td>
-            <td>${trDetail.dateExpiry}</td>
+            <td>${ui.formatDatePretty(trDetail.dateExpiry)}</td>
             <td>${trDetail.companyName}</td>
             <td>${trDetail.issueQuantity}</td>
         </tr>

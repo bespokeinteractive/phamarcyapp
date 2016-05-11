@@ -82,6 +82,42 @@
 			<dependency>
 
 				<groupId>org.openmrs.module</groupId>
+
+				<artifactId>appframework-api</artifactId>
+
+				<version>2.4</version>
+
+				<scope>provided</scope>
+
+			</dependency>
+
+			<dependency>
+
+				<groupId>org.openmrs.module</groupId>
+
+				<artifactId>appui-omod</artifactId>
+
+				<version>1.4</version>
+
+				<scope>provided</scope>
+
+			</dependency>
+
+			<dependency>
+
+				<groupId>org.openmrs.module</groupId>
+
+				<artifactId>referenceapplication-omod</artifactId>
+
+				<version>1.0.1</version>
+
+				<scope>provided</scope>
+
+			</dependency>
+
+			<dependency>
+
+				<groupId>org.openmrs.module</groupId>
 				<artifactId>hospitalcore-api</artifactId>
 				<version>1.5.3-SNAPSHOT</version>
 				<scope>provided</scope>

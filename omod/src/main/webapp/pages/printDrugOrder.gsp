@@ -143,10 +143,10 @@
                 printWindow.document.write('</head>');
                 printWindow.document.write(printDiv);
                 printWindow.document.write('</body></html>');
-                printWindow.document.close();
                 printWindow.print();
+                printWindow.close();
 
-                var flag =${flag };
+                var flag =${flag};
                 var ids =${receiptid};
                 if (flag === 0) {
                     var data = jQuery.ajax({
@@ -275,6 +275,8 @@
 			<em>  receipt number</em>
 		</span>
 	</div>
+	
+${flag}
 
     <div class="dashboard clear" id="dispensedDrugs">
         <table width="100%" id="orderBillingTable" class="tablesorter thickbox">

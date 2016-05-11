@@ -2,6 +2,7 @@ package org.openmrs.module.pharmacyapp.page.controller;
 
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.hospitalcore.model.InventoryDrug;
 import org.openmrs.module.hospitalcore.model.InventoryStore;
 import org.openmrs.module.hospitalcore.model.InventoryStoreDrugTransactionDetail;
@@ -9,7 +10,10 @@ import org.openmrs.module.hospitalcore.model.InventoryStoreRoleRelation;
 import org.openmrs.module.hospitalcore.util.Action;
 import org.openmrs.module.hospitalcore.util.ActionValue;
 import org.openmrs.module.inventory.InventoryService;
+import org.openmrs.module.referenceapplication.ReferenceApplicationWebConstants;
+import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
+import org.openmrs.ui.framework.page.PageRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.SimpleDateFormat;
@@ -21,7 +25,14 @@ import java.util.List;
  * Created by Dennis Henry on 4/15/2016.
  */
 public class DashboardPageController {
-    public String get(PageModel model,@RequestParam(value="tabId",required=false)  String tabId) {
+    public String get(PageModel model,
+                      UiSessionContext sessionContext,
+                      PageRequest pageRequest,
+                      UiUtils ui,
+                      @RequestParam(value="tabId",required=false)  String tabId) {
+
+        pageRequest.getSession().setAttribute(ReferenceApplicationWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL,ui.thisUrl());
+        sessionContext.requireAuthentication();
 
         List<InventoryStoreDrugTransactionDetail> listReceiptDrugReturn = null;
         InventoryService inventoryService = (InventoryService) Context

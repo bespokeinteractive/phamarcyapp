@@ -47,6 +47,12 @@ td a:hover{
 	padding-left: 5px
 }
 
+.filter #issueName{
+	padding-left: 30px;
+    width: 510px;
+	
+}
+
 .footer{
 	height: 50px;	
 }
@@ -57,14 +63,18 @@ td a:hover{
 	display: none;
 }
 
-#phrase{
+#phrase {
 	padding-left: 30px;
     width: 500px;
 }
 
+#current-div .show-icon,
+#indents-div .show-icon,
 #queue-div .show-icon,
+#expired-div .show-icon,
 #patients-div .show-icon,
-#dispense-div .show-icon {
+#dispense-div .show-icon,
+#accounts-div .show-icon {
 	display: inline-block;
     float: right;
     height: 60px;
@@ -84,6 +94,18 @@ td a:hover{
     background: rgba(0, 0, 0, 0) url("../images/search.png") no-repeat scroll 0 0 / 100% auto;
 }
 
+#accounts-div .show-icon {
+    background: rgba(0, 0, 0, 0) url("../images/account.png") no-repeat scroll 0 0 / 100% auto;
+}
+#expired-div .show-icon {
+    background: rgba(0, 0, 0, 0) url("../images/expired.png") no-repeat scroll 0 0 / 100% auto;
+}
+#current-div .show-icon {
+    background: rgba(0, 0, 0, 0) url("../images/current.png") no-repeat scroll 0 0 / 100% auto;
+}
+#indents-div .show-icon {
+    background: rgba(0, 0, 0, 0) url("../images/indents.png") no-repeat scroll 0 0 / 100% auto;
+}
 #dispense-div .add-on {
 	color: #f26522;
 	float: right;

@@ -1,32 +1,31 @@
 <%
     ui.decorateWith("appui", "standardEmrPage", [title: "View Expired Drug Stock"])
-	ui.includeCss("inventoryapp", "views.css")
+	ui.includeCss("pharmacyapp", "views.css")
 	ui.includeJavascript("billingui", "moment.js")
 %>
 
 <script>
     jq(function (){
 
-        jq.getJSON('${ui.actionLink("pharmacyapp", "ViewStockBalanceDetail", "viewStockBalanceDetail")}',
-                {
-                    drugId :${drugId},
-                    formulationId: ${formulationId},
-                    expiry: ${expiry},
-                    "currentPage": 1
-                } ).success(function (data) {
-                    if (data.length === 0 && data != null) {
-                        jq('#expiry-detail-results-table > tbody > tr').remove();
+        jq.getJSON('${ui.actionLink("pharmacyapp", "ViewStockBalanceDetail", "viewStockBalanceDetail")}',{
+			drugId :${drugId},
+			formulationId: ${formulationId},
+			expiry: ${expiry},
+			"currentPage": 1
+		} ).success(function (data) {
+			if (data.length === 0 && data != null) {
+				jq('#expiry-detail-results-table > tbody > tr').remove();
 
-						var row = '<tr align="center">';
-						row += '<td>0</td>';
-						row += '<td colspan="7">No Records Found</td>';
-						row += '</tr>';
+				var row = '<tr align="center">';
+				row += '<td>0</td>';
+				row += '<td colspan="7">No Records Found</td>';
+				row += '</tr>';
 
-						tbody.append(row);
-                    } else {
-                        updateQueueTable(data)
-                    }
-                });
+				tbody.append(row);
+			} else {
+				updateQueueTable(data)
+			}
+		});
 
     })
 
@@ -61,26 +60,37 @@
     }
 </script>
 
-<div class="clear"></div>
+<style>
+	.name {
+		color: #f26522;
+	}
+	#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
+		text-decoration: none;
+	}
+</style>
 
-<div class="container">
+<div class="clear"></div>
+<div id="expired" class="container">
 	<div class="example">
         <ul id="breadcrumbs">
             <li>
                 <a href="${ui.pageLink('referenceapplication', 'home')}">
-					<i class="icon-home small"></i>
-				</a>
+                    <i class="icon-home small"></i></a>
             </li>
-
+			
+            <li>
+                <i class="icon-chevron-right link"></i>
+                <a href="${ui.pageLink('pharmacyapp', 'dashboard')}">Pharmacy</a>
+            </li>
+			
 			<li>
-                <a href="${ui.pageLink('inventoryapp', 'main')}">
-					<i class="icon-chevron-right link"></i>Inventory
-				</a>
+                <i class="icon-chevron-right link"></i>
+                <a href="${ui.pageLink('pharmacyapp', 'container', [rel:'expired-stock'])}">Expired Drugs</a>
             </li>
 
             <li>
                 <i class="icon-chevron-right link"></i>
-                Expired Drug Stock
+                Drug Stock
             </li>
         </ul>
     </div>
@@ -92,7 +102,7 @@
             </h1>
         </div>
 
-		<div id="show-icon">
+		<div class="show-icon">
 			&nbsp;
 		</div>
 
