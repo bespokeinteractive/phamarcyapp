@@ -89,7 +89,13 @@ public class PrintDrugOrderPageController {
                 inventoryStoreDrugTransactionDetail.setCurrentQuantity(drugTransactionDetail.getCurrentQuantity());
 
                 Integer flags = pDetail.getTransactionDetail().getFlag();
+
+                if (flags == null || flags == 0){
+                    flags = 1;
+                }
+
                 model.addAttribute("flag", flags);
+
                 inventoryService.saveStoreDrugTransactionDetail(inventoryStoreDrugTransactionDetail);
                 // save transactiondetail first
                 InventoryStoreDrugTransactionDetail transDetail = new InventoryStoreDrugTransactionDetail();
@@ -123,7 +129,6 @@ public class PrintDrugOrderPageController {
                 transDetail.setNoOfDays(pDetail.getTransactionDetail().getNoOfDays());
                 transDetail.setComments(pDetail.getTransactionDetail().getComments());
                 transDetail.setFlag(1);
-
 
                 BigDecimal moneyUnitPrice = pDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(pDetail.getQuantity()));
                 transDetail.setTotalPrice(moneyUnitPrice);

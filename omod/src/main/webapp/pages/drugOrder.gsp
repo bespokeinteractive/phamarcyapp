@@ -627,10 +627,11 @@
         </div>
 
         <form method="post" id="drugsForm">
-            <input name="submvalue"  type="hidden" value="Finish">
-            <input name="patientId" type="hidden" value="${patientId}">
-            <input name="encounterId" type="hidden" value="${encounterId}">
-            <input name="patientType" type="hidden" value="${patientType}">
+            <input name="submvalue"  type="hidden" value="Finish"/>
+            <input name="patientId" type="hidden" value="${patientId}"/>
+            <input name="encounterId" type="hidden" value="${encounterId}"/>
+            <input name="patientType" type="hidden" value="${patientType}"/>
+            <input name="prescriberId" type="hidden" value="${prescriberId}"/>
 
             <textarea name="order" data-bind="value: ko.toJSON(\$root.pItems)" style="display: none;" ></textarea>
         </form>
