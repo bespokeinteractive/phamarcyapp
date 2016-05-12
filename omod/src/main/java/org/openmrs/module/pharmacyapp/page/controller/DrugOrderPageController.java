@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.openmrs.*;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.hospitalcore.BillingService;
 import org.openmrs.module.hospitalcore.HospitalCoreService;
 import org.openmrs.module.hospitalcore.InventoryCommonService;
@@ -13,9 +14,11 @@ import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.ActionValue;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.util.DateUtils;
+import org.openmrs.module.referenceapplication.ReferenceApplicationWebConstants;
 import org.openmrs.ui.framework.SimpleObject;
 import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
+import org.openmrs.ui.framework.page.PageRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,11 +33,17 @@ import java.util.List;
 public class DrugOrderPageController {
     public void get(
             PageModel model,
+            UiSessionContext sessionContext,
+            PageRequest pageRequest,
             @RequestParam("patientId") Integer patientId,
             @RequestParam("encounterId") Integer encounterId,
             @RequestParam(value = "date", required = false) String dateStr,
             @RequestParam(value = "patientType", required = false) String patientType,
             UiUtils uiUtils) {
+
+        pageRequest.getSession().setAttribute(ReferenceApplicationWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL,uiUtils.thisUrl());
+        sessionContext.requireAuthentication();
+
         InventoryService inventoryService = Context
                 .getService(InventoryService.class);
 

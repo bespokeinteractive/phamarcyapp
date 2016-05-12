@@ -3,15 +3,18 @@ package org.openmrs.module.pharmacyapp.page.controller;
 import org.apache.commons.lang.math.NumberUtils;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.ActionValue;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.model.InventoryStoreDrug;
 import org.openmrs.module.inventory.model.InventoryStoreDrugIndentDetail;
 import org.openmrs.module.inventory.util.DateUtils;
+import org.openmrs.module.referenceapplication.ReferenceApplicationWebConstants;
 import org.openmrs.ui.framework.SimpleObject;
 import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
+import org.openmrs.ui.framework.page.PageRequest;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -27,16 +30,24 @@ import java.util.logging.Logger;
 public class SubStoreDrugProcessIndentPageController {
     private final Logger logger = Logger.getLogger(SubStoreDrugProcessIndentPageController.class.getName());
 
-    public String get(@RequestParam(value = "indentId", required = false) Integer indentId, PageModel pageModel,
-                      UiUtils uiUtils) {
+    public String get(@RequestParam(value = "indentId", required = false) Integer indentId,
+                      PageModel pageModel,
+                      UiUtils ui,
+                      UiSessionContext sessionContext,
+                      PageRequest pageRequest
+    ) {
+
+        pageRequest.getSession().setAttribute(ReferenceApplicationWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL,ui.thisUrl());
+        sessionContext.requireAuthentication();
+
         InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
         InventoryStoreDrugIndent indent = inventoryService.getStoreDrugIndentById(indentId);
         if (indent != null && indent.getSubStoreStatus() != 3 && indent.getMainStoreStatus() != 3) {
-            return "redirect:" + uiUtils.pageLink("pharmacyapp", "main");
+            return "redirect:" + ui.pageLink("pharmacyapp", "main");
         }
         List<InventoryStoreDrugIndentDetail> listDrugNeedProcess = inventoryService.listStoreDrugIndentDetail(indentId);
 
-        List<SimpleObject> simpleObjects = SimpleObject.fromCollection(listDrugNeedProcess, uiUtils, "id", "drug.id", "drug.name",
+        List<SimpleObject> simpleObjects = SimpleObject.fromCollection(listDrugNeedProcess, ui, "id", "drug.id", "drug.name",
                 "formulation.id", "formulation.name", "formulation.dozage", "formulation.description", "quantity", "mainStoreTransfer");
         String listDrugTPJson = SimpleObject.create("listDrugNeedProcess", simpleObjects).toJson();
         pageModel.addAttribute("listDrugNeedProcess", listDrugTPJson);
