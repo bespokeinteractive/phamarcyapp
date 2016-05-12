@@ -109,7 +109,6 @@ table {
         listDrugIssue;
         var wAmount = ${waiverAmount};
         var wComment = "${waiverComment}";
-        console.log(listOfDrugToIssue);
         var listNonDispensed =
         ${listOfNotDispensedOrder}.
         listOfNotDispensedOrder;
