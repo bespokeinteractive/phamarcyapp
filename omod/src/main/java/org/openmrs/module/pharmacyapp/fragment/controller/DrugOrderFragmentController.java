@@ -7,6 +7,7 @@ import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.ActionValue;
+import org.openmrs.module.hospitalcore.util.FlagStates;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.model.InventoryStoreDrugAccountDetail;
 import org.openmrs.module.inventory.util.DateUtils;
@@ -217,7 +218,7 @@ public class DrugOrderFragmentController {
                 transDetail.setFrequency(pDetail.getTransactionDetail().getFrequency());
                 transDetail.setNoOfDays(pDetail.getTransactionDetail().getNoOfDays());
                 transDetail.setComments(pDetail.getTransactionDetail().getComments());
-                transDetail.setFlag(2);
+                transDetail.setFlag(FlagStates.FULLY_PROCESSED);
 
 
                 BigDecimal moneyUnitPrice = pDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(pDetail.getQuantity()));
@@ -236,7 +237,7 @@ public class DrugOrderFragmentController {
                 // save issue to patient detail
                 inventoryService.saveStoreDrugPatientDetail(pDetail);
 
-                if (transDetail.getFlag() == 1) {
+                if (transDetail.getFlag() == FlagStates.PARTIALLY_PROCESSED) {
                     inventoryStoreDrugPatient = inventoryService.getStoreDrugPatientById(pDetail.getStoreDrugPatient().getId());
                     inventoryStoreDrugPatient.setStatuss(1);
 

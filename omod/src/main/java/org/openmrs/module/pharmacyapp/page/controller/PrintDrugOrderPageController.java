@@ -7,6 +7,7 @@ import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.hospitalcore.HospitalCoreService;
 import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.ActionValue;
+import org.openmrs.module.hospitalcore.util.FlagStates;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.util.DateUtils;
 import org.openmrs.module.referenceapplication.ReferenceApplicationWebConstants;
@@ -90,8 +91,8 @@ public class PrintDrugOrderPageController {
 
                 Integer flags = pDetail.getTransactionDetail().getFlag();
 
-                if (flags == null || flags == 0){
-                    flags = 1;
+                if (flags == null || flags == FlagStates.NOT_PROCESSED){
+                    flags = FlagStates.PARTIALLY_PROCESSED;
                 }
 
                 model.addAttribute("flag", flags);
@@ -128,7 +129,7 @@ public class PrintDrugOrderPageController {
                 transDetail.setFrequency(pDetail.getTransactionDetail().getFrequency());
                 transDetail.setNoOfDays(pDetail.getTransactionDetail().getNoOfDays());
                 transDetail.setComments(pDetail.getTransactionDetail().getComments());
-                transDetail.setFlag(1);
+                transDetail.setFlag(FlagStates.PARTIALLY_PROCESSED);
 
                 BigDecimal moneyUnitPrice = pDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(pDetail.getQuantity()));
                 transDetail.setTotalPrice(moneyUnitPrice);
