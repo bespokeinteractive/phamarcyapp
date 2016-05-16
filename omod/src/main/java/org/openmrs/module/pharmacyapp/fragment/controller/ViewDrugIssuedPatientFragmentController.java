@@ -7,6 +7,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.HospitalCoreService;
 import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.ActionValue;
+import org.openmrs.module.hospitalcore.util.FlagStates;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.util.DateUtils;
 import org.openmrs.module.inventory.util.PagingUtil;
@@ -215,7 +216,7 @@ public class ViewDrugIssuedPatientFragmentController {
                 transDetail.setAttribute(pDetail.getTransactionDetail().getDrug().getAttributeName());
                 transDetail.setFrequency(pDetail.getTransactionDetail().getFrequency());transDetail.setNoOfDays(pDetail.getTransactionDetail().getNoOfDays());
                 transDetail.setComments(pDetail.getTransactionDetail().getComments());
-                transDetail.setFlag(1);
+                transDetail.setFlag(FlagStates.PARTIALLY_PROCESSED);
 
 
                 BigDecimal moneyUnitPrice = pDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(pDetail.getQuantity()));
