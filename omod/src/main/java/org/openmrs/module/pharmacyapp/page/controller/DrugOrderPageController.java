@@ -80,6 +80,13 @@ public class DrugOrderPageController {
         model.addAttribute("doctor", doctor);
         model.addAttribute("prescriberId", prescriberId);
 
+        if (patient.getGender().equals("M")){
+            model.addAttribute("gender", "Male");
+        }
+        else{
+            model.addAttribute("gender", "Female");
+        }
+
         InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
 
         model.addAttribute("pharmacist", Context.getAuthenticatedUser().getGivenName());
@@ -263,6 +270,6 @@ public class DrugOrderPageController {
                 patientDashboardService.saveOrUpdateOpdDrugOrder(opdDrugOrder);
             }
         }
-        return "redirect:" + uiUtils.pageLink("pharmacyapp", "dashboard");
+        return "redirect:" + uiUtils.pageLink("pharmacyapp", "container") + "?rel=patients-queue";
     }
 }

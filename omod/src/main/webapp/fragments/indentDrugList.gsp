@@ -203,7 +203,7 @@ th:last-child {
 
                 <li>
                     <i class="icon-chevron-right link"></i>
-                    Ident Drugs
+                    Indent Drugs
                 </li>
             </ul>
         </div>

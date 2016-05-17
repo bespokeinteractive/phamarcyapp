@@ -2,6 +2,7 @@
     ui.decorateWith("appui", "standardEmrPage", [title: "Drug Orders"]);
     ui.includeJavascript("billingui", "knockout-3.4.0.js")
     ui.includeJavascript("billingui", "moment.js")
+    ui.includeJavascript("billingui", "jq.print.js")
 %>
 
 <script>
@@ -166,12 +167,21 @@
     }
 
     function printDiv2() {
-        var printer = window.open('', '', 'width=300,height=300');
+		jq("#printDiv").print({
+			globalStyles: 	false,
+			mediaPrint: 	false,
+			stylesheet: 	'${ui.resourceLink("pharmacyapp", "styles/print-out.css")}',
+			iframe: 		false,
+			width: 			600,
+			height:			700
+		});		
+	
+        /*var printer = window.open('', '', 'width=300,height=300');
         printer.document.open("text/html");
         printer.document.write(document.getElementById('printDiv').innerHTML);
         printer.print();
         printer.document.close();
-        printer.window.close();
+        printer.window.close();*/
     }
 
     function checkValueExt(thiz, value) {
@@ -696,108 +706,92 @@
 
 
     <!--PRINT DIV  -->
-    <div id="printDiv" class="hidden" style="width: 1280px; font-size: 0.8em">
+    <div id="printDiv" class="hidden">
 
-        <style>
-        @media print {
-            .donotprint {
-                display: none;
-            }
-
-            .spacer {
-                margin-top: 50px;
-                font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
-                font-style: normal;
-                font-size: 14px;
-            }
-
-            .printfont {
-                font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
-                font-style: normal;
-                font-size: 14px;
-            }
-        }
-        </style>
-        <center><img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS"
-                     src="kenya_logo.bmp">
+       
+        <center>
+			
+		<img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS"
+                     src="${ui.resourceLink('billingui', 'images/kenya_logo.bmp')}">
         </center>
-        <h5>
+        <h2>
             <center>${userLocation}</center>
-        </h5>
+        </h2>
+		
         <br><br>
-        <table align='Center'>
-            <tr>
-                <td>Patient ID :</td>
-                <td>&nbsp;&nbsp;&nbsp;</td>
-                <td>&nbsp;${patientSearch.identifier}</td>
-            </tr>
-            <tr>
-                <td>Name :</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;${patientSearch.givenName}&nbsp;
-                    ${patientSearch.familyName}&nbsp;&nbsp;${patientSearch.middleName}</td>
-            </tr>
-            <tr>
-                <td>Age:</td>
-                <td>&nbsp;</td>
-                <td>
-                    <% if (patientSearch.age == 0) { %>
-                    &lt 1
-                    <% } else { %>
-                    ${patientSearch.age}
-                    <% } %>
-                </td>
-
-            </tr>
-            <tr>
-                <td>Gender:</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;${patientSearch.gender}</td>
-            </tr>
-            <tr>
-                <td>Date :</td>
-                <td>&nbsp;</td>
-                <td>${date}</td>
-            </tr>
-        </table>
-
+		
+		<div>
+			<label>
+					<span class='status active'></span>
+					Identifier:
+				</label>
+				<span>${patient.getPatientIdentifier()}</span>
+				<br/>
+				
+				<label>
+					<span class='status active'></span>
+					Full Names:
+				</label>
+				<span>${patient.givenName} ${patient.familyName} ${patient.middleName?patient.middleName:''}</span>
+				<br/>
+				
+				<label>
+					<span class='status active'></span>
+					Age:
+				</label>
+				<span>${patient.age} (${ui.formatDatePretty(patient.birthdate)})</span>
+				<br/>
+				
+				<label>
+					<span class='status active'></span>
+					Gender:
+				</label>
+				<span>${gender}</span>
+				<br/>
+				
+				<label>
+					<span class='status active'></span>
+					Print Date:
+				</label>
+				<span>${date}</span>
+				<br/>
+		</div>
 
         <table id="myTablee" class="tablesorter" class="thickbox" style="width:100%; margin-top:30px">
             <thead>
             <tr>
-                <th style="text-align: center;">S.No</th>
-                <th style="text-align: center;">Drug Name</th>
-                <th style="text-align: center;">Formulation</th>
-                <th style="text-align: center;">Days</th>
-                <th style="text-align: center;">Frequency</th>
-                <th style="text-align: center;">Comments</th>
+                <th>#</th>
+                <th>Drug Name</th>
+                <th>Formulation</th>
+                <th>Days</th>
+                <th>Frequency</th>
+                <th>Comments</th>
                 <!-- <th style="text-align: center;">Quantity</th> -->
             </tr>
             </thead>
             <tbody>
             <% drugOrderList.eachWithIndex { drug, idx -> %>
             <tr class="class" id="${drug.inventoryDrug.name}">
-                <td align="center">${idx}</td>
-                <td align="center">${drug.inventoryDrug.name}</td>
-                <td align="center">${drug.inventoryDrugFormulation.name}-${drug.inventoryDrugFormulation.dozage}</td>
-                <td align="center">${drug.noOfDays}</td>
-                <td align="center">${drug.frequency.name}</td>
-                <td align="center">${drug.comments}</td>
+                <td>${idx+1}</td>
+                <td>${drug.inventoryDrug.name}</td>
+                <td>${drug.inventoryDrugFormulation.name}-${drug.inventoryDrugFormulation.dozage}</td>
+                <td>${drug.noOfDays}</td>
+                <td>${drug.frequency.name}</td>
+                <td>${drug.comments}</td>
             </tr>
             <% } %>
 
             </tbody>
         </table>
-        <br><br><br><br><br><br><br>
-        <table class="spacer" style="margin-left: 60px;width:100%;">
-            <tr>
-                <td width="20%"><b>Treating Doctor</b></td>
-                <td>:${doctor}</td>
-            </tr>
-            <tr>
-                <td width="20%"><b>Treating Pharmacist</b></td>
-                <td>:${pharmacist}</td>
-            </tr>
-        </table>
+		
+		<div style="margin-top: 20px;">
+			<span style="margin-left: 10px;">
+				Prescribed By: <b>${doctor}</b>
+			</span>
+			
+			<span class="right" style="margin-right: 10px;">
+				Attending Pharmacist: <b>${pharmacist}</b>
+			</span>
+		</div>
     </div>
 </div>
