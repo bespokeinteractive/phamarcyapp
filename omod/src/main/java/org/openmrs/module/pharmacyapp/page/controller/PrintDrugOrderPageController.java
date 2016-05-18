@@ -228,7 +228,7 @@ public class PrintDrugOrderPageController {
                     model.addAttribute("paymentSubCategory", pa.getValue());
                 }
             }
-
+            model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
 
         }
 

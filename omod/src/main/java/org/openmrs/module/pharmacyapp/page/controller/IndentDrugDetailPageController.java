@@ -49,6 +49,7 @@ public class IndentDrugDetailPageController {
                 !CollectionUtils.isEmpty(listIndentDetail) ? listIndentDetail
                         .get(0).getIndent().getCreatedOn() : null);
 
+        pageModel.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
     }
 
 }
