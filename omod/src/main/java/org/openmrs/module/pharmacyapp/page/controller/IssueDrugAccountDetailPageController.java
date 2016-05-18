@@ -12,6 +12,7 @@ import org.openmrs.ui.framework.page.PageModel;
 import org.openmrs.ui.framework.page.PageRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -35,12 +36,23 @@ public class IssueDrugAccountDetailPageController {
         List<InventoryStoreDrugAccountDetail> listDrugIssue = inventoryService
                 .listStoreDrugAccountDetail(issueId);
         model.addAttribute("listDrugIssue", listDrugIssue);
+
+        Date issueAccountDate = new Date();
+        String issueAccountName = "UNKNOWN";
+        String pharmacist = "Unknown";
+
+
         if (CollectionUtils.isNotEmpty(listDrugIssue)) {
-            model.addAttribute("issueDrugAccount", listDrugIssue.get(0)
-                    .getDrugAccount());
-            model.addAttribute("date", listDrugIssue.get(0).getDrugAccount()
-                    .getCreatedOn());
+            issueAccountDate = listDrugIssue.get(0).getDrugAccount().getCreatedOn();
+            issueAccountName=listDrugIssue.get(0).getDrugAccount().getName();
+            pharmacist = listDrugIssue.get(0).getDrugAccount().getCreatedBy();
         }
+
+        model.addAttribute("issueAccountDate", issueAccountDate);
+        model.addAttribute("issueAccountName", issueAccountName);
+        model.addAttribute("pharmacist", pharmacist);
+
+        model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
 
     }
 }

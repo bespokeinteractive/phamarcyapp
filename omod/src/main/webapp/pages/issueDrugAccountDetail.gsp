@@ -6,6 +6,7 @@
     ui.includeCss("pharmacyapp", "container.css")
 
     ui.includeJavascript("billingui", "moment.js")
+    ui.includeJavascript("billingui", "jq.print.js")
     ui.includeJavascript("billingui", "jquery.dataTables.min.js")
     ui.includeJavascript("laboratoryapp", "jq.browser.select.js")
     ui.includeJavascript("billingui", "jquery.PrintArea.js")
@@ -35,7 +36,15 @@
         }
 
         jQuery("#printButton").on("click", function (e) {
-            print().show();
+            jq("#print").print({
+				globalStyles: 	false,
+				mediaPrint: 	false,
+				stylesheet: 	'${ui.resourceLink("pharmacyapp", "styles/print-out.css")}',
+				iframe: 		false,
+				width: 			800,
+				height:			700
+			});
+			
         });
 		
         jq("#returnToDrugList").on("click", function (e) {
@@ -53,6 +62,9 @@
 	
 	#queueList td:last-child{
 		width: 85px;
+	}
+	.print-only{
+		display: none;
 	}
 </style>
 
@@ -102,6 +114,21 @@
 </div>
 
 <div id="print">
+	<center class="print-only">		
+		<h2>
+			<img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS" src="${ui.resourceLink('billingui', 'images/kenya_logo.bmp')}"><br/>
+			<b>
+				<u>${userLocation}</u>
+			</b>
+		</h2>
+		
+		<h2>
+			ACCOUNT: ${issueAccountName}		
+		</h2>
+	</center>
+	
+	<span class="print-only right" style="margin-right: 20px;">${issueAccountDate}</span>
+	
     <table cellpadding="5" cellspacing="0" width="100%" id="queueList">
         <tr align="center">
 			<thead>
@@ -129,6 +156,13 @@
 			</tr>
         <% } %>
     </table>
+	
+	<div class="print-only" style="margin: 10px;">
+		<span>Issuing Pharmacist: <b>${pharmacist}</b></span>
+	</div>
+	<div class="print-only" style="margin-top: 50px;text-align: center">
+		<span>Signature of Inventory Clerk/ Stamp</span>
+	</div>
 </div>
 
 <div>

@@ -3,105 +3,103 @@
 	ui.includeJavascript("billingui", "jq.print.js")
 %>
 <style>
-@media print {
-    .donotprint {
-        display: none;
-    }
+	@media print {
+		.donotprint {
+			display: none;
+		}
 
-    .spacer {
-        margin-top: 100px;
-        font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
-        font-style: normal;
-        font-size: 14px;
-    }
+		.spacer {
+			margin-top: 100px;
+			font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
+			font-style: normal;
+			font-size: 14px;
+		}
 
-    .printfont {
-        font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
-        font-style: normal;
-        font-size: 14px;
-    }
-}
+		.printfont {
+			font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
+			font-style: normal;
+			font-size: 14px;
+		}
+	}
 
-.name {
-    color: #f26522;
-}
+	.name {
+		color: #f26522;
+	}
 
-#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
-    text-decoration: none;
-}
+	#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
+		text-decoration: none;
+	}
 
-.new-patient-header .demographics .gender-age {
-    font-size: 14px;
-    margin-left: -55px;
-    margin-top: 12px;
-}
+	.new-patient-header .demographics .gender-age {
+		font-size: 14px;
+		margin-left: -55px;
+		margin-top: 12px;
+	}
 
-.new-patient-header .demographics .gender-age span {
-    border-bottom: 1px none #ddd;
-}
+	.new-patient-header .demographics .gender-age span {
+		border-bottom: 1px none #ddd;
+	}
 
-.new-patient-header .identifiers {
-    margin-top: 5px;
-}
+	.new-patient-header .identifiers {
+		margin-top: 5px;
+	}
 
-.tag {
-    padding: 2px 10px;
-}
+	.tag {
+		padding: 2px 10px;
+	}
 
-.tad {
-    background: #666 none repeat scroll 0 0;
-    border-radius: 1px;
-    color: white;
-    display: inline;
-    font-size: 0.8em;
-    padding: 2px 10px;
-}
+	.tad {
+		background: #666 none repeat scroll 0 0;
+		border-radius: 1px;
+		color: white;
+		display: inline;
+		font-size: 0.8em;
+		padding: 2px 10px;
+	}
 
-.status-container {
-    padding: 5px 10px 5px 5px;
-}
+	.status-container {
+		padding: 5px 10px 5px 5px;
+	}
 
-.catg {
-    color: #363463;
-    margin: 35px 10px 0 0;
-}
+	.catg {
+		color: #363463;
+		margin: 35px 10px 0 0;
+	}
 
-.title {
-    border: 1px solid #eee;
-    margin: 3px 0;
-    padding: 5px;
-}
+	.title {
+		border: 1px solid #eee;
+		margin: 3px 0;
+		padding: 5px;
+	}
 
-.title i {
-    font-size: 1.5em;
-    padding: 0;
-}
+	.title i {
+		font-size: 1.5em;
+		padding: 0;
+	}
 
-.title span {
-    font-size: 20px;
-}
+	.title span {
+		font-size: 20px;
+	}
 
-.title em {
-    border-bottom: 1px solid #ddd;
-    color: #888;
-    display: inline-block;
-    font-size: 0.5em;
-    margin-right: 10px;
-    text-transform: lowercase;
-    width: 200px;
-}
+	.title em {
+		border-bottom: 1px solid #ddd;
+		color: #888;
+		display: inline-block;
+		font-size: 0.5em;
+		margin-right: 10px;
+		text-transform: lowercase;
+		width: 200px;
+	}
 
-table {
-    font-size: 14px;
-}
+	table {
+		font-size: 14px;
+	}
+	.retired {
+		text-decoration: line-through;
+		color: darkgrey;
+	}
 </style>
 
-<style>
-.retired {
-    text-decoration: line-through;
-    color: darkgrey;
-}
-</style>
 <script>
     jq(function () {
         var listOfDrugToIssue =
@@ -213,8 +211,6 @@ table {
         var orders = new DrugOrderViewModel();
         ko.applyBindings(orders, jq("#dispensedDrugs")[0]);
     });//end of document ready
-
-
 </script>
 
 <div class="container">
