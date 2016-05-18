@@ -2,6 +2,7 @@
     ui.decorateWith("appui", "standardEmrPage", [title: "View Current Stock"])
 	ui.includeCss("pharmacyapp", "views.css")
 	ui.includeJavascript("billingui", "moment.js")
+	ui.includeJavascript("billingui", "jq.print.js")
 %>
 
 <script>
@@ -20,18 +21,15 @@ STOCKBALLANCE={
 <script>
 
     jq(document).ready(function () {
-        function print () {
-            var printDiv = jq("#print").html();
-            var printWindow = window.open('', '', 'height=400,width=800');
-            printWindow.document.write('<html><head><title>Information</title>');
-            printWindow.document.write(printDiv);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
-        }
-
         jq("#printButton").on("click", function(e){
-            print().show();
+            jq("#print").print({
+				globalStyles: 	false,
+				mediaPrint: 	false,
+				stylesheet: 	'${ui.resourceLink("pharmacyapp", "styles/print-out.css")}',
+				iframe: 		false,
+				width: 			800,
+				height:			700
+			});		
         });
 
         jq("#returnToDrugList").on("click", function (e) {
@@ -56,6 +54,9 @@ STOCKBALLANCE={
 	}
 	th:first-child{
 		width: 5px;
+	}
+	.print-only{
+		display: none;
 	}
 </style>
 
@@ -111,6 +112,41 @@ STOCKBALLANCE={
 </div>
 
 <div id="print">
+	<center class="print-only">		
+		<h2>
+			<img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS" src="${ui.resourceLink('billingui', 'images/kenya_logo.bmp')}"><br/>
+			<b>
+				<u>${userLocation}</u>
+			</b>
+		</h2>
+		
+		<h2><b>CURRENT STOCK BALANCE</b></h2>
+	</center>
+	
+	<div class="print-only">
+		<label>
+			<span class='status active'></span>
+			Drug Name:
+		</label>
+		<span>${drug.name}</span>
+		<br/>
+		
+		<label>
+			<span class='status active'></span>
+			Category:
+		</label>
+		<span>${drug.category.name}</span>
+		<br/>
+		
+		<label>
+			<span class='status active'></span>
+			Formulation:
+		</label>
+		<span>${formulation.name}: ${formulation.dozage}</span>
+		<br/>
+		<br/>
+	</div>
+
     <table cellpadding="5" cellspacing="0" width="100%" id="queueList">
         <tr align="center">
 			<thead>
@@ -126,18 +162,18 @@ STOCKBALLANCE={
 		</tr>
 		
 		<% if (listViewStockBalance!=null || listViewStockBalance!="") { %>
-		<% listViewStockBalance.eachWithIndex { pTransaction, index -> %>		
-		<tr>
-			<td>${index+1}</td>
-			<td>${ui.formatDatePretty(pTransaction.receiptDate)}</td>
-			<td>${pTransaction.transaction.typeTransactionName}</td>
-			<td>${pTransaction.openingBalance}</td>
-			<td>${pTransaction.quantity}</td>
-			<td>${pTransaction.issueQuantity}</td>
-			<td>${pTransaction.closingBalance}</td>
-			<td>${ui.formatDatePretty(pTransaction.dateExpiry)}</td>
-		</tr>
-		<% } %>
+			<% listViewStockBalance.eachWithIndex { pTransaction, index -> %>		
+				<tr>
+					<td>${index+1}</td>
+					<td>${ui.formatDatePretty(pTransaction.receiptDate)}</td>
+					<td>${pTransaction.transaction.typeTransactionName}</td>
+					<td>${pTransaction.openingBalance}</td>
+					<td>${pTransaction.quantity}</td>
+					<td>${pTransaction.issueQuantity}</td>
+					<td>${pTransaction.closingBalance}</td>
+					<td>${ui.formatDatePretty(pTransaction.dateExpiry)}</td>
+				</tr>
+			<% } %>
 		<% } else { %>
         <tr align="center" >
             <td>&nbsp;</td>

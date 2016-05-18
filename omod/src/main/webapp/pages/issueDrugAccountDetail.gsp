@@ -25,17 +25,7 @@
 
 <script>
     jQuery(document).ready(function () {
-        function print() {
-            var printDiv = jQuery("#print").html();
-            var printWindow = window.open('', '', 'height=400,width=800');
-            printWindow.document.write('<html><head><title>Drugs To Account Detail</title>');
-            printWindow.document.write(printDiv);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
-        }
-
-        jQuery("#printButton").on("click", function (e) {
+        jq("#printButton").on("click", function (e) {
             jq("#print").print({
 				globalStyles: 	false,
 				mediaPrint: 	false,
@@ -43,8 +33,7 @@
 				iframe: 		false,
 				width: 			800,
 				height:			700
-			});
-			
+			});			
         });
 		
         jq("#returnToDrugList").on("click", function (e) {
@@ -160,6 +149,7 @@
 	<div class="print-only" style="margin: 10px;">
 		<span>Issuing Pharmacist: <b>${pharmacist}</b></span>
 	</div>
+
 	<div class="print-only" style="margin-top: 50px;text-align: center">
 		<span>Signature of Inventory Clerk/ Stamp</span>
 	</div>

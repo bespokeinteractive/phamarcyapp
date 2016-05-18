@@ -49,16 +49,19 @@ public class ViewCurrentStockBalanceDetailPageController {
             }
         }
         InventoryStore store = null;
+
         if (storeRoleRelation != null) {
             store = inventoryService.getStoreById(storeRoleRelation.getStoreid());
-
         }
+
         List<InventoryStoreDrugTransactionDetail> listViewStockBalance = inventoryService
                 .listStoreDrugTransactionDetail(store.getId(), drugId,
                         formulationId, expiry);
         model.addAttribute("listViewStockBalance", listViewStockBalance);
         model.addAttribute("formulation",formulation);
         model.addAttribute("drug",drug);
+
+        model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
     }
 }
 
