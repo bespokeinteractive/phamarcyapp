@@ -218,10 +218,13 @@ public class PrintDrugOrderPageController {
                 PersonAttributeType personAttributeNPCT = hcs.getPersonAttributeTypeByName("Non-Paying Category Type");
                 PersonAttributeType personAttributeSSCT = hcs.getPersonAttributeTypeByName("Special Scheme Category Type");
                 if (attributeType.getPersonAttributeTypeId() == personAttributePCT.getPersonAttributeTypeId()) {
+                    model.addAttribute("paymentCategory", "PAYING");
                     model.addAttribute("paymentSubCategory", pa.getValue());
                 } else if (attributeType.getPersonAttributeTypeId() == personAttributeNPCT.getPersonAttributeTypeId()) {
+                    model.addAttribute("paymentCategory", "NON-PAYING");
                     model.addAttribute("paymentSubCategory", pa.getValue());
                 } else if (attributeType.getPersonAttributeTypeId() == personAttributeSSCT.getPersonAttributeTypeId()) {
+                    model.addAttribute("paymentCategory", "SPECIAL SCHEMES");
                     model.addAttribute("paymentSubCategory", pa.getValue());
                 }
             }

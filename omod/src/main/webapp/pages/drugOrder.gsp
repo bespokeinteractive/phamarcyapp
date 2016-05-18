@@ -76,8 +76,7 @@
 		
         jq(".dashboard-tabs").tabs();
 
-        jq('#surname').html(stringReplace('${patient.names.familyName}') + ',<em>surname</em>');
-        jq('#othname').html(stringReplace('${patient.names.givenName}') + ' &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <em>other names</em>');
+       
         jq('#agename').html('${patient.age} years (' + moment('${patient.birthdate}').format('DD,MMM YYYY') + ')');
 		jq('#lstdate').html('Last Visit: '+ moment('${previousVisit}').format('DD, MMM YYYY'));
 
@@ -174,7 +173,7 @@
 			iframe: 		false,
 			width: 			600,
 			height:			700
-		});		
+		});
 	
         /*var printer = window.open('', '', 'width=300,height=300');
         printer.document.open("text/html");
@@ -510,8 +509,9 @@
     <div class="patient-header new-patient-header">
         <div class="demographics">
             <h1 class="name">
-                <span id="surname">${patient.names.familyName},<em>surname</em></span>
-                <span id="othname">${patient.names.givenName} &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<em>other names</em>
+                <span id="surname">${patient.familyName},<em>surname</em></span>
+				<span id="othname">${patient.givenName} ${patient.middleName?patient.middleName:''}&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<em>other names</em></span>
+				
                 </span>
 
                 <span class="gender-age">

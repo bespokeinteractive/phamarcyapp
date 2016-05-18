@@ -1,6 +1,6 @@
 <%
     ui.decorateWith("appui", "standardEmrPage", [title: "Print Order"])
-
+	ui.includeJavascript("billingui", "jq.print.js")
 %>
 <style>
 @media print {
@@ -152,8 +152,8 @@ table {
 
             //submit bill
             self.submitBill = function () {      
-                var flag =${flag};
-                var ids  =${receiptid};
+                var flag = ${flag};
+                var ids  = ${receiptid};
                 if (flag === 1) {
                     var data = jQuery.ajax({
                         type: "GET"
@@ -167,17 +167,20 @@ table {
 				window.location.href = emr.pageLink ("pharmacyapp", "container", { "rel" : "dispense-drugs"});
             };
 			
-			self.printBill = function () {
-				var printDiv = jQuery("#printDiv").html();
-                var printWindow = window.open('', '', 'height=400,width=800');
-                printWindow.document.write('<html><head><title>Print Drug Order :-Support by KenyaEHRS</title>');
-                printWindow.document.write('</head>');
-                printWindow.document.write(printDiv);
-                printWindow.document.write('</body></html>');
-                printWindow.print();
-                printWindow.close();
+			self.printBill = function () {				
+				jq("#printSection").print({
+					globalStyles: 	false,
+					mediaPrint: 	false,
+					stylesheet: 	'${ui.resourceLink("pharmacyapp", "styles/print-out.css")}',
+					iframe: 		false,
+					width: 			1000,
+					height:			700
+				});
 				
-				window.location.href = emr.pageLink ("pharmacyapp", "container", { "rel" : "dispense-drugs"});
+				var flag = ${flag};				
+				if (flag !== 1) {
+					window.location.href = emr.pageLink ("pharmacyapp", "container", { "rel" : "dispense-drugs"});				
+				}
 			};
 
             self.isNonPaying = ko.computed(function () {
@@ -209,10 +212,6 @@ table {
 
         var orders = new DrugOrderViewModel();
         ko.applyBindings(orders, jq("#dispensedDrugs")[0]);
-
-        jq("#printOrder").click(function (f) {
-            window.location.href = emr.pageLink("pharmacyapp", "container", {"rel": "dispense-drugs"});
-        });
     });//end of document ready
 
 
@@ -421,141 +420,175 @@ table {
 
         <!-- PRINT DIV -->
         <div id="printDiv" style="display: none;">
-            <div style="margin: 10px auto; width: 981px; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
+			<div id="printSection">
+				<center>				
+					<img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS" src="${ui.resourceLink('billingui', 'images/kenya_logo.bmp')}">
+				
+					<h2>
+						<b>
+							<u>${userLocation}</u>
+						</b>
+					</h2>
+		
+					<h2>
+						<b>
+							CASH RECEIPT<br/>00${receiptid}
+						</b>
+					</h2>
+				</center>
+				
+				<div>
+					<label>
+							<span class='status active'></span>
+							Identifier:
+						</label>
+						<span>${identifier}</span>
+						<br/>
+						
+						<label>
+							<span class='status active'></span>
+							Full Names:
+						</label>
+						<span>${givenName} ${familyName} ${middleName?middleName:''}</span>
+						<br/>
+						
+						<label>
+							<span class='status active'></span>
+							Age:
+						</label>
+						<span>${age} (${ui.formatDatePretty(birthdate)})</span>
+						<br/>
+						
+						<label>
+							<span class='status active'></span>
+							Gender:
+						</label>
+						<span>${gender}</span>
+						<br/>
+						
+						<label>
+							<span class='status active'></span>
+							Print Date:
+						</label>
+						<span>${date}</span>
+						<br/>
+						
+						<label>
+							<span class='status active'></span>
+							Payment Catg:
+						</label>
+						<span>${paymentCategory} / ${paymentSubCategory}</span>
+						<br/>
+						<br/>
+				</div>
+				
+				<table width="100%" class="tablesorter thickbox" style="border: 1px solid #eee">
+					<thead>
+					<tr>
+						<th>#</th>
+						<th>Drug</th>
+						<th>Formulation</th>
+						<th>Frequency</th>
+						<th>Days</th>
+						<th>Comments</th>
+						<th>Expiry</th>
+						<th>Qnty</th>
+						<th>Unit Price</th>
+						<th>Item Total</th>
+					</tr>
+					</thead>
 
-                <table class="spacer" style="margin-left: 60px;">
-                    <tr>
-                        <h3>
-                            <center><b><u>${userLocation}</u></b></center>
-                        </h3>
-                    </tr>
-                    <tr>
-                        <h5><b>
-                            <center>CASH RECEIPT<br/>00${receiptid}</center>
-                        </b></h5>
-                    </tr>
-                </table>
-                <br/>
-                <br/>
+					<tbody data-bind="foreach: availableOrders, visible: availableOrders().length > 0">
+						<tr>
+							<td data-bind="text: \$index()+1"></td>
+							<td data-bind="text: initialBill().transactionDetail.drug.name"></td>
+							<td>
+								<span data-bind="text: initialBill().transactionDetail.formulation.name"></span> -
+								<span data-bind="text: initialBill().transactionDetail.formulation.dozage"></span>
+							</td>
+							<td data-bind="text: initialBill().transactionDetail.frequency.name"></td>
+							<td data-bind="text: initialBill().transactionDetail.noOfDays"></td>
+							<td data-bind="text: initialBill().transactionDetail.comments"></td>
+							<td data-bind="text: (initialBill().transactionDetail.dateExpiry.toString().substring(0,11))"></td>
+							<td data-bind="text: initialBill().quantity"></td>
+							<td data-bind="text: initialBill().transactionDetail.costToPatient.toFixed(2)"></td>
+							<td data-bind="text: orderTotal().toFixed(2)"></td>
+						</tr>
+					</tbody>
+					
+					<tbody>
+						<tr>
+							<td></td>
+							<td colspan="8">
+								<b>TOTAL AMOUNT PAID</b>
+							</td>
+							<td>
+								<span data-bind="text: totalSurcharge, css:{'retired': isNonPaying()}"></span>
+								<span data-bind="visible: isNonPaying()">0.00</span>
+							</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td colspan="8">
+								<b>WAIVER AMOUNT</b>
+							</td>
+							<td>
+								<span data-bind="text: waiverAmount, css:{'retired': isNonPaying()}"></span>
+								<span data-bind="visible: isNonPaying()">0.00</span>
+							</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td colspan="8">
+								<b>NET PAID</b>
+							</td>
+							<td>
+								<span data-bind="text: runningTotal, css:{'retired': isNonPaying()}"></span>
+								<span data-bind="visible: isNonPaying()">0.00</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 
-                <table class="spacer" style="margin-left: 60px;">
-                    <tr>
-                        <td>Date/Time:</td>
-                        <td>:${date}</td>
-                    </tr>
-                    <tr>
-                        <td>Name</td>
-                        <td>
-                            :${givenName}&nbsp;${familyName}&nbsp;${middleName}</td>
-                    </tr>
-                    <tr>
-                        <td>Patient ID</td>
-                        <td>:${identifier}</td>
-                    </tr>
-                    <tr>
-                    <tr>
-                        <td>Age</td>
-                        <td>:
-                        ${age}
-                        </td>
-                    </tr>
-                </tr>
-                    <tr>
-                        <td>Gender</td>
-                        <td>:${gender}</td>
-                    </tr>
-                    <tr>
-                        <td>Payment Category</td>
-                        <td>:${paymentSubCategory}</td>
-                    </tr>
+				<div data-bind="visible: nonDispensed().length > 0">
+					<center><h2>Drugs Not Issued</h2></center>
+					<table width="100%" class="tablesorter thickbox">
+						<thead>
+							<tr align="center">
+								<th>#</th>
+								<th>DRUG</th>
+								<th>Formulation</th>
+								<th>FREQUENCY</th>
+								<th>DAYS</th>
+								<th>COMMENTS</th>
+							</tr>
+						</thead>
 
-                </table>
-                <table width="100%" class="tablesorter thickbox" style="border: 1px solid #eee">
-                    <thead>
-                    <tr align="center">
-                        <th style="border: 1px solid #eee">#</th>
-                        <th style="border: 1px solid #eee">Drug</th>
-                        <th style="border: 1px solid #eee">Formulation</th>
-                        <th style="border: 1px solid #eee">Frequency</th>
-                        <th style="border: 1px solid #eee">Days</th>
-                        <th style="border: 1px solid #eee">Comments</th>
-                        <th style="border: 1px solid #eee">Expiry</th>
-                        <th style="border: 1px solid #eee">Qnty</th>
-                        <th style="border: 1px solid #eee">Unit Price</th>
-                        <th style="border: 1px solid #eee">Item Total</th>
-                    </tr>
-                    </thead>
+						<tbody data-bind="foreach: nonDispensed">
+							<tr>
+								<td data-bind="text: \$index()+1"></td>
+								<td data-bind="text: initialNonBill().inventoryDrug.name"></td>
+								<td>
+									<span data-bind="text: initialNonBill().inventoryDrugFormulation.name"></span> -
+									<span data-bind="text: initialNonBill().inventoryDrugFormulation.dozage"></span> -
+								</td>
+								<td data-bind="text: initialNonBill().frequency.name"></td>
+								<td data-bind="text: initialNonBill().noOfDays"></td>
+								<td data-bind="text: initialNonBill().comments"></td>
+							</tr>
+						</tbody>
+					</table>
 
-                    <tbody data-bind="foreach: availableOrders, visible: availableOrders().length > 0">
-                    <tr>
-                        <td data-bind="text: \$index()+1"></td>
-                        <td data-bind="text: initialBill().transactionDetail.drug.name"></td>
-                        <td>
-                            <span data-bind="text: initialBill().transactionDetail.formulation.name"></span> -
-                            <span data-bind="text: initialBill().transactionDetail.formulation.dozage"></span>
-                        </td>
-                        <td data-bind="text: initialBill().transactionDetail.frequency.name"></td>
-                        <td data-bind="text: initialBill().transactionDetail.noOfDays"></td>
-                        <td data-bind="text: initialBill().transactionDetail.comments"></td>
-                        <td data-bind="text: (initialBill().transactionDetail.dateExpiry.toString().substring(0,11))"></td>
-                        <td data-bind="text: initialBill().quantity"></td>
-                        <td data-bind="text: initialBill().transactionDetail.costToPatient.toFixed(2)"></td>
-                        <td data-bind="text: orderTotal().toFixed(2)"></td>
-                    </tr>
-                    </tbody>
-                </table>
+				</div>
 
-                <div data-bind="visible: nonDispensed().length > 0">
-                    <center><h3>Drugs Not Issued</h3></center>
-                    <table width="100%" class="tablesorter thickbox">
-                        <thead>
-                        <tr align="center">
-                            <th>S.No</th>
-                            <th>Drug</th>
-                            <th>Formulation</th>
-                            <th>Frequency</th>
-                            <th>Days</th>
-                            <th>Comments</th>
-                        </tr>
-                        </thead>
-
-                        <tbody data-bind="foreach: nonDispensed">
-                        <tr>
-                            <td data-bind="text: \$index()+1"></td>
-                            <td data-bind="text: initialNonBill().inventoryDrug.name"></td>
-                            <td>
-                                <span data-bind="text: initialNonBill().inventoryDrugFormulation.name"></span> -
-                                <span data-bind="text: initialNonBill().inventoryDrugFormulation.dozage"></span> -
-                            </td>
-                            <td data-bind="text: initialNonBill().frequency.name"></td>
-                            <td data-bind="text: initialNonBill().noOfDays"></td>
-                            <td data-bind="text: initialNonBill().comments"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-
-                </div>
-
-
-                <br/>
-
-                <div>
-                    <div style="float:right;">Total :
-                        <span data-bind="text: totalSurcharge, css:{'retired': isNonPaying()}"></span>
-                        <span data-bind="visible: isNonPaying()">0.00</span>
-                    </div><br/>
-
-                    <div style="float:right;">Total Paid :
-                        <span data-bind="text: runningTotal,css:{'retired': isNonPaying()}"></span>
-                        <span data-bind="visible: isNonPaying()">0.00</span>
-                    </div>
-
-                    <span style="float:left;font-size: 1.5em">Attending Pharmacist: ${cashier}</span>
-                </div>
-
-                <br/><br/><br/><br/><br/><br/>
-                <span style="margin-left: 13em;font-size: 1.5em">Signature of Inventory Clerk/ Stamp</span>
-            </div>
+				<div style="margin: 10px;">
+					<span>Attending Pharmacist: <b>${cashier}</b></span>
+				</div>
+				<div style="margin-top: 50px;text-align: center">
+					<span>Signature of Inventory Clerk/ Stamp</span>
+				</div>
+			
+			</div>
         </div>
         <!-- END PRINT DIV -->
 

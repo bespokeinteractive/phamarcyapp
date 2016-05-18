@@ -7,21 +7,11 @@
         jQuery('.date-pick').datepicker({minDate: '-100y', dateFormat: 'dd/mm/yy'});
 
 		jq('#toDate, #fromDate, #searchProcessed').change(function(){
-			var issueName	= jq("#dIssueName").val();			
-            var fromDate 	= moment(jq("#fromDate-field").val()).format('DD/MM/YYYY');
-            var toDate 		= moment(jq("#toDate-field").val()).format('DD/MM/YYYY');			
-            var receiptId 	= jq("#dReceiptId").val();
-            var results 	= getOrderList(issueName, fromDate, toDate, receiptId);
-            list.drugDispenseList(results);
+			pullRecords();
 		});
 		
         jq('.dispenseSearch').on('keydown', function () {
-            var issueName	= jq("#dIssueName").val();			
-            var fromDate 	= moment(jq("#fromDate-field").val()).format('DD/MM/YYYY');
-            var toDate 		= moment(jq("#toDate-field").val()).format('DD/MM/YYYY');			
-            var receiptId 	= jq("#dReceiptId").val();
-            var results 	= getOrderList(issueName, fromDate, toDate, receiptId);
-            list.drugDispenseList(results);
+            pullRecords();
         });
 		
         function IssueDrugViewModel() {
@@ -45,8 +35,20 @@
                 window.location.href = url + "?issueId=" + item.id;
             };
         }
+		
+		function pullRecords(){
+			var issueName	= jq("#dIssueName").val();			
+            var fromDate 	= moment(jq("#fromDate-field").val()).format('DD/MM/YYYY');
+            var toDate 		= moment(jq("#toDate-field").val()).format('DD/MM/YYYY');			
+            var receiptId 	= jq("#dReceiptId").val();
+            var results 	= getOrderList(issueName, fromDate, toDate, receiptId);
+            list.drugDispenseList(results);
+		}
+		
         var list = new IssueDrugViewModel();
         ko.applyBindings(list, jq("#orderDrugList")[0]);
+		
+		pullRecords();
     }); //end of document ready
 
     function getOrderList(searchIssueName, fromDate, toDate, receiptId, processed) {

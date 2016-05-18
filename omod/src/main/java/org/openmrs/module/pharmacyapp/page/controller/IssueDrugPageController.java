@@ -1,8 +1,6 @@
 package org.openmrs.module.pharmacyapp.page.controller;
 
-import org.openmrs.Concept;
-import org.openmrs.Patient;
-import org.openmrs.Role;
+import org.openmrs.*;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.hospitalcore.HospitalCoreService;
@@ -98,7 +96,27 @@ public class IssueDrugPageController {
             model.addAttribute("middleName", "");
         }
 
+        List<PersonAttribute> pas = hcs.getPersonAttributes(patient.getId());
 
+        for (PersonAttribute pa : pas) {
+            PersonAttributeType attributeType = pa.getAttributeType();
+            PersonAttributeType personAttributePCT = hcs.getPersonAttributeTypeByName("Paying Category Type");
+            PersonAttributeType personAttributeNPCT = hcs.getPersonAttributeTypeByName("Non-Paying Category Type");
+            PersonAttributeType personAttributeSSCT = hcs.getPersonAttributeTypeByName("Special Scheme Category Type");
+            if (attributeType.getPersonAttributeTypeId() == personAttributePCT.getPersonAttributeTypeId()) {
+                model.addAttribute("paymentCategory", "PAYING");
+                model.addAttribute("paymentSubCategory", pa.getValue());
+            } else if (attributeType.getPersonAttributeTypeId() == personAttributeNPCT.getPersonAttributeTypeId()) {
+                model.addAttribute("paymentCategory", "NON-PAYING");
+                model.addAttribute("paymentSubCategory", pa.getValue());
+            } else if (attributeType.getPersonAttributeTypeId() == personAttributeSSCT.getPersonAttributeTypeId()) {
+                model.addAttribute("paymentCategory", "SPECIAL SCHEMES");
+                model.addAttribute("paymentSubCategory", pa.getValue());
+            }
+        }
+
+        model.addAttribute("pharmacist", Context.getAuthenticatedUser().getGivenName());
+        model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
     }
 
 
