@@ -71,6 +71,7 @@ public class QueueFragmentController {
 
             patientQueueList.add(patientInQueue);
         }
+
         return patientQueueList;
         //return SimpleObject.fromCollection(patientSearchList,uiUtils,"fullname", "identifier", "age", "gender","patientId");
 

@@ -26,49 +26,8 @@ public class MainPageController {
     public String get(PageModel model,
                       UiSessionContext sessionContext,
                       PageRequest pageRequest,
-                      UiUtils ui,
-                      @RequestParam(value="tabId",required=false)  String tabId) {
-
-        pageRequest.getSession().setAttribute(ReferenceApplicationWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL,ui.thisUrl());
-        sessionContext.requireAuthentication();
-
-        List<Action> listDrugAttribute = ActionValue.getListDrugAttribute();
-        model.addAttribute("listDrugAttribute", listDrugAttribute);
-        List<InventoryStoreDrugTransactionDetail> listReceiptDrugReturn = null;
-        InventoryService inventoryService = (InventoryService) Context
-                .getService(InventoryService.class);
-
-        List<InventoryDrugCategory> listCategory = inventoryService.listDrugCategory("", 0, 0);
-        model.addAttribute("listCategory", listCategory);
-
-
-        List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
-
-        InventoryStoreRoleRelation srl = null;
-        Role rl = null;
-        for (Role r : role) {
-            if (inventoryService.getStoreRoleByName(r.toString()) != null) {
-                srl = inventoryService.getStoreRoleByName(r.toString());
-                rl = r;
-            }
-        }
-        InventoryStore store = null;
-        if (srl != null) {
-            store = inventoryService.getStoreById(srl.getStoreid());
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            String dateStr = sdf.format(new Date());
-            model.addAttribute("currentDate", dateStr);
-            model.addAttribute("currentTime", new Date());
-
-            List<Action> listSubStoreStatus = ActionValue.getListIndentSubStore();
-            model.addAttribute("listSubStoreStatus", listSubStoreStatus);
-            model.addAttribute("tabId", tabId);
-        } else {
-            return "redirect: index.htm";
-        }
-        return null;
-
-
+                      UiUtils ui) {
+        return "redirect:" + ui.pageLink("pharmacyapp","dashboard");
     }
 }
 

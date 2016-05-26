@@ -1,5 +1,6 @@
 <%
     def props = ["identifier", "fullname", "age", "gender","action"]
+	ui.includeJavascript("billingui", "moment.js")
 %>
 
 <script>
