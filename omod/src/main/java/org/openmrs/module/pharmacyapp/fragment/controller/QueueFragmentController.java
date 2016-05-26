@@ -55,7 +55,12 @@ public class QueueFragmentController {
         for (PatientSearch patientSearch : patientSearchList) {
             SimpleObject patientInQueue = new SimpleObject();
 
-            patientInQueue.put("fullname", patientSearch.getFamilyName());
+            String fullNames = patientSearch.getGivenName() + ' ' + patientSearch.getFamilyName();
+            if (patientSearch.getMiddleName() != null){
+                fullNames += ' ' + fullNames;
+            }
+
+            patientInQueue.put("fullname", fullNames);
             patientInQueue.put("identifier", patientSearch.getIdentifier());
             patientInQueue.put("age", patientSearch.getAge());
 

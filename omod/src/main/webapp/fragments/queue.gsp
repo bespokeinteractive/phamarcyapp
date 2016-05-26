@@ -69,25 +69,19 @@
         var date = dateField.val();
 
         for (index in tests) {
-            var row = '<tr><td>' + (1+parseInt(index)) + '</td>';
             var item = tests[index];
+            var rows = '<tr>';
 			
-            <% props.each {
-              if(it == props.last()){
-                  def pageLinkEdit = ui.pageLink("", "");
-                      %>
-
-            row += '<td align="center"><a title="Prescriptions" href="listOfOrder.page?patientId=' +
-                    item.patientId + '&date='+moment(date).format('DD/MM/YYYY')+'"><i class="icon-stethoscope small" ></i></a>';
-
-            <% } else {%>
-
-            row += '<td>' + item.${ it } + '</td>';
-            <% }
-              } %>
+            rows += '<td>' + (1+parseInt(index)) + '</td>';
+            rows += '<td>' + item.identifier + '</td>';
+            rows += '<td>' + item.fullname + '</td>';
+            rows += '<td>' + item.age + '</td>';
+            rows += '<td>' + item.gender + '</td>';
+            rows += '<td align="center"><a title="Prescriptions" href="listOfOrder.page?patientId=' +
+                    item.patientId + '&date='+moment(date).format('DD/MM/YYYY')+'"><i class="icon-stethoscope small" ></i></a>';         
 			
-            row += '</tr>';
-            tbody.append(row);
+            rows += '</tr>';
+            tbody.append(rows);
         }
     }
 </script>
