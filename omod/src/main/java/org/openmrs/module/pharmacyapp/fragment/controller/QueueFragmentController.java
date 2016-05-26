@@ -57,7 +57,7 @@ public class QueueFragmentController {
 
             String fullNames = patientSearch.getGivenName() + ' ' + patientSearch.getFamilyName();
             if (patientSearch.getMiddleName() != null){
-                fullNames += ' ' + fullNames;
+                fullNames += ' ' + patientSearch.getMiddleName();
             }
 
             patientInQueue.put("fullname", fullNames);
