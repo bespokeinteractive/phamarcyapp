@@ -147,7 +147,7 @@ public class PrintDrugOrderPageController {
             model.addAttribute("waiverAmount", listDrugIssue.get(0).getStoreDrugPatient().getWaiverAmount());
             model.addAttribute("waiverComment", listDrugIssue.get(0).getStoreDrugPatient().getComment());
         }else{
-            model.addAttribute("waiverAmount", 0);
+            model.addAttribute("waiverAmount", "0");
             model.addAttribute("waiverComment", "N/A");
         }
 
