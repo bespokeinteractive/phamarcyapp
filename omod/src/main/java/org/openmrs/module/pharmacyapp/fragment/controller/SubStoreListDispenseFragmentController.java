@@ -99,14 +99,14 @@ public class SubStoreListDispenseFragmentController {
             inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
             List<InventoryStoreDrugPatientDetail> inventoryStoreDrugPatientDetails = inventoryService.listStoreDrugPatientDetail(inventoryStoreDrugPatient.getId());
 
-            Integer flags = FlagStates.PARTIALLY_PROCESSED;
+            Integer flags = null;
 
             if(inventoryStoreDrugPatientDetails.size() >0){
                 flags = inventoryStoreDrugPatientDetails.get(inventoryStoreDrugPatientDetails.size() - 1).getTransactionDetail().getFlag();
             }
 
             if (flags == null || flags == FlagStates.NOT_PROCESSED){
-                flags = FlagStates.PARTIALLY_PROCESSED;
+                continue;
             }
 
             if (flags == FlagStates.FULLY_PROCESSED && processed == FlagStates.NOT_PROCESSED){
