@@ -101,6 +101,7 @@ public class DrugOrderPageController {
         int encounterId = Integer.parseInt(request.getParameter("encounterId"));
         int patientId = Integer.parseInt(request.getParameter("patientId"));
         int presciberId = Integer.parseInt(request.getParameter("prescriberId"));
+        int receiptId = 0;
         User prescriber = Context.getUserService().getUser(presciberId);
         Double totalCharges = Double.parseDouble(request.getParameter("totalCharges"));
 
@@ -132,6 +133,7 @@ public class DrugOrderPageController {
             store = inventoryService.getStoreById(srl.getStoreid());
 
         }
+
         Date date = new Date();
         Integer formulationId;
         String frequencyName;
@@ -153,6 +155,8 @@ public class DrugOrderPageController {
         inventoryStoreDrugPatient.setCreatedOn(date);
         inventoryStoreDrugPatient.setPrescriber(prescriber);
         inventoryStoreDrugPatient = inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient);
+
+        receiptId = inventoryStoreDrugPatient.getId();
 
         InventoryStoreDrugTransaction transaction = new InventoryStoreDrugTransaction();
         transaction.setDescription("ISSUE DRUG TO PATIENT " + DateUtils.getDDMMYYYY());
