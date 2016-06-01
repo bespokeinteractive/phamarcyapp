@@ -636,14 +636,15 @@
 
         </div>
 
-        <form method="post" id="drugsForm">
-            <input name="submvalue"  type="hidden" value="Finish"/>
-            <input name="patientId" type="hidden" value="${patientId}"/>
-            <input name="encounterId" type="hidden" value="${encounterId}"/>
-            <input name="patientType" type="hidden" value="${patientType}"/>
-            <input name="prescriberId" type="hidden" value="${prescriberId}"/>
+        <form method="post" id="drugsForm" style="display: none;">
+            <input name="submvalue"  type="text" value="Finish"/>
+            <input name="patientId" type="text" value="${patientId}"/>
+            <input name="encounterId" type="text" value="${encounterId}"/>
+            <input name="patientType" type="text" value="${patientType}"/>
+            <input name="prescriberId" type="text" value="${prescriberId}"/>
+            <input name="totalCharges" type="text" data-bind="value: \$root.computedTotal()"/>
 
-            <textarea name="order" data-bind="value: ko.toJSON(\$root.pItems)" style="display: none;" ></textarea>
+            <textarea name="order" data-bind="value: ko.toJSON(\$root.pItems)"></textarea>
         </form>
 		
 		<div class="buttons-div">

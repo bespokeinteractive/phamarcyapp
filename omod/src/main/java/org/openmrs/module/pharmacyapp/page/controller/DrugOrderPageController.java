@@ -1,5 +1,6 @@
 package org.openmrs.module.pharmacyapp.page.controller;
 
+import org.apache.commons.beanutils.converters.DoubleArrayConverter;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -101,6 +102,7 @@ public class DrugOrderPageController {
         int patientId = Integer.parseInt(request.getParameter("patientId"));
         int presciberId = Integer.parseInt(request.getParameter("prescriberId"));
         User prescriber = Context.getUserService().getUser(presciberId);
+        Double totalCharges = Double.parseDouble(request.getParameter("totalCharges"));
 
         BigDecimal waiverAmount = null;
         if(StringUtils.isNotEmpty(request.getParameter("waiverAmount"))){
@@ -236,7 +238,6 @@ public class DrugOrderPageController {
                 //save issue to patient detail
                 inventoryService.saveStoreDrugPatientDetail(pDetail);
 
-
                 BillingService billingService = Context.getService(BillingService.class);
                 IndoorPatientServiceBill bill = new IndoorPatientServiceBill();
                 bill.setActualAmount(moneyUnitPrice);
@@ -269,6 +270,10 @@ public class DrugOrderPageController {
                 opdDrugOrder.setOrderStatus(1);
                 patientDashboardService.saveOrUpdateOpdDrugOrder(opdDrugOrder);
             }
+        }
+
+        if (totalCharges == 0){
+            //Checkout the items here
         }
         return "redirect:" + uiUtils.pageLink("pharmacyapp", "container") + "?rel=patients-queue";
     }
