@@ -279,7 +279,6 @@ public class DrugOrderPageController {
         System.out.println(totalCharges);
 
         if (totalCharges == 0){
-            System.out.println("Here");
             //Checkout the items here
             waiverAmount = new BigDecimal("0.00");
 

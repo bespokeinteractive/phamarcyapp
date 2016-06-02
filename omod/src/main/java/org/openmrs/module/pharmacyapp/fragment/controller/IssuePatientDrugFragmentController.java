@@ -15,6 +15,7 @@ import org.openmrs.module.hospitalcore.HospitalCoreService;
 import org.openmrs.module.hospitalcore.InventoryCommonService;
 import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.ActionValue;
+import org.openmrs.module.hospitalcore.util.FlagStates;
 import org.openmrs.module.hospitalcore.util.HospitalCoreConstants;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.model.InventoryStoreDrugIndentDetail;
@@ -154,6 +155,9 @@ public class IssuePatientDrugFragmentController {
         String patientType = request.getParameter("patientType");
         String selectedDrugs = request.getParameter("selectedDrugs");
         Integer patientId = Integer.parseInt(request.getParameter("patientId"));
+        Double totalAmount = Double.parseDouble(request.getParameter("totalAmount"));
+        int receiptId = 0;
+
         JSONArray jsonArray = new JSONArray(selectedDrugs);
         List<InventoryStoreDrugPatientDetail> list = new ArrayList<InventoryStoreDrugPatientDetail>();
 
@@ -239,6 +243,11 @@ public class IssuePatientDrugFragmentController {
             transaction.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
             transaction = inventoryService.saveStoreDrugTransaction(transaction);
             issueDrugPatient = inventoryService.saveStoreDrugPatient(issueDrugPatient);
+
+            receiptId = issueDrugPatient.getId();
+
+            System.out.println(receiptId);
+
             for (InventoryStoreDrugPatientDetail pDetail : list) {
                 Date date1 = new Date();
                 try {
@@ -295,6 +304,107 @@ public class IssuePatientDrugFragmentController {
                 // save issues transaction detail
             }
 
+        }
+
+        if (totalAmount == 0){
+            BigDecimal waiverAmount = new BigDecimal("0.00");
+
+            List<InventoryStoreDrugPatientDetail> listDrugIssue = inventoryService
+                    .listStoreDrugPatientDetail(receiptId);
+            InventoryStoreDrugPatient inventoryStoreDrugPatient1 = null;
+
+            if (listDrugIssue != null && listDrugIssue.size() > 0) {
+                InventoryStoreDrugTransaction inventoryTransaction = new InventoryStoreDrugTransaction();
+                inventoryTransaction.setDescription("ISSUE DRUG TO PATIENT " + DateUtils.getDDMMYYYY());
+                inventoryTransaction.setStore(subStore);
+                inventoryTransaction.setTypeTransaction(ActionValue.TRANSACTION[1]);
+                inventoryTransaction.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
+                inventoryTransaction = inventoryService.saveStoreDrugTransaction(inventoryTransaction);
+
+                for (InventoryStoreDrugPatientDetail patientDetail : listDrugIssue) {
+                    Date date1 = new Date();
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    Integer totalQuantity = inventoryService
+                            .sumCurrentQuantityDrugOfStore(subStore.getId(), patientDetail
+                                            .getTransactionDetail().getDrug().getId(),
+                                    patientDetail.getTransactionDetail().getFormulation()
+                                            .getId());
+                    int t = totalQuantity - patientDetail.getQuantity();
+
+                    InventoryStoreDrugTransactionDetail inventoryStoreDrugTransactionDetail = inventoryService
+                            .getStoreDrugTransactionDetailById(patientDetail.getTransactionDetail().getParent().getId());
+                    InventoryStoreDrugTransactionDetail drugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(inventoryStoreDrugTransactionDetail.getId());
+                    inventoryStoreDrugTransactionDetail.setCurrentQuantity(drugTransactionDetail.getCurrentQuantity() - patientDetail.getQuantity());
+                    inventoryService.saveStoreDrugTransactionDetail(inventoryStoreDrugTransactionDetail);
+
+                    // save transactiondetail first
+                    InventoryStoreDrugTransactionDetail transactionDetail = new InventoryStoreDrugTransactionDetail();
+                    transactionDetail.setTransaction(inventoryTransaction);
+                    transactionDetail.setCurrentQuantity(0);
+
+
+                    transactionDetail.setIssueQuantity(patientDetail.getQuantity());
+                    transactionDetail.setOpeningBalance(totalQuantity);
+                    transactionDetail.setClosingBalance(t);
+                    transactionDetail.setQuantity(0);
+                    transactionDetail.setVAT(patientDetail.getTransactionDetail().getVAT());
+                    transactionDetail.setCostToPatient(patientDetail.getTransactionDetail().getCostToPatient());
+                    transactionDetail.setUnitPrice(patientDetail.getTransactionDetail()
+                            .getUnitPrice());
+                    transactionDetail.setDrug(patientDetail.getTransactionDetail().getDrug());
+                    transactionDetail.setFormulation(patientDetail.getTransactionDetail()
+                            .getFormulation());
+                    transactionDetail.setBatchNo(patientDetail.getTransactionDetail()
+                            .getBatchNo());
+                    transactionDetail.setCompanyName(patientDetail.getTransactionDetail()
+                            .getCompanyName());
+                    transactionDetail.setDateManufacture(patientDetail.getTransactionDetail()
+                            .getDateManufacture());
+                    transactionDetail.setDateExpiry(patientDetail.getTransactionDetail()
+                            .getDateExpiry());
+                    transactionDetail.setReceiptDate(patientDetail.getTransactionDetail()
+                            .getReceiptDate());
+                    transactionDetail.setCreatedOn(date1);
+                    transactionDetail.setReorderPoint(patientDetail.getTransactionDetail().getDrug().getReorderQty());
+                    transactionDetail.setAttribute(patientDetail.getTransactionDetail().getDrug().getAttributeName());
+                    transactionDetail.setFrequency(patientDetail.getTransactionDetail().getFrequency());
+                    transactionDetail.setNoOfDays(patientDetail.getTransactionDetail().getNoOfDays());
+                    transactionDetail.setComments(patientDetail.getTransactionDetail().getComments());
+                    transactionDetail.setFlag(1);
+
+
+                    BigDecimal moneyUnitPrice = patientDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(patientDetail.getQuantity()));
+
+                    transactionDetail.setTotalPrice(moneyUnitPrice);
+                    transactionDetail.setParent(patientDetail.getTransactionDetail());
+                    transactionDetail = inventoryService
+                            .saveStoreDrugTransactionDetail(transactionDetail);
+                    patientDetail.setQuantity(patientDetail.getQuantity());
+
+                    patientDetail.setTransactionDetail(transactionDetail);
+
+
+                    // save issue to patient detail
+                    inventoryService.saveStoreDrugPatientDetail(patientDetail);
+                    inventoryStoreDrugPatient1 = inventoryService.getStoreDrugPatientById(patientDetail.getStoreDrugPatient().getId());
+                    if (transactionDetail.getFlag() == FlagStates.PARTIALLY_PROCESSED) {
+                        inventoryStoreDrugPatient1.setStatuss(1);
+                    }
+                    Integer flags = patientDetail.getTransactionDetail().getFlag();
+                }
+                // update patient detail
+                inventoryStoreDrugPatient1.setWaiverAmount(waiverAmount);
+                inventoryStoreDrugPatient1.setComment("");
+                inventoryService.saveStoreDrugPatient(inventoryStoreDrugPatient1);
+
+            }
+
+            //End of If
         }
 
 

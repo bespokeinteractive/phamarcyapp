@@ -262,20 +262,28 @@
                 return false
             } else {
                 //process drug addition to issue list
+				jq().toastmessage({
+					sticky: true
+				});
+				var savingMessage = jq().toastmessage('showSuccessToast', 'Please wait as Transaction is being Posted');
+			
                 var patientId = "${patientId}";
                 var drugsJson = ko.toJSON(issueList.drugOrder());
                 var patientType = "${patientType}";
+				var totalAmount = jq('#totalAmount').val();
 
                 var addIssueDrugsData = {
                     'patientId': patientId,
                     'selectedDrugs': drugsJson,
-                    'patientType': patientType
+                    'patientType': patientType,
+					'totalAmount': totalAmount
                 };
 
                 if (patientType == "opdPatient") {
                     jq.getJSON('${ ui.actionLink("pharmacyapp", "issuePatientDrug", "processIssueDrug") }', addIssueDrugsData)
                             .success(function (data) {
-                                jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+								jq().toastmessage('removeToast', savingMessage);
+                                jq().toastmessage('showSuccessToast', "Save Indent Successful!");
                                 //redirect Successful Saving
                                 window.location.href = emr.pageLink("pharmacyapp", "container", {
                                     "rel": "issue-to-patient"
@@ -283,6 +291,7 @@
 
                             })
                             .error(function (xhr, status, err) {
+								jq().toastmessage('removeToast', savingMessage);
                                 jq().toastmessage('showErrorToast', "AJAX error!" + err);
                             });
                 }
@@ -826,6 +835,8 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
 				</tr>
 			</tbody>
 		</table>
+		
+		<input type="hidden" id="totalAmount" data-bind="value: issueTotal()"/>
 		
 		<div class="print-only" style="margin: 10px;">
 			<span>Attending Pharmacist: <b>${pharmacist}</b></span>
