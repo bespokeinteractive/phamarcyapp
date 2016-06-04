@@ -102,7 +102,9 @@ public class DrugOrderPageController {
         int patientId = Integer.parseInt(request.getParameter("patientId"));
         int presciberId = Integer.parseInt(request.getParameter("prescriberId"));
         int receiptId = 0;
+        Context.addProxyPrivilege("View Users");
         User prescriber = Context.getUserService().getUser(presciberId);
+        Context.removeProxyPrivilege("View Users");
         Double totalCharges = Double.parseDouble(request.getParameter("totalCharges"));
 
         BigDecimal waiverAmount = null;
