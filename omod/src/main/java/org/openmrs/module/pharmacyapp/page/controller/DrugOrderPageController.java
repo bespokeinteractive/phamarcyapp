@@ -25,9 +25,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Francis Githae on 3/31/16.
@@ -43,7 +45,7 @@ public class DrugOrderPageController {
             @RequestParam(value = "patientType", required = false) String patientType,
             UiUtils uiUtils) {
 
-        pageRequest.getSession().setAttribute(ReferenceApplicationWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL,uiUtils.thisUrl());
+        pageRequest.getSession().setAttribute(ReferenceApplicationWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL, uiUtils.thisUrl());
         sessionContext.requireAuthentication();
 
         InventoryService inventoryService = Context
@@ -68,23 +70,22 @@ public class DrugOrderPageController {
         Integer prescriberId = 0;
         String doctor = "Unknown";
 
-        if (drugOrderList.get(0).getCreator() != null){
+        if (drugOrderList.get(0).getCreator() != null) {
             prescriberId = drugOrderList.get(0).getCreator().getId();
             doctor = drugOrderList.get(0).getCreator().getGivenName();
         }
 
         model.addAttribute("patientCategory", patient.getAttribute(14));
-        model.addAttribute("previousVisit",hospitalCoreService.getLastVisitTime(patient));
+        model.addAttribute("previousVisit", hospitalCoreService.getLastVisitTime(patient));
         model.addAttribute("patientSearch", patientSearch);
         model.addAttribute("patientType", patientType);
         model.addAttribute("date", dateStr);
         model.addAttribute("doctor", doctor);
         model.addAttribute("prescriberId", prescriberId);
 
-        if (patient.getGender().equals("M")){
+        if (patient.getGender().equals("M")) {
             model.addAttribute("gender", "Male");
-        }
-        else{
+        } else {
             model.addAttribute("gender", "Female");
         }
 
@@ -97,7 +98,6 @@ public class DrugOrderPageController {
     public String post(HttpServletRequest request, UiUtils uiUtils) throws Exception {
         String order = request.getParameter("order");
         String patientType = request.getParameter("patientType");
-        String paymentMode = request.getParameter("paymentMode");
         int encounterId = Integer.parseInt(request.getParameter("encounterId"));
         int patientId = Integer.parseInt(request.getParameter("patientId"));
         int presciberId = Integer.parseInt(request.getParameter("prescriberId"));
@@ -105,10 +105,12 @@ public class DrugOrderPageController {
         Context.addProxyPrivilege("View Users");
         User prescriber = Context.getUserService().getUser(presciberId);
         Context.removeProxyPrivilege("View Users");
-        Double totalCharges = Double.parseDouble(request.getParameter("totalCharges"));
+        String totalChargesString = request.getParameter("totalCharges");
+        Number number = NumberFormat.getNumberInstance(Locale.US).parse(totalChargesString);
+        Double totalCharges = number.doubleValue();
 
         BigDecimal waiverAmount = null;
-        if(StringUtils.isNotEmpty(request.getParameter("waiverAmount"))){
+        if (StringUtils.isNotEmpty(request.getParameter("waiverAmount"))) {
             waiverAmount = new BigDecimal(request.getParameter("waiverAmount"));
         }
 
@@ -137,12 +139,13 @@ public class DrugOrderPageController {
         }
 
         Date date = new Date();
-        Integer formulationId;
-        String frequencyName;
-        String comments;
-        Integer quantity;
-        Integer noOfDays;
+        Integer formulationId = null;
+        String frequencyName = null;
+        String comments = null;
+        Integer quantity = null;
+        Integer noOfDays = null;
         Integer avlId;
+        int listOfDrugQuantity = 0;
 
         InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
         inventoryStoreDrugPatient.setStore(store);
@@ -179,15 +182,16 @@ public class DrugOrderPageController {
 
         for (int i = 0; i < orders.length(); i++) {
             JSONObject incomingItem = orders.getJSONObject(i);
-            String price = incomingItem.getString("price");
-            noOfDays = Integer.parseInt(incomingItem.getString("noOfDays"));
-            int listOfDrugQuantity = Integer.parseInt(incomingItem.getString("listOfDrugQuantity"));
-            String drugName = incomingItem.getString("drugName");
-            frequencyName = incomingItem.getString("frequencyName");
-            String formulation = incomingItem.getString("formulation");
-            quantity = Integer.parseInt(incomingItem.getString("quantity"));
-            formulationId = Integer.parseInt(incomingItem.getString("formulationId"));
-            comments = incomingItem.getString("comments");
+            try{
+                noOfDays = Integer.parseInt(incomingItem.getString("noOfDays"));
+                 listOfDrugQuantity = Integer.parseInt(incomingItem.getString("listOfDrugQuantity"));
+                frequencyName = incomingItem.getString("frequencyName");
+                quantity = Integer.parseInt(incomingItem.getString("quantity"));
+                formulationId = Integer.parseInt(incomingItem.getString("formulationId"));
+                comments = incomingItem.getString("comments");
+            }catch (Exception e){
+
+            }
 
             InventoryCommonService inventoryCommonService = Context.getService(InventoryCommonService.class);
             Concept fCon = Context.getConceptService().getConcept(frequencyName);
@@ -195,10 +199,8 @@ public class DrugOrderPageController {
                 InventoryDrugFormulation inventoryDrugFormulation = inventoryCommonService.getDrugFormulationById(formulationId);
                 InventoryStoreDrugPatientDetail pDetail = new InventoryStoreDrugPatientDetail();
                 InventoryStoreDrugTransactionDetail inventoryStoreDrugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(listOfDrugQuantity);
-                System.out.println("Store id: "+store.getId());
-                System.out.println("Drug id: "+inventoryStoreDrugTransactionDetail.getDrug().getId());
-                System.out.println("Formulation id: "+inventoryDrugFormulation.getId());
-                Integer totalQuantity = inventoryService.sumCurrentQuantityDrugOfStore(store.getId(), inventoryStoreDrugTransactionDetail.getDrug().getId(), inventoryDrugFormulation.getId());
+                Integer totalQuantity = inventoryService.sumCurrentQuantityDrugOfStore(store.getId(),
+                        inventoryStoreDrugTransactionDetail.getDrug().getId(), inventoryDrugFormulation.getId());
                 int t = totalQuantity;
                 InventoryStoreDrugTransactionDetail drugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(inventoryStoreDrugTransactionDetail.getId());
                 inventoryStoreDrugTransactionDetail.setCurrentQuantity(drugTransactionDetail.getCurrentQuantity());
@@ -280,7 +282,7 @@ public class DrugOrderPageController {
 
         System.out.println(totalCharges);
 
-        if (totalCharges == 0){
+        if (totalCharges == 0) {
             //Checkout the items here
             waiverAmount = new BigDecimal("0.00");
 
