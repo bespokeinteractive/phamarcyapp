@@ -103,6 +103,7 @@
                                     mainstore: jq("#mainstore").children(":selected").attr("id")
                                 }
                         );
+						
                         drugOrder = JSON.stringify(drugOrder);
                         indentName = JSON.stringify(indentName);
 
@@ -129,8 +130,10 @@
                     }
                 },
                 cancel: function () {
-                    jq("#dialogForm").reset();
                     addnameforindentslipdialog.close();
+                    
+					jq("#indentName").val('');
+                    jq("#mainstore").val(0);
                 }
             }
         });
