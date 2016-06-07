@@ -18,6 +18,10 @@
 		
         var indentName = [];
         var adddrugdialog = emr.setupConfirmationDialog({
+			dialogOpts: {
+				overlayClose: false,
+				close: true
+			},
             selector: '#addDrugDialog',
             actions: {
                 confirm: function () {
@@ -81,6 +85,10 @@
 
 
         var addnameforindentslipdialog = emr.setupConfirmationDialog({
+			dialogOpts: {
+				overlayClose: false,
+				close: true
+			},
             selector: '#addNameForIndentSlip',
             actions: {
                 confirm: function () {
@@ -407,6 +415,10 @@
 	}
 	form input:focus, form select:focus, form textarea:focus, form ul.select:focus, .form input:focus, .form select:focus, .form textarea:focus, .form ul.select:focus{
 		outline: 1px none #007fff;
+	}
+	#modal-overlay {
+		background: #000 none repeat scroll 0 0;
+		opacity: 0.4 !important;
 	}
 </style>
 

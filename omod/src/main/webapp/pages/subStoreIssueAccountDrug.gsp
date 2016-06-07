@@ -22,6 +22,10 @@
         });
 
         var addissuedialog = emr.setupConfirmationDialog({
+			dialogOpts: {
+				overlayClose: false,
+				close: true
+			},
             selector: '#addIssueDialog',
             actions: {
                 confirm: function () {
@@ -323,6 +327,10 @@
         }
 
         var addaccountforissueslipdialog = emr.setupConfirmationDialog({
+			dialogOpts: {
+				overlayClose: false,
+				close: true
+			},
             selector: '#addAccountForIssueSlip',
             actions: {
                 confirm: function () {
@@ -378,73 +386,77 @@
 </script>
 
 <style>
-th:first-child {
-    width: 5px;
-}
+	th:first-child {
+		width: 5px;
+	}
 
-th:last-child {
-    width: 30px;
-}
+	th:last-child {
+		width: 30px;
+	}
 
-th:nth-child(5) {
-    width: 85px;
-}
+	th:nth-child(5) {
+		width: 85px;
+	}
 
-#dialog-table th:nth-child(6) {
-    width: 90px;
-}
+	#dialog-table th:nth-child(6) {
+		width: 90px;
+	}
 
-#dialog-table th:nth-child(2),
-#dialog-table th:nth-child(3) {
-    width: 55px;
-}
+	#dialog-table th:nth-child(2),
+	#dialog-table th:nth-child(3) {
+		width: 55px;
+	}
 
-.dialog-content label {
-    display: inline-block;
-    width: 120px;
-}
+	.dialog-content label {
+		display: inline-block;
+		width: 120px;
+	}
 
-.dialog .dialog-content li {
-    margin-bottom: 0px;
-}
+	.dialog .dialog-content li {
+		margin-bottom: 0px;
+	}
 
-.dialog label {
-    display: inline-block;
-    width: 115px;
-}
+	.dialog label {
+		display: inline-block;
+		width: 115px;
+	}
 
-.dialog select option {
-    font-size: 1.0em;
-}
+	.dialog select option {
+		font-size: 1.0em;
+	}
 
-.dialog select {
-    display: inline-block;
-    margin: 4px 0 0;
-    width: 470px;
-    height: 38px;
-}
+	.dialog select {
+		display: inline-block;
+		margin: 4px 0 0;
+		width: 470px;
+		height: 38px;
+	}
 
-.dialog input {
-    display: inline-block;
-    width: 448px;
-    min-width: 10%;
-    margin: 4px 0 0;
-}
+	.dialog input {
+		display: inline-block;
+		width: 448px;
+		min-width: 10%;
+		margin: 4px 0 0;
+	}
 
-.dialog td input {
-    width: 40px;
-}
+	.dialog td input {
+		width: 40px;
+	}
 
-.dialog textarea {
-    display: inline-block;
-    width: 248px;
-    min-width: 10%;
-    resize: none
-}
+	.dialog textarea {
+		display: inline-block;
+		width: 248px;
+		min-width: 10%;
+		resize: none
+	}
 
-form input:focus, form select:focus, form textarea:focus, form ul.select:focus, .form input:focus, .form select:focus, .form textarea:focus, .form ul.select:focus {
-    outline: 1px none #007fff;
-}
+	form input:focus, form select:focus, form textarea:focus, form ul.select:focus, .form input:focus, .form select:focus, .form textarea:focus, .form ul.select:focus {
+		outline: 1px none #007fff;
+	}
+	#modal-overlay {
+		background: #000 none repeat scroll 0 0;
+		opacity: 0.4 !important;
+	}
 </style>
 
 <div class="clear"></div>

@@ -154,6 +154,10 @@
         });
 
         var addpatientdrugdialog = emr.setupConfirmationDialog({
+			dialogOpts: {
+				overlayClose: false,
+				close: true
+			},
             selector: '#addPatientDrugDialog',
             actions: {
                 confirm: function () {
@@ -460,193 +464,197 @@
 </script>
 
 <style>
-@media print {
-    .donotprint {
-        display: none;
-    }
+	@media print {
+		.donotprint {
+			display: none;
+		}
 
-    .spacer {
-        margin-top: 100px;
-        font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
-        font-style: normal;
-        font-size: 14px;
-    }
+		.spacer {
+			margin-top: 100px;
+			font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
+			font-style: normal;
+			font-size: 14px;
+		}
 
-    .printfont {
-        font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
-        font-style: normal;
-        font-size: 14px;
-    }
-}
+		.printfont {
+			font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
+			font-style: normal;
+			font-size: 14px;
+		}
+	}
 
-.toast-item {
-    background-color: #222;
-}
+	.toast-item {
+		background-color: #222;
+	}
 
-.name {
-    color: #f26522;
-}
+	.name {
+		color: #f26522;
+	}
 
-#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
-    text-decoration: none;
-}
+	#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
+		text-decoration: none;
+	}
 
-.new-patient-header .demographics .gender-age {
-    font-size: 14px;
-    margin-left: -55px;
-    margin-top: 12px;
-}
+	.new-patient-header .demographics .gender-age {
+		font-size: 14px;
+		margin-left: -55px;
+		margin-top: 12px;
+	}
 
-.new-patient-header .demographics .gender-age span {
-    border-bottom: 1px none #ddd;
-}
+	.new-patient-header .demographics .gender-age span {
+		border-bottom: 1px none #ddd;
+	}
 
-.new-patient-header .identifiers {
-    margin-top: 5px;
-}
+	.new-patient-header .identifiers {
+		margin-top: 5px;
+	}
 
-.tag {
-    padding: 2px 10px;
-}
+	.tag {
+		padding: 2px 10px;
+	}
 
-.tad {
-    background: #666 none repeat scroll 0 0;
-    border-radius: 1px;
-    color: white;
-    display: inline;
-    font-size: 0.8em;
-    padding: 2px 10px;
-}
+	.tad {
+		background: #666 none repeat scroll 0 0;
+		border-radius: 1px;
+		color: white;
+		display: inline;
+		font-size: 0.8em;
+		padding: 2px 10px;
+	}
 
-.status-container {
-    padding: 5px 10px 5px 5px;
-}
+	.status-container {
+		padding: 5px 10px 5px 5px;
+	}
 
-.catg {
-    color: #363463;
-    margin: 35px 10px 0 0;
-}
+	.catg {
+		color: #363463;
+		margin: 35px 10px 0 0;
+	}
 
-.title {
-    border: 1px solid #eee;
-    margin: 3px 0;
-    padding: 5px;
-}
+	.title {
+		border: 1px solid #eee;
+		margin: 3px 0;
+		padding: 5px;
+	}
 
-.title i {
-    font-size: 1.5em;
-    padding: 0;
-}
+	.title i {
+		font-size: 1.5em;
+		padding: 0;
+	}
 
-.title span {
-    font-size: 20px;
-}
+	.title span {
+		font-size: 20px;
+	}
 
-.title em {
-    border-bottom: 1px solid #ddd;
-    color: #888;
-    display: inline-block;
-    font-size: 0.5em;
-    margin-right: 10px;
-    text-transform: lowercase;
-    width: 200px;
-}
+	.title em {
+		border-bottom: 1px solid #ddd;
+		color: #888;
+		display: inline-block;
+		font-size: 0.5em;
+		margin-right: 10px;
+		text-transform: lowercase;
+		width: 200px;
+	}
 
-table {
-    font-size: 14px;
-}
+	table {
+		font-size: 14px;
+	}
 
-th:first-child {
-    width: 5px;
-}
+	th:first-child {
+		width: 5px;
+	}
 
-th:nth-child(4) {
-    min-width: 40px;
-}
+	th:nth-child(4) {
+		min-width: 40px;
+	}
 
-th:nth-child(5) {
-    width: 85px;
-}
+	th:nth-child(5) {
+		width: 85px;
+	}
 
-th:nth-child(6) {
-    width: 50px;
-}
-th:nth-child(7),
-th:nth-child(8){
-    width: 75px;
-}
+	th:nth-child(6) {
+		width: 50px;
+	}
+	th:nth-child(7),
+	th:nth-child(8){
+		width: 75px;
+	}
 
-th:nth-child(9),
-th:nth-child(10){
-    width: 55px;
-}
-th:last-child {
-	width: 20px;
-}
+	th:nth-child(9),
+	th:nth-child(10){
+		width: 55px;
+	}
+	th:last-child {
+		width: 20px;
+	}
 
-.dialog .dialog-content li {
-    margin-bottom: 0px;
-}
+	.dialog .dialog-content li {
+		margin-bottom: 0px;
+	}
 
-.dialog label {
-    display: inline-block;
-    width: 115px;
-}
+	.dialog label {
+		display: inline-block;
+		width: 115px;
+	}
 
-.dialog select option {
-    font-size: 1.0em;
-}
+	.dialog select option {
+		font-size: 1.0em;
+	}
 
-.dialog select {
-    display: inline-block;
-    margin: 0;
-    width: 270px;
-}
+	.dialog select {
+		display: inline-block;
+		margin: 0;
+		width: 270px;
+	}
 
-.dialog input {
-    display: inline-block;
-	margin: 0px;
-    min-width: 10%;
-    width: 248px;
-}
+	.dialog input {
+		display: inline-block;
+		margin: 0px;
+		min-width: 10%;
+		width: 248px;
+	}
 
-.dialog textarea {
-	display: inline-block;
-    height: 45px;
-    margin-bottom: 5px;
-    margin-top: 2px;
-    min-width: 10%;
-    resize: none;
-    width: 248px;
-}
-.dialog td input {
-    display: inline-block;
-	margin: 0px;
-    min-width: 10%;
-    width: 50px;
-}
-.dialog ul {
-    margin-bottom: 0;
-}
-.dialog .confirm{
-	margin-right: 0;
-}
-.dialog .button{
-	margin-top: 5px;
-}
-#issueDetails{
-	border: 1px solid #eeeeee;
-    color: red;
-    display: block;
-    padding: 10px;
-}
-.print-only{
-	display: none;
-}
+	.dialog textarea {
+		display: inline-block;
+		height: 45px;
+		margin-bottom: 5px;
+		margin-top: 2px;
+		min-width: 10%;
+		resize: none;
+		width: 248px;
+	}
+	.dialog td input {
+		display: inline-block;
+		margin: 0px;
+		min-width: 10%;
+		width: 50px;
+	}
+	.dialog ul {
+		margin-bottom: 0;
+	}
+	.dialog .confirm{
+		margin-right: 0;
+	}
+	.dialog .button{
+		margin-top: 5px;
+	}
+	#issueDetails{
+		border: 1px solid #eeeeee;
+		color: red;
+		display: block;
+		padding: 10px;
+	}
+	.print-only{
+		display: none;
+	}
 
-form input:focus, form select:focus, form textarea:focus, form ul.select:focus, .form input:focus, .form select:focus, .form textarea:focus, .form ul.select:focus {
-    outline: 2px none #007fff;
-}
+	form input:focus, form select:focus, form textarea:focus, form ul.select:focus, .form input:focus, .form select:focus, .form textarea:focus, .form ul.select:focus {
+		outline: 2px none #007fff;
+	}
+	#modal-overlay {
+		background: #000 none repeat scroll 0 0;
+		opacity: 0.4 !important;
+	}
 </style>
 
 <div class="container" id="accountDrugIssue">    

@@ -49,6 +49,10 @@
         var orderList = jSonOrders.simpleObjects;
 		
         processdrugdialog = emr.setupConfirmationDialog({
+			dialogOpts: {
+				overlayClose: false,
+				close: true
+			},
             selector: '#processDrugDialog',
             actions: {
                 confirm: function () {
@@ -62,6 +66,10 @@
         });
 		
 		confirmdrugdialog = emr.setupConfirmationDialog({
+			dialogOpts: {
+				overlayClose: false,
+				close: true
+			},
             selector: '#confirmDrugDialog',
             actions: {
                 confirm: function () {
@@ -174,13 +182,6 @@
 			width: 			600,
 			height:			700
 		});
-	
-        /*var printer = window.open('', '', 'width=300,height=300');
-        printer.document.open("text/html");
-        printer.document.write(document.getElementById('printDiv').innerHTML);
-        printer.print();
-        printer.document.close();
-        printer.window.close();*/
     }
 
     function checkValueExt(thiz, value) {
