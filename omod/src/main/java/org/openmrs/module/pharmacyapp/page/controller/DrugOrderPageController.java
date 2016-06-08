@@ -55,10 +55,12 @@ public class DrugOrderPageController {
                 patientId, encounterId);
         List<SimpleObject> simpleObjects = SimpleObject.fromCollection(drugOrderList, uiUtils, "inventoryDrug.name",
                 "inventoryDrugFormulation.name", "inventoryDrugFormulation.dozage", "frequency.name", "noOfDays", "comments",
-                "inventoryDrug.id", "inventoryDrugFormulation.id");
+                "inventoryDrug.id", "inventoryDrugFormulation.id","dosage","dosageUnit.name");
 
+        String toJson = SimpleObject.create("simpleObjects", simpleObjects).toJson();
+        System.out.println(toJson);
 
-        model.addAttribute("drugOrderListJson", SimpleObject.create("simpleObjects", simpleObjects).toJson());
+        model.addAttribute("drugOrderListJson", toJson);
         model.addAttribute("drugOrderList", drugOrderList);
         model.addAttribute("patientId", patientId);
         model.addAttribute("encounterId", encounterId);

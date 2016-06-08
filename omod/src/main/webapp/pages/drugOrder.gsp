@@ -47,7 +47,6 @@
 
         var jSonOrders = ${drugOrderListJson};
         var orderList = jSonOrders.simpleObjects;
-		
         processdrugdialog = emr.setupConfirmationDialog({
 			dialogOpts: {
 				overlayClose: false,
@@ -566,6 +565,7 @@
 					<th>#</th>
 					<th>DRUG NAME</th>
 					<th>FORMULATION</th>
+					<th>DOSAGE</th>
 					<th>FREQUENCY</th>
 					<th>DAYS</th>
 					<th>COMMENTS</th>
@@ -580,6 +580,11 @@
 					<td>
 						<span data-bind="text: inventoryDrugFormulation.name"></span> - <span
 							data-bind="text: inventoryDrugFormulation.dozage"></span>
+					</td>
+					<td>
+						<span data-bind="text: dosage"></span> - <span
+							data-bind="text: dosageUnit.name"></span>
+
 					</td>
 					<td data-bind="text: frequency.name"></td>
 					<td data-bind="text: noOfDays"></td>
