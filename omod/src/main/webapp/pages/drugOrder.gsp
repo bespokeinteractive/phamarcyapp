@@ -6,6 +6,7 @@
 %>
 
 <script>
+	var list;
     var drugOrders = [];
 	
     var confirmdrugdialog;
@@ -31,6 +32,18 @@
                 return (parms);
             }
         });
+		
+		jq('#remove-items').on('click', 'a', function(){
+			list.pRemove.push(focusItem);
+			list.listItems.remove(focusItem);
+			processdrugdialog.close();
+		});
+		
+		jq('#processDrugOrderFormTable').on('click', 'td a', function(){
+			list.pRemove.push(focusItem);
+			list.listItems.remove(focusItem);
+			processdrugdialog.close();
+		});
 
         jq.fn.serializeFormJSON = function () {
             var o = [];
@@ -93,6 +106,8 @@
             // Editable data
             self.listItems = ko.observableArray([]);
             self.pItems = ko.observableArray([]);
+            self.pRemove = ko.observableArray([]);
+			
             var mappedStockItems = jQuery.map(orderList, function (item) {
                 return item;
             });
@@ -119,7 +134,7 @@
                 });
 
                 if (!isError) {
-                    var jsonString = jq("#processDrugOrderForm").serializeFormJSON();
+                    var jsonString = jq("#processDrugOrderForm").serializeFormJSON();					
                     jq.each(jsonString, function (index, item) {
                         if (item.quantity > 0) {
                             self.pItems.push(item);//add the item to the processed array for display
@@ -148,20 +163,19 @@
 
             }
             self.finishDrugOrder=function(){
-                if (self.pItems().length < 1) {
+                if (self.pItems().length < 1 && self.pRemove().length < 1) {
                     jq().toastmessage('showErrorToast', "Please Process At least One Drug!");
                     return false;
                 }
 				
 				confirmdrugdialog.show();
-
                 return false;
 
             }
         }
 
 
-        var list = new OrderListViewModel();
+        list = new OrderListViewModel();
         ko.applyBindings(list, jq("#indent-search-result")[0]);
     });//end of doc ready
 
@@ -208,13 +222,15 @@
                 if (data.length === 0) {
                     jq('#processDrugOrderFormTable > tbody > tr').remove();
                     var tbody = jq('#processDrugOrderFormTable > tbody');
-                    var row = '<tr align="center">';
-                    row += '<td colspan="7"> This drug is empty in your store, please indent it</td>'
+                    var row = '<tr>';
+                    row += '<td></td><td colspan="6" style="padding: 5px 20px"> This drug is empty in your store, please indent it. <a style="float: right;" class="red remove-item"><i class="icon-remove small"></i>Remove Drug from List</a></td>'
                     row += '<input id="' + drugId + '" name="' + drugId + '" type="hidden" />';
                     row += '</tr>';
                     tbody.append(row);
                     jq("#drugIssue").attr("disabled", true);
                     jq("#drugIssue").addClass("disabled");
+					
+					jq('#remove-items').hide();
 
                 } else {
                     jq("#drugIssue").removeClass('disabled');
@@ -246,7 +262,9 @@
                         row += '<input id="listOfDrugQuantity" name="listOfDrugQuantity" type="hidden" value="' + listOfDrugQuantity + '" />';
                         row += '</tr>';
                     });
+					
                     tbody.append(row);
+					jq('#remove-items').show();
                 }
             },
             error: function (xhr, status, err) {
@@ -473,6 +491,20 @@
 	td a:hover{
 		text-decoration: none;
 	}
+	.red{
+		color: #f00;
+		cursor: pointer;
+	}
+	
+	#remove-items{
+		display: table; 
+		margin-bottom: 20px;
+		width: 100%; 
+	}
+	
+	#remove-items a:hover{
+		text-decoration: none;
+	}
 </style>
 
 <div class="clear"></div>
@@ -639,8 +671,52 @@
 					</tr>
 				</tbody>
             </table>
-
         </div>
+		
+        <div role="grid" class="dataTables_wrapper" id="notProcessedOrderList" data-bind="visible: \$root.pRemove().length > 0" style="display: none;">
+			<div class="title">
+				<i class="icon-retweet"></i>
+				<span>
+					NOT PROCESSED
+					<em style="width: 180px;">&nbsp; to purchase elsewhere</em>
+				</span>
+			</div>
+			
+			<table id="orderNotListTable">
+				<thead>
+					<tr role="row">
+						<th>#</th>
+						<th>DRUG NAME</th>
+						<th>FORMULATION</th>
+						<th>DOSAGE</th>
+						<th>FREQUENCY</th>
+						<th>DAYS</th>
+						<th>COMMENTS</th>
+					</tr>
+				</thead>
+
+				<tbody data-bind="foreach: pRemove">
+					<tr>
+						<td data-bind="text: \$index() + 1"></td>
+						<td data-bind="text: inventoryDrug.name"></td>
+						<td>
+							<span data-bind="text: inventoryDrugFormulation.name"></span> - <span
+								data-bind="text: inventoryDrugFormulation.dozage"></span>
+						</td>
+						<td>
+							<span data-bind="text: dosage"></span> - <span
+								data-bind="text: dosageUnit.name"></span>
+
+						</td>
+						<td data-bind="text: frequency.name"></td>
+						<td data-bind="text: noOfDays"></td>
+						<td data-bind="text: comments"></td>
+					</tr>
+				</tbody>
+			</table>
+			
+			
+		</div>
 
         <form method="post" id="drugsForm" style="display: none;">
             <input name="submvalue"  type="text" value="Finish"/>
@@ -651,6 +727,7 @@
             <input name="totalCharges" type="text" data-bind="value: \$root.computedTotal()"/>
 
             <textarea name="order" data-bind="value: ko.toJSON(\$root.pItems)"></textarea>
+            <textarea name="remove" data-bind="value: ko.toJSON(\$root.pRemove)"></textarea>
         </form>
 		
 		<div class="buttons-div">
@@ -685,10 +762,17 @@
 
                         </tbody>
                     </table>
-                    <br/>
-                    <button class="button confirm right" data-bind="click: \$root.issueDrugItem"
-                            id="drugIssue">Issue Drug</button>
-                    <span class="button cancel">Cancel</span>
+					
+					<div id="remove-items">
+						<a style="float: right;" class="red remove-item"><i class="icon-remove small"></i>Remove Drug from List</a>
+					</div>
+					
+					<span>
+						<button class="button confirm right" data-bind="click: \$root.issueDrugItem"
+								id="drugIssue" style="margin-right:0;">Issue Drug</button>
+						<span class="button cancel">Cancel</span>					
+					</span>
+					
                 </form>
             </div>
 
