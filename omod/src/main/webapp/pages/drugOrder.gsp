@@ -8,10 +8,10 @@
 <script>
 	var list;
     var drugOrders = [];
-	
+
     var confirmdrugdialog;
     var processdrugdialog;
-	
+
     var listOfDrugQuantity = "";
     var focusItem;
     var processedOrders = [];
@@ -61,10 +61,10 @@
         var jSonOrders = ${drugOrderListJson};
         var orderList = jSonOrders.simpleObjects;
         processdrugdialog = emr.setupConfirmationDialog({
-			dialogOpts: {
-				overlayClose: false,
-				close: true
-			},
+            dialogOpts: {
+                overlayClose: false,
+                close: true
+            },
             selector: '#processDrugDialog',
             actions: {
                 confirm: function () {
@@ -76,16 +76,16 @@
                 }
             }
         });
-		
-		confirmdrugdialog = emr.setupConfirmationDialog({
-			dialogOpts: {
-				overlayClose: false,
-				close: true
-			},
+
+        confirmdrugdialog = emr.setupConfirmationDialog({
+            dialogOpts: {
+                overlayClose: false,
+                close: true
+            },
             selector: '#confirmDrugDialog',
             actions: {
                 confirm: function () {
-					confirmdrugdialog.close();
+                    confirmdrugdialog.close();
                     jq("#drugsForm").submit();
                 },
                 cancel: function () {
@@ -93,12 +93,12 @@
                 }
             }
         });
-		
+
         jq(".dashboard-tabs").tabs();
 
-       
+
         jq('#agename').html('${patient.age} years (' + moment('${patient.birthdate}').format('DD,MMM YYYY') + ')');
-		jq('#lstdate').html('Last Visit: '+ moment('${previousVisit}').format('DD, MMM YYYY'));
+        jq('#lstdate').html('Last Visit: ' + moment('${previousVisit}').format('DD, MMM YYYY'));
 
 
         function OrderListViewModel() {
@@ -124,14 +124,21 @@
             }
 
             self.issueDrugItem = function () {
+                var totalIssue = 0;
                 isError = false;
                 jq('.klazz').each(function (i, obj) {
                     var v = obj.value;
                     if (!jq.isNumeric(v)) {
-                        jq().toastmessage('showErrorToast', "Please Enter Correct Quantity!");
+                        jq().toastmessage('showErrorToast', "Please Enter Correct Quantity For all Fields!");
                         isError = true;
+                    } else {
+                        totalIssue = parseInt(totalIssue) + parseInt(v);
                     }
                 });
+                if (totalIssue === 0) {
+                    jq().toastmessage('showErrorToast', "Total Quantities to Dispense Must be greater than zero!");
+                    isError = true;
+                }
 
                 if (!isError) {
                     var jsonString = jq("#processDrugOrderForm").serializeFormJSON();					
@@ -146,10 +153,10 @@
                 }
             }
 
-            self.computedTotal = ko.computed(function(){
-                var total=0;
-                for (var i = 0; i < self.pItems().length; i++){
-                    total+=(self.pItems()[i].quantity *self.pItems()[i].price);
+            self.computedTotal = ko.computed(function () {
+                var total = 0;
+                for (var i = 0; i < self.pItems().length; i++) {
+                    total += (self.pItems()[i].quantity * self.pItems()[i].price);
                 }
                 return total.toString().formatToAccounting();
             });
@@ -181,20 +188,20 @@
 
     function cancelDrugProcess() {
         window.location.href = emr.pageLink("pharmacyapp", "container", {
-            "rel" : "patients-queue",
-			"date": '${date}'
+            "rel": "patients-queue",
+            "date": '${date}'
         });
     }
 
     function printDiv2() {
-		jq("#printDiv").print({
-			globalStyles: 	false,
-			mediaPrint: 	false,
-			stylesheet: 	'${ui.resourceLink("pharmacyapp", "styles/print-out.css")}',
-			iframe: 		false,
-			width: 			600,
-			height:			700
-		});
+        jq("#printDiv").print({
+            globalStyles: false,
+            mediaPrint: false,
+            stylesheet: '${ui.resourceLink("pharmacyapp", "styles/print-out.css")}',
+            iframe: false,
+            width: 600,
+            height: 700
+        });
     }
 
     function checkValueExt(thiz, value) {
@@ -204,7 +211,7 @@
             jq(thiz).focus();
         }
     }
-	
+
     function processDrug(drugId, formulationId, frequencyName, days, comments, item) {
         focusItem = item;
         jq.ajax({
@@ -239,7 +246,7 @@
                     var tbody = jq('#processDrugOrderFormTable > tbody');
                     var row = "";
                     jq.each(data, function (i, item) {
-                        listOfDrugQuantity += item.id;
+                        listOfDrugQuantity = item.id;
                         row += '<tr>' +
                                 '<td>' + (i + 1) + '</td>' +
                                 '<td>' + item.dateExpiry.substring(0, 11).replaceAt(2, ",").replaceAt(6, " ").insertAt(3, 0, " ") + '</td>' +
@@ -508,43 +515,45 @@
 </style>
 
 <div class="clear"></div>
+
 <div id="content">
     <div class="example">
-		<ul id="breadcrumbs">
-			<li>
-				<a href="${ui.pageLink('referenceapplication','home')}">
-				<i class="icon-home small"></i></a>
-			</li>
-			
-			<li>
-				<i class="icon-chevron-right link"></i>
-				<a href="${ui.pageLink('pharmacyapp','dashboard')}">Pharmacy</a>
-			</li>
-			
-			<li>
-				<i class="icon-chevron-right link"></i>
-				<a href="${ui.pageLink('pharmacyapp','container', [rel:'patients-queue', date:date])}">Queue</a>
-			</li>
-			
-			<li>
-				<i class="icon-chevron-right link"></i>
-				<a href="${ui.pageLink('pharmacyapp','listOfOrder', [patientId:patientId, date:date])}">Orders</a>
-			</li>
-			
-			<li>
-				<i class="icon-chevron-right link"></i>
-				Process
-			</li>
-		</ul>
-	</div>
+        <ul id="breadcrumbs">
+            <li>
+                <a href="${ui.pageLink('referenceapplication', 'home')}">
+                    <i class="icon-home small"></i></a>
+            </li>
+
+            <li>
+                <i class="icon-chevron-right link"></i>
+                <a href="${ui.pageLink('pharmacyapp', 'dashboard')}">Pharmacy</a>
+            </li>
+
+            <li>
+                <i class="icon-chevron-right link"></i>
+                <a href="${ui.pageLink('pharmacyapp', 'container', [rel: 'patients-queue', date: date])}">Queue</a>
+            </li>
+
+            <li>
+                <i class="icon-chevron-right link"></i>
+                <a href="${ui.pageLink('pharmacyapp', 'listOfOrder', [patientId: patientId, date: date])}">Orders</a>
+            </li>
+
+            <li>
+                <i class="icon-chevron-right link"></i>
+                Process
+            </li>
+        </ul>
+    </div>
 
     <div class="patient-header new-patient-header">
         <div class="demographics">
             <h1 class="name">
                 <span id="surname">${patient.familyName},<em>surname</em></span>
-				<span id="othname">${patient.givenName} ${patient.middleName?patient.middleName:''}&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<em>other names</em></span>
-				
+                <span id="othname">${patient.givenName} ${patient.middleName ? patient.middleName : ''}&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<em>other names</em>
                 </span>
+
+            </span>
 
                 <span class="gender-age">
                     <span>
@@ -565,7 +574,9 @@
                 <span class="status active"></span>
                 Visit Status
             </div>
-			<div class="tag">Outpatient</div>
+
+            <div class="tag">Outpatient</div>
+
             <div class="tad" id="lstdate">Last Visit: ${ui.formatDatePretty(previousVisit)}</div>
         </div>
 
@@ -581,95 +592,96 @@
 
         <div class="close"></div>
     </div>
-	
-	<div class="title">
-		<i class="icon-time"></i>
-		<span>${date} <em style="width: 80px;">&nbsp; order date</em></span>
-		
-		<i class="icon-quote-left"></i>
-		<span>${encounterId} <em>&nbsp; order number</em></span>
-	</div>
+
+    <div class="title">
+        <i class="icon-time"></i>
+        <span>${date} <em style="width: 80px;">&nbsp; order date</em></span>
+
+        <i class="icon-quote-left"></i>
+        <span>${encounterId} <em>&nbsp; order number</em></span>
+    </div>
 
     <div id="indent-search-result" style="display: block; margin-top:3px;">
-		<table id="orderList" data-bind="visible: \$root.listItems().length > 0">
-			<thead>
-				<tr role="row">
-					<th>#</th>
-					<th>DRUG NAME</th>
-					<th>FORMULATION</th>
-					<th>DOSAGE</th>
-					<th>FREQUENCY</th>
-					<th>DAYS</th>
-					<th>COMMENTS</th>
-					<th>ACTIONS</th>
-				</tr>
-			</thead>
+        <table id="orderList" data-bind="visible: \$root.listItems().length > 0">
+            <thead>
+            <tr role="row">
+                <th>#</th>
+                <th>DRUG NAME</th>
+                <th>FORMULATION</th>
+                <th>DOSAGE</th>
+                <th>FREQUENCY</th>
+                <th>DAYS</th>
+                <th>COMMENTS</th>
+                <th>ACTIONS</th>
+            </tr>
+            </thead>
 
-			<tbody data-bind="foreach: listItems">
-				<tr>
-					<td data-bind="text: \$index() + 1"></td>
-					<td data-bind="text: inventoryDrug.name"></td>
-					<td>
-						<span data-bind="text: inventoryDrugFormulation.name"></span> - <span
-							data-bind="text: inventoryDrugFormulation.dozage"></span>
-					</td>
-					<td>
-						<span data-bind="text: dosage"></span> - <span
-							data-bind="text: dosageUnit.name"></span>
+            <tbody data-bind="foreach: listItems">
+            <tr>
+                <td data-bind="text: \$index() + 1"></td>
+                <td data-bind="text: inventoryDrug.name"></td>
+                <td>
+                    <span data-bind="text: inventoryDrugFormulation.name"></span> - <span
+                        data-bind="text: inventoryDrugFormulation.dozage"></span>
+                </td>
+                <td>
+                    <span data-bind="text: dosage"></span> - <span
+                        data-bind="text: dosageUnit.name"></span>
 
-					</td>
-					<td data-bind="text: frequency.name"></td>
-					<td data-bind="text: noOfDays"></td>
-					<td data-bind="text: comments"></td>
-					<td style="text-align: center;">
-						<a class="remover" href="#" data-bind="click: \$root.processDrugItem">
-							<i class="icon-circle-arrow-right small"> </i>PROCESS
-						</a>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-        
+                </td>
+                <td data-bind="text: frequency.name"></td>
+                <td data-bind="text: noOfDays"></td>
+                <td data-bind="text: comments"></td>
+                <td style="text-align: center;">
+                    <a class="remover" href="#" data-bind="click: \$root.processDrugItem">
+                        <i class="icon-circle-arrow-right small"></i>PROCESS
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
 
-        <div role="grid" class="dataTables_wrapper" id="processedOrderList" data-bind="visible: \$root.pItems().length > 0" style="display: none;">
-			<div class="title">
-				<i class="icon-bookmark"></i>
-				<span>
-					PROCESSED
-					<em style="width: 80px;">&nbsp; processed drugs</em>
-				</span>
-			</div>
-			
+
+        <div role="grid" class="dataTables_wrapper" id="processedOrderList"
+             data-bind="visible: \$root.pItems().length > 0" style="display: none;">
+            <div class="title">
+                <i class="icon-bookmark"></i>
+                <span>
+                    PROCESSED
+                    <em style="width: 80px;">&nbsp; processed drugs</em>
+                </span>
+            </div>
+
             <table id="orderListTable">
                 <thead>
-					<tr role="row">
-						<th>#</th>
-						<th>DRUG NAME</th>
-						<th>FORMULATION</th>
-						<th>QUANTITY</th>
-						<th>UNIT PRICE</th>
-						<th>TOTAL COST</th>
-					</tr>
+                <tr role="row">
+                    <th>#</th>
+                    <th>DRUG NAME</th>
+                    <th>FORMULATION</th>
+                    <th>QUANTITY</th>
+                    <th>UNIT PRICE</th>
+                    <th>TOTAL COST</th>
+                </tr>
                 </thead>
 
                 <tbody data-bind="foreach: pItems">
-					<tr>
-						<td data-bind="text: \$index() + 1"></td>
-						<td data-bind="text: drugName"></td>
-						<td data-bind="text: formulation"></td>
-						<td data-bind="text: quantity"></td>
-						<td data-bind="text: price.toString().formatToAccounting()"></td>
-						<td data-bind="text: (price*quantity).toString().formatToAccounting()"></td>
-					</tr>
+                <tr>
+                    <td data-bind="text: \$index() + 1"></td>
+                    <td data-bind="text: drugName"></td>
+                    <td data-bind="text: formulation"></td>
+                    <td data-bind="text: quantity"></td>
+                    <td data-bind="text: price.toString().formatToAccounting()"></td>
+                    <td data-bind="text: (price*quantity).toString().formatToAccounting()"></td>
+                </tr>
                 </tbody>
-				
-				<tbody>
-					<tr>
-						<td></td>
-						<td colspan="4"><b>SUB TOTALS (KES)</b></td>
-						<td data-bind="text: \$root.computedTotal()" style="text-align: right; font-weight: bold;"></td>
-					</tr>
-				</tbody>
+
+                <tbody>
+                <tr>
+                    <td></td>
+                    <td colspan="4"><b>SUB TOTALS (KES)</b></td>
+                    <td data-bind="text: \$root.computedTotal()" style="text-align: right; font-weight: bold;"></td>
+                </tr>
+                </tbody>
             </table>
         </div>
 		
@@ -719,7 +731,7 @@
 		</div>
 
         <form method="post" id="drugsForm" style="display: none;">
-            <input name="submvalue"  type="text" value="Finish"/>
+            <input name="submvalue" type="text" value="Finish"/>
             <input name="patientId" type="text" value="${patientId}"/>
             <input name="encounterId" type="text" value="${encounterId}"/>
             <input name="patientType" type="text" value="${patientType}"/>
@@ -729,12 +741,14 @@
             <textarea name="order" data-bind="value: ko.toJSON(\$root.pItems)"></textarea>
             <textarea name="remove" data-bind="value: ko.toJSON(\$root.pRemove)"></textarea>
         </form>
-		
-		<div class="buttons-div">
-			<input type="button" value="Cancel" onclick="cancelDrugProcess();" class="cancel"/>
-			<input type="submit" id="subm" name="subm" value="Finish Order" class="confirm" style="float: right; margin-right: 0px" data-bind="click: \$root.finishDrugOrder"/>
-			<input type="button" id="print" name="print" value="Print Order" onClick="printDiv2();" class="task" style="float: right; margin-right: 5px"/>
-		</div>
+
+        <div class="buttons-div">
+            <input type="button" value="Cancel" onclick="cancelDrugProcess();" class="cancel"/>
+            <input type="submit" id="subm" name="subm" value="Finish Order" class="confirm"
+                   style="float: right; margin-right: 0px" data-bind="click: \$root.finishDrugOrder"/>
+            <input type="button" id="print" name="print" value="Print Order" onClick="printDiv2();" class="task"
+                   style="float: right; margin-right: 5px"/>
+        </div>
 
         <div id="processDrugDialog" class="dialog" style="display: none; width: 900px">
             <div class="dialog-header">
@@ -778,75 +792,76 @@
 
         </div>
     </div>
-	
-	<div id="confirmDrugDialog" class="dialog" style="display: none;">
-		<div class="dialog-header">
-			<i class="icon-save"></i>
-			<h3>Confirm</h3>
-		</div>
+
+    <div id="confirmDrugDialog" class="dialog" style="display: none;">
+        <div class="dialog-header">
+            <i class="icon-save"></i>
+
+            <h3>Confirm</h3>
+        </div>
 
 
-		<div class="dialog-content">
-			<h3>Confirm finalizing and posting the order <b>#${encounterId}</b>?</h3>
-			
-			<button class="button confirm right" style="margin-right: 0px">Confirm</button>
+        <div class="dialog-content">
+            <h3>Confirm finalizing and posting the order <b>#${encounterId}</b>?</h3>
+
+            <button class="button confirm right" style="margin-right: 0px">Confirm</button>
             <span class="button cancel">Cancel</span>
-		</div>
-	</div>
+        </div>
+    </div>
 
 
 
     <!--PRINT DIV  -->
     <div id="printDiv" class="hidden">
 
-       
         <center>
-			
-		<img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS"
-                     src="${ui.resourceLink('billingui', 'images/kenya_logo.bmp')}">
+
+            <img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS"
+                 src="${ui.resourceLink('billingui', 'images/kenya_logo.bmp')}">
         </center>
+
         <h2>
             <center>${userLocation}</center>
         </h2>
-		
+
         <br><br>
-		
-		<div>
-			<label>
-					<span class='status active'></span>
-					Identifier:
-				</label>
-				<span>${patient.getPatientIdentifier()}</span>
-				<br/>
-				
-				<label>
-					<span class='status active'></span>
-					Full Names:
-				</label>
-				<span>${patient.givenName} ${patient.familyName} ${patient.middleName?patient.middleName:''}</span>
-				<br/>
-				
-				<label>
-					<span class='status active'></span>
-					Age:
-				</label>
-				<span>${patient.age} (${ui.formatDatePretty(patient.birthdate)})</span>
-				<br/>
-				
-				<label>
-					<span class='status active'></span>
-					Gender:
-				</label>
-				<span>${gender}</span>
-				<br/>
-				
-				<label>
-					<span class='status active'></span>
-					Print Date:
-				</label>
-				<span>${date}</span>
-				<br/>
-		</div>
+
+        <div>
+            <label>
+                <span class='status active'></span>
+                Identifier:
+            </label>
+            <span>${patient.getPatientIdentifier()}</span>
+            <br/>
+
+            <label>
+                <span class='status active'></span>
+                Full Names:
+            </label>
+            <span>${patient.givenName} ${patient.familyName} ${patient.middleName ? patient.middleName : ''}</span>
+            <br/>
+
+            <label>
+                <span class='status active'></span>
+                Age:
+            </label>
+            <span>${patient.age} (${ui.formatDatePretty(patient.birthdate)})</span>
+            <br/>
+
+            <label>
+                <span class='status active'></span>
+                Gender:
+            </label>
+            <span>${gender}</span>
+            <br/>
+
+            <label>
+                <span class='status active'></span>
+                Print Date:
+            </label>
+            <span>${date}</span>
+            <br/>
+        </div>
 
         <table id="myTablee" class="tablesorter" class="thickbox" style="width:100%; margin-top:30px">
             <thead>
@@ -863,7 +878,7 @@
             <tbody>
             <% drugOrderList.eachWithIndex { drug, idx -> %>
             <tr class="class" id="${drug.inventoryDrug.name}">
-                <td>${idx+1}</td>
+                <td>${idx + 1}</td>
                 <td>${drug.inventoryDrug.name}</td>
                 <td>${drug.inventoryDrugFormulation.name}-${drug.inventoryDrugFormulation.dozage}</td>
                 <td>${drug.noOfDays}</td>
@@ -874,15 +889,15 @@
 
             </tbody>
         </table>
-		
-		<div style="margin-top: 20px;">
-			<span style="margin-left: 10px;">
-				Prescribed By: <b>${doctor}</b>
-			</span>
-			
-			<span class="right" style="margin-right: 10px;">
-				Attending Pharmacist: <b>${pharmacist}</b>
-			</span>
-		</div>
+
+        <div style="margin-top: 20px;">
+            <span style="margin-left: 10px;">
+                Prescribed By: <b>${doctor}</b>
+            </span>
+
+            <span class="right" style="margin-right: 10px;">
+                Attending Pharmacist: <b>${pharmacist}</b>
+            </span>
+        </div>
     </div>
 </div>

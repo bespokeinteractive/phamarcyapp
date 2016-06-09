@@ -30,11 +30,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 /**
  * Created by Francis Githae on 3/31/16.
  */
 public class DrugOrderPageController {
+    private final static Logger logger = Logger.getLogger(DrugOrderPageController.class.getName());
+
     public void get(
             PageModel model,
             UiSessionContext sessionContext,
@@ -55,10 +58,9 @@ public class DrugOrderPageController {
                 patientId, encounterId);
         List<SimpleObject> simpleObjects = SimpleObject.fromCollection(drugOrderList, uiUtils, "inventoryDrug.name",
                 "inventoryDrugFormulation.name", "inventoryDrugFormulation.dozage", "frequency.name", "noOfDays", "comments",
-                "inventoryDrug.id", "inventoryDrugFormulation.id","dosage","dosageUnit.name");
+                "inventoryDrug.id", "inventoryDrugFormulation.id", "dosage", "dosageUnit.name");
 
         String toJson = SimpleObject.create("simpleObjects", simpleObjects).toJson();
-
         model.addAttribute("drugOrderListJson", toJson);
         model.addAttribute("drugOrderList", drugOrderList);
         model.addAttribute("patientId", patientId);
@@ -156,7 +158,6 @@ public class DrugOrderPageController {
         InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
         InventoryStoreDrugTransaction transaction = new InventoryStoreDrugTransaction();
         HospitalCoreService hcs = Context.getService(HospitalCoreService.class);
-
         //inside and if
         if (orders.length() > 0) {
             inventoryStoreDrugPatient.setStore(store);
@@ -199,7 +200,7 @@ public class DrugOrderPageController {
                     formulationId = Integer.parseInt(incomingItem.getString("formulationId"));
                     comments = incomingItem.getString("comments");
                 }catch (Exception e){
-
+                    logger.info(e.getMessage());
                 }
 
                 InventoryCommonService inventoryCommonService = Context.getService(InventoryCommonService.class);
@@ -304,7 +305,6 @@ public class DrugOrderPageController {
                 patientDashboardService.saveOrUpdateOpdDrugOrder(opdDrugOrder);
             }
         }
-
         if (totalCharges == 0 && orders.length() > 0) {
             //Checkout the items here
             waiverAmount = new BigDecimal("0.00");
