@@ -54,3 +54,9 @@ label{
 	float: right;
 	display: inline-block;
 }
+.font-ten{
+	font-size: 10px!important;	
+}
+.font-twelve{
+	font-size: 12px!important;	
+}

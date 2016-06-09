@@ -33,11 +33,24 @@
             }
         });
 		
+		jq('.title').on('click', 'a', function(){
+			jq("#print-section").print({
+				globalStyles: false,
+				mediaPrint: false,
+				stylesheet: '${ui.resourceLink("pharmacyapp", "styles/print-out.css")}',
+				iframe: false,
+				width: 700,
+				height: 500
+			});
+		});
+		
 		jq('#remove-items').on('click', 'a', function(){
 			list.pRemove.push(focusItem);
 			list.listItems.remove(focusItem);
 			processdrugdialog.close();
 		});
+		
+		
 		
 		jq('#processDrugOrderFormTable').on('click', 'td a', function(){
 			list.pRemove.push(focusItem);
@@ -444,6 +457,23 @@
 		font-size: 1.5em;
 		padding: 0;
 	}
+	
+	.title a i{
+		font-size: 16px;
+	}
+	
+	.title a{
+		color: #f26522;
+		cursor: pointer;
+		font-family: Arial,sans-serif;
+		font-size: 16px;
+		margin: 7px 5px;
+	}
+	
+	.title a:hover{
+		text-decoration: none;
+	}
+	
 	.title span{
 		font-size: 20px;
 	}
@@ -505,12 +535,18 @@
 	
 	#remove-items{
 		display: table; 
-		margin-bottom: 20px;
 		width: 100%; 
-	}
+	}	
 	
 	#remove-items a:hover{
 		text-decoration: none;
+	}
+	
+	.dialog button{
+		margin-top: 10px;
+	}
+	.print-only{
+		display: none;
 	}
 </style>
 
@@ -692,42 +728,86 @@
 					NOT PROCESSED
 					<em style="width: 180px;">&nbsp; to purchase elsewhere</em>
 				</span>
+				
+				<a style="float: right">
+					<i class="icon-print small"></i>
+					Print Unprocessed
+				</a>
 			</div>
 			
-			<table id="orderNotListTable">
-				<thead>
-					<tr role="row">
-						<th>#</th>
-						<th>DRUG NAME</th>
-						<th>FORMULATION</th>
-						<th>DOSAGE</th>
-						<th>FREQUENCY</th>
-						<th>DAYS</th>
-						<th>COMMENTS</th>
-					</tr>
-				</thead>
+			<div id="print-section">
+				<div class="print-only">
+					<center>
+						<img width="100" height="100" align="center" title="AfyaEHMS" alt="AfyaEHMS" src="${ui.resourceLink('billingui', 'images/kenya_logo.bmp')}">
+						<h2>
+							${userLocation}<br/>
+							PRESCRIBED DRUGS						
+						</h2>
+					</center>
 
-				<tbody data-bind="foreach: pRemove">
-					<tr>
-						<td data-bind="text: \$index() + 1"></td>
-						<td data-bind="text: inventoryDrug.name"></td>
-						<td>
-							<span data-bind="text: inventoryDrugFormulation.name"></span> - <span
-								data-bind="text: inventoryDrugFormulation.dozage"></span>
-						</td>
-						<td>
-							<span data-bind="text: dosage"></span> - <span
-								data-bind="text: dosageUnit.name"></span>
+					<div>
+						<label>
+							<span class='status active'></span>
+							Full Names:
+						</label>
+						<span>${patient.givenName} ${patient.familyName} ${patient.middleName ? patient.middleName : ''}</span>
+						<br/>
 
-						</td>
-						<td data-bind="text: frequency.name"></td>
-						<td data-bind="text: noOfDays"></td>
-						<td data-bind="text: comments"></td>
-					</tr>
-				</tbody>
-			</table>
+						<label>
+							<span class='status active'></span>
+							Age:
+						</label>
+						<span>${patient.age} (${ui.formatDatePretty(patient.birthdate)})</span>
+						<br/>
+
+						<label>
+							<span class='status active'></span>
+							Gender:
+						</label>
+						<span>${gender}</span>
+						<br/>
+
+						<label>
+							<span class='status active'></span>
+							Print Date:
+						</label>
+						<span>${date}</span>
+					</div>				
+				</div>			
 			
-			
+				<table id="orderNotListTable" class="font-ten">
+					<thead>
+						<tr role="row">
+							<th>#</th>
+							<th>DRUG NAME</th>
+							<th>FORMULATION</th>
+							<th>DOSAGE</th>
+							<th>FREQUENCY</th>
+							<th>DAYS</th>
+							<th>COMMENTS</th>
+						</tr>
+					</thead>
+
+					<tbody data-bind="foreach: pRemove">
+						<tr>
+							<td data-bind="text: \$index() + 1"></td>
+							<td data-bind="text: inventoryDrug.name"></td>
+							<td>
+								<span data-bind="text: inventoryDrugFormulation.name"></span> - <span
+									data-bind="text: inventoryDrugFormulation.dozage"></span>
+							</td>
+							<td>
+								<span data-bind="text: dosage"></span> - <span
+									data-bind="text: dosageUnit.name"></span>
+
+							</td>
+							<td data-bind="text: frequency.name"></td>
+							<td data-bind="text: noOfDays"></td>
+							<td data-bind="text: comments"></td>
+						</tr>
+					</tbody>
+				</table>			
+			</div>			
 		</div>
 
         <form method="post" id="drugsForm" style="display: none;">
@@ -784,7 +864,7 @@
 					<span>
 						<button class="button confirm right" data-bind="click: \$root.issueDrugItem"
 								id="drugIssue" style="margin-right:0;">Issue Drug</button>
-						<span class="button cancel">Cancel</span>					
+						<button class="button cancel">Cancel</button>					
 					</span>
 					
                 </form>
