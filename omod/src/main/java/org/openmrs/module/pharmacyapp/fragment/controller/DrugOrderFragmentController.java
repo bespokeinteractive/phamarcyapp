@@ -154,7 +154,7 @@ public class DrugOrderFragmentController {
 
 
             InventoryStoreDrugTransaction transaction = new InventoryStoreDrugTransaction();
-            transaction.setDescription("ISSUE DRUG TO PATIENT " + DateUtils.getDDMMYYYY());
+            transaction.setDescription("DISPENSE DRUG TO PATIENT " + DateUtils.getDDMMYYYY());
             transaction.setStore(store);
             transaction.setTypeTransaction(ActionValue.TRANSACTION[1]);
 
@@ -174,7 +174,13 @@ public class DrugOrderFragmentController {
                                         .getTransactionDetail().getDrug().getId(),
                                 pDetail.getTransactionDetail().getFormulation()
                                         .getId());
+                /*
                 int t = totalQuantity - pDetail.getQuantity();
+                This is the option that was there before. It should not deduct again on dispense since it already did that on Cashier
+                See modification in the line below
+                */
+
+                int t = totalQuantity;
 
                 InventoryStoreDrugTransactionDetail inventoryStoreDrugTransactionDetail = inventoryService
                         .getStoreDrugTransactionDetailById(pDetail.getTransactionDetail().getParent().getId());
