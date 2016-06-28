@@ -146,6 +146,9 @@
                     } else {
                         jq("#issueDetails").hide();
                     }
+					
+					addpatientdrugdialog.close();
+					addpatientdrugdialog.show();
                 },
                 error: function (xhr) {
                     //alert("An Error occurred");
@@ -218,6 +221,7 @@
                         jQuery("#drugKey").show();
                         jQuery("#drugSelection").hide();
                         issueList.listReceiptDrug.removeAll();
+						
                         addpatientdrugdialog.close();
                     }
 
