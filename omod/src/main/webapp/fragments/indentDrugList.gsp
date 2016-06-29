@@ -80,9 +80,9 @@
             row += '<td>' + item.subStoreStatusName + '</td>'
             var link = "";
             if (item.subStoreStatus == 1) {
-                link += '<a href="#" title="Send Indent" onclick="processSendIndent(' + item.id + ');" >Send Indent</a>';
+                link += '<a href="#" title="Send Order" onclick="processSendIndent(' + item.id + ');" >Send Order</a>';
             } else if (item.subStoreStatus == 3) {
-                link += '<a href="#" title="Process Indent" onclick="processDrugIndent(' + item.id + ');" >Process Indent</a>';
+                link += '<a href="#" title="Process Order" onclick="processDrugIndent(' + item.id + ');" >Process Order</a>';
             }
 
             row += '<td>' + link + '</td>'
@@ -203,7 +203,7 @@ th:last-child {
 
                 <li>
                     <i class="icon-chevron-right link"></i>
-                    Indent Drugs
+                    Order Drugs
                 </li>
             </ul>
         </div>
@@ -211,7 +211,7 @@ th:last-child {
         <div class="patient-header new-patient-header">
             <div class="demographics">
                 <h1 class="name" style="border-bottom: 1px solid #ddd;">
-                    <span>&nbsp;INDENT DRUGS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+                    <span>&nbsp;ORDER DRUGS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
                 </h1>
             </div>
 
@@ -221,7 +221,7 @@ th:last-child {
 
             <span id='issue-button' class="button confirm" id="getOrders" style="float: right; margin: 12px 5px 0 0;">
                 <i class="icon-plus-sign small"></i>
-                Add Indent Slip
+                Add Order Slip
             </span>
 
             <div class="filter">
@@ -273,7 +273,7 @@ th:last-child {
             <tbody>
             <tr align="center">
                 <td>&nbsp;</td>
-                <td colspan="5">No indent found</td>
+                <td colspan="5">No Order Found</td>
             </tr>
             </tbody>
         </table>
