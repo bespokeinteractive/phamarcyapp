@@ -102,8 +102,8 @@ public class ContainerPageController {
         }
         else if (rel.equals("indent-drugs")){
             model.addAttribute("fragment", "indentDrugList");
-            model.addAttribute("title", "Indent Drugs");
-            model.addAttribute("header", "INDENT DRUGS");
+            model.addAttribute("title", "Order Drugs");
+            model.addAttribute("header", "ORDER DRUGS");
         }
         else {
             model.addAttribute("fragment", "404");
