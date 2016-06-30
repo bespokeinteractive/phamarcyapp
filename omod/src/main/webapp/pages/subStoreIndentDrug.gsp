@@ -1,5 +1,5 @@
 <%
-    ui.decorateWith("appui", "standardEmrPage", [title: "Add Indent Drug"])
+    ui.decorateWith("appui", "standardEmrPage", [title: "Add Drug Order"])
 	ui.includeCss("pharmacyapp", "container.css")
 %>
 
