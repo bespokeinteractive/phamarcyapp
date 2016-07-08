@@ -203,7 +203,7 @@ th:last-child {
 
                 <li>
                     <i class="icon-chevron-right link"></i>
-                    Order Drugs
+                    Drugs Order
                 </li>
             </ul>
         </div>
@@ -211,7 +211,7 @@ th:last-child {
         <div class="patient-header new-patient-header">
             <div class="demographics">
                 <h1 class="name" style="border-bottom: 1px solid #ddd;">
-                    <span>&nbsp;ORDER DRUGS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+                    <span>&nbsp;DRUGS ORDER &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
                 </h1>
             </div>
 
