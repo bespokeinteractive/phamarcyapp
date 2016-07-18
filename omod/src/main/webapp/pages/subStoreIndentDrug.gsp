@@ -93,7 +93,7 @@
             actions: {
                 confirm: function () {
                     if (jq("#indentName").val() == '') {
-                        jq().toastmessage('showErrorToast', "Enter Indent Name!");
+                        jq().toastmessage('showErrorToast', "Enter Order Name!");
                     } else if (jq("#mainstore").val() == 0) {
                         jq().toastmessage('showErrorToast', "Select a Main Store!");
                     } else {
@@ -116,7 +116,7 @@
                         };
                         jq.getJSON('${ ui.actionLink("pharmacyapp", "subStoreIndentDrug", "saveIndentSlip") }', addDrugsData)
                                 .success(function (data) {
-                                    jq().toastmessage('showErrorToast', "Save Indent Successful!");
+                                    jq().toastmessage('showErrorToast', "Save Order Successful!");
                                     window.location.href = emr.pageLink("pharmacyapp", "container", {
                                         "rel": "indent-drugs"
                                     });
@@ -140,7 +140,7 @@
 		
         jq("#clearIndent").on("click", function (e) {
             if (drugOrder.length === 0) {
-                jq().toastmessage('showErrorToast', "Indent List has no Drug!");
+                jq().toastmessage('showErrorToast', "Order List has no Drug!");
             } else {
                 if (confirm("Are you sure about this?")) {
                     drugOrder = [];
@@ -163,7 +163,7 @@
 
         jq("#printIndent").on("click", function (e) {
             if (drugOrder.length === 0) {
-                jq().toastmessage('showErrorToast', "Indent List has no Drug!");
+                jq().toastmessage('showErrorToast', "Order List has no Drug!");
             } else {
                 jq('#printList > tbody > tr').remove();
                 var tbody = jq('#printList > tbody');
@@ -175,7 +175,7 @@
 
                 var printDiv = jQuery("#printDiv").html();
                 var printWindow = window.open('', '', 'height=400,width=800');
-                printWindow.document.write('<html><head><title>Indent Slip :-Support by KenyaEHRS</title>');
+                printWindow.document.write('<html><head><title>Order Slip :-Support by KenyaEHRS</title>');
                 printWindow.document.write('</head>');
                 printWindow.document.write(printDiv);
                 printWindow.document.write('</body></html>');
@@ -345,7 +345,7 @@
 
         jq("#addDrugsSubmitButton").click(function (event) {
             if (drugOrder.length < 1) {
-                jq().toastmessage('showErrorToast', "Indent List has no Drug!");
+                jq().toastmessage('showErrorToast', "Order List has no Drug!");
             } else {
                 addnameforindentslipdialog.show();
             }
@@ -570,6 +570,7 @@
             <i class="icon-folder-open"></i>
 
             <h3>Add Name For Order Slip</h3>
+            
         </div>
 		
 		<form id="finalizeForm">
@@ -605,7 +606,7 @@
         <div style="margin: 10px auto; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
             <br/>
             <br/>
-            <center style="font-size: 2.2em">Indent From ${store.name}</center>
+            <center style="font-size: 2.2em">Order From ${store.name}</center>
             <br/>
             <br/>
             <span style="float:right;font-size: 1.7em">Date: ${date}</span>

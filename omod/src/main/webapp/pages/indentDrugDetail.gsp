@@ -55,7 +55,7 @@
 				<li>
 					<a href="${ui.pageLink('pharmacyapp', 'container',['rel':'indent-drugs'])}">
 						<i class="icon-chevron-right link"></i>
-						Indent List
+						Order List
 					</a>
 				</li>
 
@@ -69,7 +69,7 @@
 		<div class="patient-header new-patient-header">
 			<div class="demographics" style="margin-bottom: 2px;">
 				<h1 class="name" style="border-bottom: 1px solid #ddd;">
-					<span>&nbsp;INDENT DRUG DETAILS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+					<span>&nbsp;DRUG ORDER DETAILS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
 				</h1>				
 			</div>			
 			
@@ -130,7 +130,7 @@
 				</b>
 			</h2>
 			
-			<h2><b>INDENT FROM: ${store.name}</b></h2>
+			<h2><b>ORDER FROM: ${store.name}</b></h2>
 		</center>
 		
 		<span class="print-only right" style="margin-right: 20px;">${date}</span>
@@ -259,7 +259,7 @@
 				</b>
 			</h2>
 			
-			<h2><b>INDENT FROM: ${store.name}</b></h2>
+			<h2><b>ORDER FROM: ${store.name}</b></h2>
 		</center>
 		
 		<span class="print-only right" style="margin-right: 20px;">${date}</span>

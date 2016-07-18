@@ -243,7 +243,7 @@
                     jq('#processDrugOrderFormTable > tbody > tr').remove();
                     var tbody = jq('#processDrugOrderFormTable > tbody');
                     var row = '<tr>';
-                    row += '<td></td><td colspan="6" style="padding: 5px 20px"> This drug is empty in your store, please indent it. <a style="float: right;" class="red remove-item"><i class="icon-remove small"></i>Remove Drug from List</a></td>'
+                    row += '<td></td><td colspan="6" style="padding: 5px 20px"> This drug is empty in your store, please order it. <a style="float: right;" class="red remove-item"><i class="icon-remove small"></i>Remove Drug from List</a></td>'
                     row += '<input id="' + drugId + '" name="' + drugId + '" type="hidden" />';
                     row += '</tr>';
                     tbody.append(row);

@@ -1,5 +1,5 @@
 <%
-    ui.decorateWith("appui", "standardEmrPage", [title: "Pharmacy Module - Process Indent"])
+    ui.decorateWith("appui", "standardEmrPage", [title: "Pharmacy Module - Process Order"])
 %>
 <script>
     jq(function () {
@@ -20,7 +20,7 @@
 
                 if (x != null && x != '') {
                     if (parseInt(x) > parseInt(value)) {
-                        jq().toastmessage('showNoticeToast', "Transfer quantity more than quantity indent!");
+                        jq().toastmessage('showNoticeToast', "Transfer quantity more than order qauntity!");
                         item.transferQuantity(1);
                     } else if (parseInt(x) > parseInt(mainStoreValue)) {
                         jq().toastmessage('showNoticeToast', "Transfer quantity more than quantity at hand!");
@@ -97,7 +97,7 @@
         <div class="info-header">
             <i class="icon-share"></i>
 
-            <h3>Process Indent</h3>
+            <h3>Process Order</h3>
         </div>
     </div>
 </div>
@@ -110,7 +110,7 @@
             <th>S. No.</th>
             <th>Drug</th>
             <th>Formulation</th>
-            <th>Quantity Indent</th>
+            <th>Order Quantity</th>
             <th>Transfer Quantity</th>
             </thead>
             <tbody data-bind="foreach: indentItems ">
@@ -131,7 +131,7 @@
             <button id="transferIndent" data-bind="click:transferIndent, css: {'disabled':indentItems()[0].isDisabled} " class="confirm"
                     style="float: right; margin-right: 2px;">Accept</button>
             <button id="refuseIndent" data-bind="click: refuseIndent" class="cancel"
-                    style="margin-left: 2px">Refuse This Indent</button>
+                    style="margin-left: 2px">Refuse This Order</button>
             <button data-bind="click: returnList" class="cancel">Return List</button>
         </form>
 
