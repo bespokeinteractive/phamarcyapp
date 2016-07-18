@@ -569,7 +569,7 @@
         <div class="dialog-header">
             <i class="icon-folder-open"></i>
 
-            <h3>Add Name For Indent Slip</h3>
+            <h3>Add Name For Order Slip</h3>
         </div>
 		
 		<form id="finalizeForm">
