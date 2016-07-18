@@ -318,7 +318,7 @@
         function printAccountDiv() {
             var printDiv = jQuery("#printDivAccount").html();
             var printWindow = window.open('', '', 'height=400,width=800');
-            printWindow.document.write('<html><head><title>Indent Slip :-Support by KenyaEHRS</title>');
+            printWindow.document.write('<html><head><title>Order Slip :-Support by KenyaEHRS</title>');
             printWindow.document.write('</head>');
             printWindow.document.write(printDiv);
             printWindow.document.write('</body></html>');
@@ -349,13 +349,13 @@
 						
 						jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "processIssueDrugAccount") }', addIssueDrugsData)
 						.success(function (data) {
-							jq().toastmessage('showSuccessToast', "Save Indent Successful!");
+							jq().toastmessage('showSuccessToast', "Save Order Successful!");
 							
 							//call print
 							var printDiv = jQuery("#printDivAccount").html();
 							var printWindow = window.open('', '', 'height=400,width=800');
 							
-							printWindow.document.write('<html><head><title>Indent Slip :-Support by KenyaEHRS</title>');
+							printWindow.document.write('<html><head><title>Order Slip :-Support by KenyaEHRS</title>');
 							printWindow.document.write('</head>');
 							printWindow.document.write(printDiv);
 							printWindow.document.write('</body></html>');
@@ -662,7 +662,7 @@
                     </li>
 
                     <div id="issueDetails" style="color: red;">
-                        This Drug is empty in your store please indent it!
+                        This Drug is empty in your store please order it!
                     </div>
 
                     <div id="issueDetailsList" data-bind="visible: \$root.listReceiptDrug().length > 0">

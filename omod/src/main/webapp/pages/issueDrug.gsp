@@ -95,7 +95,7 @@
                     };
                     jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "processIssueDrugAccount") }', addIssueDrugsData)
                             .success(function (data) {
-                                jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+                                jq().toastmessage('showNoticeToast', "Save Order Successful!");
                                 window.location.href = emr.pageLink("pharmacyapp", "container", {
                                     "rel": "issue-to-patient"
                                 });
@@ -291,7 +291,7 @@
                     jq.getJSON('${ ui.actionLink("pharmacyapp", "issuePatientDrug", "processIssueDrug") }', addIssueDrugsData)
                             .success(function (data) {
 								jq().toastmessage('removeToast', savingMessage);
-                                jq().toastmessage('showSuccessToast', "Save Indent Successful!");
+                                jq().toastmessage('showSuccessToast', "Save Order Successful!");
                                 //redirect Successful Saving
                                 window.location.href = emr.pageLink("pharmacyapp", "container", {
                                     "rel": "issue-to-patient"
@@ -306,7 +306,7 @@
                 else {
                     jq.getJSON('${ ui.actionLink("pharmacyapp", "issuePatientDrug", "processIssueDrugForIpdPatient") }', addIssueDrugsData)
                             .success(function (data) {
-                                jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+                                jq().toastmessage('showNoticeToast', "Save Order Successful!");
                                 //redirect Successful Saving
                                 window.location.href = emr.pageLink("pharmacyapp", "container", {
                                     "rel": "issue-to-patient"
@@ -936,7 +936,7 @@
                     </li>
 
                     <div id="issueDetails">
-                        This Drug is empty in your store please indent it!
+                        This Drug is empty in your store please order it!
                     </div>
 
                     <div id="issueDetailsList" data-bind="visible: \$root.listReceiptDrug().length > 0">
