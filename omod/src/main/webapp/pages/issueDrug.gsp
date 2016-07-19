@@ -1,6 +1,6 @@
 <%
     ui.decorateWith("appui", "standardEmrPage", [title: "Issue Drug"])
-	ui.includeJavascript("billingui", "moment.js")
+	ui.includeJavascript("billingui", "jq.print.js")
 %>
 
 <script>
@@ -95,7 +95,7 @@
                     };
                     jq.getJSON('${ ui.actionLink("pharmacyapp", "issueDrugAccountList", "processIssueDrugAccount") }', addIssueDrugsData)
                             .success(function (data) {
-                                jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+                                jq().toastmessage('showNoticeToast', "Save Order Successful!");
                                 window.location.href = emr.pageLink("pharmacyapp", "container", {
                                     "rel": "issue-to-patient"
                                 });
@@ -146,14 +146,21 @@
                     } else {
                         jq("#issueDetails").hide();
                     }
+					
+					addpatientdrugdialog.close();
+					addpatientdrugdialog.show();
                 },
                 error: function (xhr) {
-                    alert("An Error occurred");
+                    //alert("An Error occurred");
                 }
             })
         });
 
         var addpatientdrugdialog = emr.setupConfirmationDialog({
+			dialogOpts: {
+				overlayClose: false,
+				close: true
+			},
             selector: '#addPatientDrugDialog',
             actions: {
                 confirm: function () {
@@ -198,8 +205,8 @@
                                                 issueComment: commt,
                                                 id: value.item().id,
                                                 drugQuantity: value.quantity(),
-                                                drugPrice: value.item().costToPatient,
-                                                drugTotal: value.itemTotal()
+                                                drugPrice: value.item().costToPatient.toFixed(2),
+                                                drugTotal: value.itemTotal().toFixed(2)
 
 
                                             }
@@ -214,6 +221,7 @@
                         jQuery("#drugKey").show();
                         jQuery("#drugSelection").hide();
                         issueList.listReceiptDrug.removeAll();
+						
                         addpatientdrugdialog.close();
                     }
 
@@ -244,16 +252,15 @@
                 jq().toastmessage('showErrorToast', "No drugs added to the List!");
                 return false;
             }
-
-            var printDiv = jQuery("#printDiv").html();
-
-            var printWindow = window.open('', '', 'height=400,width=800');
-            printWindow.document.write('<html><head><title>Drug Slip :-Support by KenyaEHRS</title>');
-            printWindow.document.write('</head>');
-            printWindow.document.write(printDiv);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
+			
+			jq("#printSection").print({
+				globalStyles: 	false,
+				mediaPrint: 	false,
+				stylesheet: 	'${ui.resourceLink("pharmacyapp", "styles/print-out.css")}',
+				iframe: 		false,
+				width: 			1000,
+				height:			700
+			});
 
         });
 
@@ -263,20 +270,28 @@
                 return false
             } else {
                 //process drug addition to issue list
+				jq().toastmessage({
+					sticky: true
+				});
+				var savingMessage = jq().toastmessage('showSuccessToast', 'Please wait as Transaction is being Posted');
+			
                 var patientId = "${patientId}";
                 var drugsJson = ko.toJSON(issueList.drugOrder());
                 var patientType = "${patientType}";
+				var totalAmount = jq('#totalAmount').val();
 
                 var addIssueDrugsData = {
                     'patientId': patientId,
                     'selectedDrugs': drugsJson,
-                    'patientType': patientType
+                    'patientType': patientType,
+					'totalAmount': totalAmount
                 };
 
                 if (patientType == "opdPatient") {
                     jq.getJSON('${ ui.actionLink("pharmacyapp", "issuePatientDrug", "processIssueDrug") }', addIssueDrugsData)
                             .success(function (data) {
-                                jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+								jq().toastmessage('removeToast', savingMessage);
+                                jq().toastmessage('showSuccessToast', "Save Order Successful!");
                                 //redirect Successful Saving
                                 window.location.href = emr.pageLink("pharmacyapp", "container", {
                                     "rel": "issue-to-patient"
@@ -284,13 +299,14 @@
 
                             })
                             .error(function (xhr, status, err) {
+								jq().toastmessage('removeToast', savingMessage);
                                 jq().toastmessage('showErrorToast', "AJAX error!" + err);
                             });
                 }
                 else {
                     jq.getJSON('${ ui.actionLink("pharmacyapp", "issuePatientDrug", "processIssueDrugForIpdPatient") }', addIssueDrugsData)
                             .success(function (data) {
-                                jq().toastmessage('showNoticeToast', "Save Indent Successful!");
+                                jq().toastmessage('showNoticeToast', "Save Order Successful!");
                                 //redirect Successful Saving
                                 window.location.href = emr.pageLink("pharmacyapp", "container", {
                                     "rel": "issue-to-patient"
@@ -398,7 +414,7 @@
                             }
                         }
                     }
-                    jq(drugPatientFormulationData).appendTo("#drugPatientFormulation");
+                    jq(drugPatientFormulationData).appendTo("#drugPatientFormulation").change();
                 }).error(function (xhr, status, err) {
                     jq().toastmessage('showNoticeToast', "AJAX error!" + err);
                 });
@@ -452,245 +468,200 @@
 </script>
 
 <style>
-@media print {
-    .donotprint {
-        display: none;
-    }
+	@media print {
+		.donotprint {
+			display: none;
+		}
 
-    .spacer {
-        margin-top: 100px;
-        font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
-        font-style: normal;
-        font-size: 14px;
-    }
+		.spacer {
+			margin-top: 100px;
+			font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
+			font-style: normal;
+			font-size: 14px;
+		}
 
-    .printfont {
-        font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
-        font-style: normal;
-        font-size: 14px;
-    }
-}
+		.printfont {
+			font-family: "Dot Matrix Normal", Arial, Helvetica, sans-serif;
+			font-style: normal;
+			font-size: 14px;
+		}
+	}
 
-.toast-item {
-    background-color: #222;
-}
+	.toast-item {
+		background-color: #222;
+	}
 
-.name {
-    color: #f26522;
-}
+	.name {
+		color: #f26522;
+	}
 
-#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
-    text-decoration: none;
-}
+	#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
+		text-decoration: none;
+	}
 
-.new-patient-header .demographics .gender-age {
-    font-size: 14px;
-    margin-left: -55px;
-    margin-top: 12px;
-}
+	.new-patient-header .demographics .gender-age {
+		font-size: 14px;
+		margin-left: -55px;
+		margin-top: 12px;
+	}
 
-.new-patient-header .demographics .gender-age span {
-    border-bottom: 1px none #ddd;
-}
+	.new-patient-header .demographics .gender-age span {
+		border-bottom: 1px none #ddd;
+	}
 
-.new-patient-header .identifiers {
-    margin-top: 5px;
-}
+	.new-patient-header .identifiers {
+		margin-top: 5px;
+	}
 
-.tag {
-    padding: 2px 10px;
-}
+	.tag {
+		padding: 2px 10px;
+	}
 
-.tad {
-    background: #666 none repeat scroll 0 0;
-    border-radius: 1px;
-    color: white;
-    display: inline;
-    font-size: 0.8em;
-    padding: 2px 10px;
-}
+	.tad {
+		background: #666 none repeat scroll 0 0;
+		border-radius: 1px;
+		color: white;
+		display: inline;
+		font-size: 0.8em;
+		padding: 2px 10px;
+	}
 
-.status-container {
-    padding: 5px 10px 5px 5px;
-}
+	.status-container {
+		padding: 5px 10px 5px 5px;
+	}
 
-.catg {
-    color: #363463;
-    margin: 35px 10px 0 0;
-}
+	.catg {
+		color: #363463;
+		margin: 35px 10px 0 0;
+	}
 
-.title {
-    border: 1px solid #eee;
-    margin: 3px 0;
-    padding: 5px;
-}
+	.title {
+		border: 1px solid #eee;
+		margin: 3px 0;
+		padding: 5px;
+	}
 
-.title i {
-    font-size: 1.5em;
-    padding: 0;
-}
+	.title i {
+		font-size: 1.5em;
+		padding: 0;
+	}
 
-.title span {
-    font-size: 20px;
-}
+	.title span {
+		font-size: 20px;
+	}
 
-.title em {
-    border-bottom: 1px solid #ddd;
-    color: #888;
-    display: inline-block;
-    font-size: 0.5em;
-    margin-right: 10px;
-    text-transform: lowercase;
-    width: 200px;
-}
+	.title em {
+		border-bottom: 1px solid #ddd;
+		color: #888;
+		display: inline-block;
+		font-size: 0.5em;
+		margin-right: 10px;
+		text-transform: lowercase;
+		width: 200px;
+	}
 
-table {
-    font-size: 14px;
-}
+	table {
+		font-size: 14px;
+	}
 
-th:first-child {
-    width: 5px;
-}
+	th:first-child {
+		width: 5px;
+	}
 
-th:nth-child(4) {
-    min-width: 40px;
-}
+	th:nth-child(4) {
+		min-width: 40px;
+	}
 
-th:nth-child(5) {
-    width: 85px;
-}
+	th:nth-child(5) {
+		width: 85px;
+	}
 
-th:nth-child(6) {
-    width: 50px;
-}
+	th:nth-child(6) {
+		width: 50px;
+	}
+	th:nth-child(7),
+	th:nth-child(8){
+		width: 75px;
+	}
 
-th:nth-child(10),
-th:last-child {
-    width: 55px;
-}
+	th:nth-child(9),
+	th:nth-child(10){
+		width: 55px;
+	}
+	th:last-child {
+		width: 20px;
+	}
 
-.dialog .dialog-content li {
-    margin-bottom: 0px;
-}
+	.dialog .dialog-content li {
+		margin-bottom: 0px;
+	}
 
-.dialog label {
-    display: inline-block;
-    width: 115px;
-}
+	.dialog label {
+		display: inline-block;
+		width: 115px;
+	}
 
-.dialog select option {
-    font-size: 1.0em;
-}
+	.dialog select option {
+		font-size: 1.0em;
+	}
 
-.dialog select {
-    display: inline-block;
-    margin: 4px 0 0;
-    width: 270px;
-}
+	.dialog select {
+		display: inline-block;
+		margin: 0;
+		width: 270px;
+	}
 
-.dialog input {
-    display: inline-block;
-    width: 248px;
-    min-width: 10%;
-}
+	.dialog input {
+		display: inline-block;
+		margin: 0px;
+		min-width: 10%;
+		width: 248px;
+	}
 
-.dialog textarea {
-    display: inline-block;
-    width: 248px;
-    min-width: 10%;
-    resize: none
-}
+	.dialog textarea {
+		display: inline-block;
+		height: 45px;
+		margin-bottom: 5px;
+		margin-top: 2px;
+		min-width: 10%;
+		resize: none;
+		width: 248px;
+	}
+	.dialog td input {
+		display: inline-block;
+		margin: 0px;
+		min-width: 10%;
+		width: 50px;
+	}
+	.dialog ul {
+		margin-bottom: 0;
+	}
+	.dialog .confirm{
+		margin-right: 0;
+	}
+	.dialog .button{
+		margin-top: 5px;
+	}
+	#issueDetails{
+		border: 1px solid #eeeeee;
+		color: red;
+		display: block;
+		padding: 10px;
+	}
+	.print-only{
+		display: none;
+	}
 
-form input:focus, form select:focus, form textarea:focus, form ul.select:focus, .form input:focus, .form select:focus, .form textarea:focus, .form ul.select:focus {
-    outline: 2px none #007fff;
-}
+	form input:focus, form select:focus, form textarea:focus, form ul.select:focus, .form input:focus, .form select:focus, .form textarea:focus, .form ul.select:focus {
+		outline: 2px none #007fff;
+	}
+	#modal-overlay {
+		background: #000 none repeat scroll 0 0;
+		opacity: 0.4 !important;
+	}
 </style>
 
-<div class="container" id="accountDrugIssue">
-    <!-- PRINT DIV -->
-    <div id="printDiv" style="display: none;">
-        <div class="patient-header new-patient-header">
-            <div class="demographics">
-                <h1 class="name">
-                    <span>${familyName},<em>surname</em></span>
-                    <span>${givenName} ${middleName}  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<em>other names</em>
-                    </span>
-
-                    <span class="gender-age">
-                        <span>
-                            ${gender}
-                        </span>
-                        <span>${age} years (${ui.formatDatePretty(birthdate)})</span>
-
-                    </span>
-                </h1>
-
-                <br/>
-
-                <div class="status-container">
-                    <span class="status active"></span>
-                    Visit Status
-                </div>
-
-                <div class="tag">Outpatient</div>
-
-                <div class="tad">Last Visit: ${ui.formatDatetimePretty(lastVisit)}</div>
-            </div>
-
-            <div class="identifiers">
-                <em>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Patient ID</em>
-                <span>${identifier}</span>
-                <br>
-
-                <div class="catg">
-                    <i class="icon-tags small" style="font-size: 16px"></i><small>Category:</small>${category}
-                </div>
-            </div>
-
-            <div class="close"></div>
-        </div>
-
-        <div style="margin: 10px auto; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
-            <br/>
-            <br/>
-            <center style="font-size: 2.2em">Drug Slip From ${store.name}</center>
-            <br/>
-            <br/>
-            <span style="float:right;font-size: 1.7em">Date: ${date}</span>
-            <br/>
-            <br/>
-
-            <table border="1" id="printList">
-                <thead>
-                <tr role="row">
-                    <th style="width: 5%">S.No</th>
-                    <th style="width: 5%">Drug Category</th>
-                    <th style="width: 5%">Drug Name</th>
-                    <th style="width: 5%">Formulation</th>
-                    <th style="width: 5%">Frequency</th>
-                    <th style="width: 5%">Quantity</th>
-                </tr>
-                </thead>
-
-                <tbody data-bind="foreach: drugOrder">
-                <tr>
-                    <td data-bind="text: \$index() + 1"></td>
-                    <td data-bind="text: issueDrugCategoryName"></td>
-                    <td data-bind="text: drugPatientName"></td>
-                    <td data-bind="text: drugPatientFormulationName"></td>
-                    <td data-bind="text: drugPatientFrequencyName"></td>
-                    <td data-bind="text: drugQuantity"></td>
-                </tr>
-                </tbody>
-
-            </table>
-            <br/><br/><br/><br/><br/><br/>
-            <span style="float:left;font-size: 1.5em">Signature of Pharmacist/ Stamp</span>
-            <br/><br/><br/><br/><br/><br/>
-            <span style="margin-left: 13em;font-size: 1.5em">Signature of Medical Superintendent/ Stamp</span>
-        </div>
-    </div>
-    <!-- END PRINT DIV -->
+<div class="container" id="accountDrugIssue">    
     <div class="example">
         <ul id="breadcrumbs">
             <li>
@@ -763,46 +734,130 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
             <em>&nbsp; of pharmacy</em>
         </span>
     </div>
+	
+	<div id="printSection">
+		<center class="print-only">		
+			<h2>
+				<img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS" src="${ui.resourceLink('billingui', 'images/kenya_logo.bmp')}"><br/>
+				<b>
+					<u>${userLocation}</u>
+				</b>
+			</h2>
+		</center>
+		
+		<div class="print-only">
+			<label>
+					<span class='status active'></span>
+					Identifier:
+				</label>
+				<span>${identifier}</span>
+				<br/>
+				
+				<label>
+					<span class='status active'></span>
+					Full Names:
+				</label>
+				<span>${givenName} ${familyName} ${middleName?middleName:''}</span>
+				<br/>
+				
+				<label>
+					<span class='status active'></span>
+					Age:
+				</label>
+				<span>${age} (${ui.formatDatePretty(birthdate)})</span>
+				<br/>
+				
+				<label>
+					<span class='status active'></span>
+					Gender:
+				</label>
+				<span>${gender}</span>
+				<br/>
+				
+				<label>
+					<span class='status active'></span>
+					Print Date:
+				</label>
+				<span>${date}</span>
+				<br/>
+				
+				<label>
+					<span class='status active'></span>
+					Payment Catg:
+				</label>
+				<span>
+					${paymentCategory} / ${paymentSubCategory}
+				
+					<h2 class="right" style="margin: -10px 20px 0 0;">
+						<b>
+							DRUGS ORDER
+						</b>
+					</h2>
+				</span>
+				
+				<br/>
+				<br/>
+		</div>
+				
+		<table id="addDrugsTable" class="dataTable">
+			<thead>
+				<tr role="row">
+					<th>#</th>
+					<th>CATEGORY</th>
+					<th>NAME</th>
+					<th>FORMULATION</th>
+					<th>FREQUENCY</th>
+					<th>#DAYS</th>
+					<th>COMMENT</th>
+					<th>QUANTITY</th>
+					<th>PRICE</th>
+					<th>TOTAL</th>
+					<th></th>
+				</tr>
+			</thead>
+			
+			<tbody data-bind="foreach: drugOrder">
+				<tr>
+					<td data-bind="text: \$index() + 1"></td>
+					<td data-bind="text: issueDrugCategoryName"></td>
+					<td data-bind="text: drugPatientName"></td>
+					<td data-bind="text: drugPatientFormulationName"></td>
+					<td data-bind="text: drugPatientFrequencyName"></td>
+					<td data-bind="text: noOfDays"></td>
+					<td data-bind="text: issueComment"></td>
+					<td data-bind="text: drugQuantity"></td>
+					<td data-bind="text: drugPrice"></td>
+					<td data-bind="text: drugTotal"></td>
+					<td>
+						<a class="remover" href="#" data-bind="click: \$root.removeDrugFromList">
+							<i class="icon-remove small" style="color:red"></i>
+						</a>
+					</td>
+				</tr>
+			</tbody>
+			
+			<tbody data-bind="visible: \$root.drugOrder().length>0">
+				<tr>
+					<td></td>
+					<td colspan="8"><b>TOTALS</b></td>
+					<td>
+						<b><span data-bind="text: issueTotal().toFixed(2)"></b></span>
+					</td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
+		
+		<input type="hidden" id="totalAmount" data-bind="value: issueTotal()"/>
+		
+		<div class="print-only" style="margin: 10px;">
+			<span>Attending Pharmacist: <b>${pharmacist}</b></span>
+		</div>
+		<div class="print-only" style="margin-top: 50px;text-align: center">
+			<span>Signature of Inventory Clerk/ Stamp</span>
+		</div>
+	</div>
 
-    <table id="addDrugsTable" class="dataTable">
-        <thead>
-        <tr role="row">
-            <th>#</th>
-            <th>CATEGORY</th>
-            <th>NAME</th>
-            <th>FORMULATION</th>
-            <th>FREQUENCY</th>
-            <th>#DAYS</th>
-            <th>COMMENT</th>
-            <th>QUANTITY</th>
-            <th>PRICE</th>
-            <th>TOTAL</th>
-            <th></th>
-        </tr>
-        </thead>
-        Total: <span data-bind="text: issueTotal().toFixed(2)"></span>
-        <tbody data-bind="foreach: drugOrder">
-        <tr>
-            <td data-bind="text: \$index() + 1"></td>
-            <td data-bind="text: issueDrugCategoryName"></td>
-            <td data-bind="text: drugPatientName"></td>
-            <td data-bind="text: drugPatientFormulationName"></td>
-            <td data-bind="text: drugPatientFrequencyName"></td>
-            <td data-bind="text: noOfDays"></td>
-            <td data-bind="text: issueComment"></td>
-            <td data-bind="text: drugQuantity"></td>
-            <td data-bind="text: drugPrice"></td>
-            <td data-bind="text: drugTotal"></td>
-            <td>
-                <a class="remover" href="#" data-bind="click: \$root.removeDrugFromList">
-                    <i class="icon-remove small" style="color:red"></i>
-                </a>
-            </td>
-
-        </tr>
-        </tbody>
-
-    </table>
 
     <div class="container">
         <input type="button" value="Issue Drug" class="button confirm" name="addPatientDrugsButton"
@@ -851,15 +906,15 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
                         <div id="drugSelection">
                             <label for="drugPatientName">Drug Name</label>
                             <select name="drugPatientName" id="drugPatientName"/>
-                            <option value="0">Select Drug</option>
-                        </select>
+								<option value="0">Select Drug</option>
+							</select>
                         </div>
                     </li>
                     <li>
                         <label for="drugPatientFormulation">Formulation</label>
                         <select name="drugPatientFormulation" id="drugPatientFormulation"/>
-                        <option value="0">Select Formulation</option>
-                    </select>
+							<option value="0">Select Formulation</option>
+						</select>
                     </li>
                     <li>
                         <label for="patientFrequency">Frequency</label>
@@ -880,8 +935,8 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
                         <textarea name="comment" id="comment" type="text"></textarea>
                     </li>
 
-                    <div id="issueDetails" style="color: red;">
-                        This Drug is empty in your store please indent it!
+                    <div id="issueDetails">
+                        This Drug is empty in your store please order it!
                     </div>
 
                     <div id="issueDetailsList" data-bind="visible: \$root.listReceiptDrug().length > 0">
@@ -894,7 +949,7 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
                                     <th title="Date of manufacturing">DM</th>
                                     <th>COMPANY</th>
                                     <th>BATCH#</th>
-                                    <th title="Quantity available">AVAILABLE</th>
+                                    <th title="Quantity available" style="width: 80px;">AVAILABLE</th>
                                     <th title="Issue quantity">ISSUE</th>
                                 </tr>
                                 </thead>
@@ -910,7 +965,6 @@ form input:focus, form select:focus, form textarea:focus, form ul.select:focus, 
                                 </tr>
                                 </tbody>
                             </table>
-                            <br/>
                         </form>
 
                     </div>

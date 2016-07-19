@@ -1,9 +1,8 @@
 package org.openmrs.module.pharmacyapp.page.controller;
 
-import org.openmrs.Concept;
-import org.openmrs.Patient;
-import org.openmrs.Role;
+import org.openmrs.*;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.hospitalcore.HospitalCoreService;
 import org.openmrs.module.hospitalcore.InventoryCommonService;
 import org.openmrs.module.hospitalcore.model.InventoryDrug;
@@ -11,7 +10,10 @@ import org.openmrs.module.hospitalcore.model.InventoryDrugCategory;
 import org.openmrs.module.hospitalcore.model.InventoryStore;
 import org.openmrs.module.hospitalcore.model.InventoryStoreRoleRelation;
 import org.openmrs.module.inventory.InventoryService;
+import org.openmrs.module.referenceapplication.ReferenceApplicationWebConstants;
+import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
+import org.openmrs.ui.framework.page.PageRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
@@ -23,7 +25,14 @@ public class IssueDrugPageController {
     }
 
     public void get(@RequestParam(value = "categoryId", required = false) Integer categoryId,
-                    @RequestParam(value = "patientId", required = false) Integer patientId, PageModel model) {
+                    @RequestParam(value = "patientId", required = false) Integer patientId,
+                    UiSessionContext sessionContext,
+                    PageRequest pageRequest,
+                    UiUtils ui,
+                    PageModel model) {
+        pageRequest.getSession().setAttribute(ReferenceApplicationWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL,ui.thisUrl());
+        sessionContext.requireAuthentication();
+
         InventoryService inventoryService = (InventoryService) Context.getService(InventoryService.class);
         InventoryCommonService inventoryCommonService = Context.getService(InventoryCommonService.class);
         List<Concept> drugFrequencyConcept = inventoryCommonService.getDrugFrequency();
@@ -87,7 +96,27 @@ public class IssueDrugPageController {
             model.addAttribute("middleName", "");
         }
 
+        List<PersonAttribute> pas = hcs.getPersonAttributes(patient.getId());
 
+        for (PersonAttribute pa : pas) {
+            PersonAttributeType attributeType = pa.getAttributeType();
+            PersonAttributeType personAttributePCT = hcs.getPersonAttributeTypeByName("Paying Category Type");
+            PersonAttributeType personAttributeNPCT = hcs.getPersonAttributeTypeByName("Non-Paying Category Type");
+            PersonAttributeType personAttributeSSCT = hcs.getPersonAttributeTypeByName("Special Scheme Category Type");
+            if (attributeType.getPersonAttributeTypeId() == personAttributePCT.getPersonAttributeTypeId()) {
+                model.addAttribute("paymentCategory", "PAYING");
+                model.addAttribute("paymentSubCategory", pa.getValue());
+            } else if (attributeType.getPersonAttributeTypeId() == personAttributeNPCT.getPersonAttributeTypeId()) {
+                model.addAttribute("paymentCategory", "NON-PAYING");
+                model.addAttribute("paymentSubCategory", pa.getValue());
+            } else if (attributeType.getPersonAttributeTypeId() == personAttributeSSCT.getPersonAttributeTypeId()) {
+                model.addAttribute("paymentCategory", "SPECIAL SCHEMES");
+                model.addAttribute("paymentSubCategory", pa.getValue());
+            }
+        }
+
+        model.addAttribute("pharmacist", Context.getAuthenticatedUser().getGivenName());
+        model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
     }
 
 

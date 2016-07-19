@@ -3,14 +3,18 @@ package org.openmrs.module.pharmacyapp.page.controller;
 import org.apache.commons.collections.CollectionUtils;
 import org.openmrs.*;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.hospitalcore.HospitalCoreService;
 import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.ActionValue;
+import org.openmrs.module.hospitalcore.util.FlagStates;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.util.DateUtils;
+import org.openmrs.module.referenceapplication.ReferenceApplicationWebConstants;
 import org.openmrs.ui.framework.SimpleObject;
 import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
+import org.openmrs.ui.framework.page.PageRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
@@ -25,7 +29,14 @@ import java.util.List;
 public class PrintDrugOrderPageController {
 
     public void get(@RequestParam(value = "issueId", required = false) Integer issueId,
-                    PageModel model, UiUtils uiUtils) {
+                    PageModel model,
+                    UiSessionContext sessionContext,
+                    PageRequest pageRequest,
+                    UiUtils uiUtils) {
+
+        pageRequest.getSession().setAttribute(ReferenceApplicationWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL,uiUtils.thisUrl());
+        sessionContext.requireAuthentication();
+
         model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
         InventoryService inventoryService = Context.getService(InventoryService.class);
         List<Role> role = new ArrayList<Role>(Context.getAuthenticatedUser().getAllRoles());
@@ -45,9 +56,7 @@ public class PrintDrugOrderPageController {
         }
         List<InventoryStoreDrugPatientDetail> listDrugIssue = inventoryService
                 .listStoreDrugPatientDetail(issueId);
-        InventoryStoreDrugPatient inventoryStoreDrugPatient = new InventoryStoreDrugPatient();
-
-        if (inventoryStoreDrugPatient != null && listDrugIssue != null && listDrugIssue.size() > 0) {
+        if (listDrugIssue != null && listDrugIssue.size() > 0) {
             InventoryStoreDrugTransaction transaction = new InventoryStoreDrugTransaction();
             transaction.setDescription("ISSUE DRUG TO PATIENT " + DateUtils.getDDMMYYYY());
             transaction.setStore(store);
@@ -81,7 +90,13 @@ public class PrintDrugOrderPageController {
                 inventoryStoreDrugTransactionDetail.setCurrentQuantity(drugTransactionDetail.getCurrentQuantity());
 
                 Integer flags = pDetail.getTransactionDetail().getFlag();
+
+                if (flags == null || flags == FlagStates.NOT_PROCESSED){
+                    flags = FlagStates.PARTIALLY_PROCESSED;
+                }
+
                 model.addAttribute("flag", flags);
+
                 inventoryService.saveStoreDrugTransactionDetail(inventoryStoreDrugTransactionDetail);
                 // save transactiondetail first
                 InventoryStoreDrugTransactionDetail transDetail = new InventoryStoreDrugTransactionDetail();
@@ -114,8 +129,7 @@ public class PrintDrugOrderPageController {
                 transDetail.setFrequency(pDetail.getTransactionDetail().getFrequency());
                 transDetail.setNoOfDays(pDetail.getTransactionDetail().getNoOfDays());
                 transDetail.setComments(pDetail.getTransactionDetail().getComments());
-                transDetail.setFlag(1);
-
+                transDetail.setFlag(FlagStates.PARTIALLY_PROCESSED);
 
                 BigDecimal moneyUnitPrice = pDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(pDetail.getQuantity()));
                 transDetail.setTotalPrice(moneyUnitPrice);
@@ -129,6 +143,15 @@ public class PrintDrugOrderPageController {
                 "transactionDetail.formulation.name", "transactionDetail.formulation.dozage", "transactionDetail.frequency.name", "transactionDetail.noOfDays",
                 "transactionDetail.comments", "transactionDetail.dateExpiry");
         model.addAttribute("listDrugIssue", SimpleObject.create("listDrugIssue", dispensedDrugs).toJson());
+        if (listDrugIssue.size() > 0) {
+            model.addAttribute("waiverAmount", listDrugIssue.get(0).getStoreDrugPatient().getWaiverAmount());
+            model.addAttribute("waiverComment", listDrugIssue.get(0).getStoreDrugPatient().getComment());
+        }else{
+            model.addAttribute("waiverAmount", "0");
+            model.addAttribute("waiverComment", "N/A");
+        }
+
+
         if (CollectionUtils.isNotEmpty(listDrugIssue)) {
             model.addAttribute("issueDrugPatient", listDrugIssue.get(0)
                     .getStoreDrugPatient());
@@ -198,14 +221,17 @@ public class PrintDrugOrderPageController {
                 PersonAttributeType personAttributeNPCT = hcs.getPersonAttributeTypeByName("Non-Paying Category Type");
                 PersonAttributeType personAttributeSSCT = hcs.getPersonAttributeTypeByName("Special Scheme Category Type");
                 if (attributeType.getPersonAttributeTypeId() == personAttributePCT.getPersonAttributeTypeId()) {
+                    model.addAttribute("paymentCategory", "PAYING");
                     model.addAttribute("paymentSubCategory", pa.getValue());
                 } else if (attributeType.getPersonAttributeTypeId() == personAttributeNPCT.getPersonAttributeTypeId()) {
+                    model.addAttribute("paymentCategory", "NON-PAYING");
                     model.addAttribute("paymentSubCategory", pa.getValue());
                 } else if (attributeType.getPersonAttributeTypeId() == personAttributeSSCT.getPersonAttributeTypeId()) {
+                    model.addAttribute("paymentCategory", "SPECIAL SCHEMES");
                     model.addAttribute("paymentSubCategory", pa.getValue());
                 }
             }
-
+            model.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
 
         }
 

@@ -7,6 +7,7 @@ import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.hospitalcore.model.*;
 import org.openmrs.module.hospitalcore.util.ActionValue;
+import org.openmrs.module.hospitalcore.util.FlagStates;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.model.InventoryStoreDrugAccountDetail;
 import org.openmrs.module.inventory.util.DateUtils;
@@ -153,7 +154,7 @@ public class DrugOrderFragmentController {
 
 
             InventoryStoreDrugTransaction transaction = new InventoryStoreDrugTransaction();
-            transaction.setDescription("ISSUE DRUG TO PATIENT " + DateUtils.getDDMMYYYY());
+            transaction.setDescription("DISPENSE DRUG TO PATIENT " + DateUtils.getDDMMYYYY());
             transaction.setStore(store);
             transaction.setTypeTransaction(ActionValue.TRANSACTION[1]);
 
@@ -173,7 +174,13 @@ public class DrugOrderFragmentController {
                                         .getTransactionDetail().getDrug().getId(),
                                 pDetail.getTransactionDetail().getFormulation()
                                         .getId());
+                /*
                 int t = totalQuantity - pDetail.getQuantity();
+                This is the option that was there before. It should not deduct again on dispense since it already did that on Cashier
+                See modification in the line below
+                */
+
+                int t = totalQuantity;
 
                 InventoryStoreDrugTransactionDetail inventoryStoreDrugTransactionDetail = inventoryService
                         .getStoreDrugTransactionDetailById(pDetail.getTransactionDetail().getParent().getId());
@@ -217,7 +224,7 @@ public class DrugOrderFragmentController {
                 transDetail.setFrequency(pDetail.getTransactionDetail().getFrequency());
                 transDetail.setNoOfDays(pDetail.getTransactionDetail().getNoOfDays());
                 transDetail.setComments(pDetail.getTransactionDetail().getComments());
-                transDetail.setFlag(1);
+                transDetail.setFlag(FlagStates.FULLY_PROCESSED);
 
 
                 BigDecimal moneyUnitPrice = pDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(pDetail.getQuantity()));
@@ -236,7 +243,7 @@ public class DrugOrderFragmentController {
                 // save issue to patient detail
                 inventoryService.saveStoreDrugPatientDetail(pDetail);
 
-                if (transDetail.getFlag() == 1) {
+                if (transDetail.getFlag() == FlagStates.PARTIALLY_PROCESSED) {
                     inventoryStoreDrugPatient = inventoryService.getStoreDrugPatientById(pDetail.getStoreDrugPatient().getId());
                     inventoryStoreDrugPatient.setStatuss(1);
 
@@ -260,7 +267,6 @@ public class DrugOrderFragmentController {
                 }
 
                 //TODO ends here
-
 
             }
 

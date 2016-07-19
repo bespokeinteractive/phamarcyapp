@@ -1,7 +1,9 @@
 package org.openmrs.module.pharmacyapp.fragment.controller;
 
 import org.openmrs.api.context.Context;
+import org.openmrs.module.hospitalcore.model.InventoryStoreDrugPatient;
 import org.openmrs.module.hospitalcore.model.PatientSearch;
+import org.openmrs.module.hospitalcore.util.FlagStates;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.util.PagingUtil;
 import org.openmrs.ui.framework.SimpleObject;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +32,9 @@ public class QueueFragmentController {
         if (pgSize == null) {
             pgSize = Integer.MAX_VALUE;
         }
+
+        Integer flags = FlagStates.NOT_PROCESSED;
+
         InventoryService inventoryService = Context.getService(InventoryService.class);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
         Date date = null;
@@ -43,7 +49,36 @@ public class QueueFragmentController {
         int total = inventoryService.countSearchListOfPatient(date, searchKey, currentPage);
         PagingUtil pagingUtil = new PagingUtil(pgSize, currentPage, total);
 
-        return SimpleObject.fromCollection(patientSearchList,uiUtils,"fullname", "identifier", "age", "gender","patientId");
+
+        List<SimpleObject> patientQueueList = new ArrayList<SimpleObject>();
+
+        for (PatientSearch patientSearch : patientSearchList) {
+            SimpleObject patientInQueue = new SimpleObject();
+
+            String fullNames = patientSearch.getGivenName() + ' ' + patientSearch.getFamilyName();
+            if (patientSearch.getMiddleName() != null){
+                fullNames += ' ' + patientSearch.getMiddleName();
+            }
+
+            patientInQueue.put("fullname", fullNames);
+            patientInQueue.put("identifier", patientSearch.getIdentifier());
+            patientInQueue.put("age", patientSearch.getAge());
+
+            if (patientSearch.getGender().equals("M")){
+                patientInQueue.put("gender", "Male");
+            }
+            else{
+                patientInQueue.put("gender", "Female");
+            }
+
+            patientInQueue.put("patientId", patientSearch.getPatientId());
+            patientInQueue.put("flag", flags);
+
+            patientQueueList.add(patientInQueue);
+        }
+
+        return patientQueueList;
+        //return SimpleObject.fromCollection(patientSearchList,uiUtils,"fullname", "identifier", "age", "gender","patientId");
 
     }
 

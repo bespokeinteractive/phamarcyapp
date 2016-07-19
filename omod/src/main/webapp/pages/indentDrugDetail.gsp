@@ -1,6 +1,7 @@
 <%
     ui.decorateWith("appui", "standardEmrPage", [title: "Pharmacy Module"])
 	ui.includeCss("pharmacyapp", "container.css")
+	ui.includeJavascript("billingui", "jq.print.js")
 %>
 
 <script>
@@ -8,14 +9,14 @@
 
     });//end of doc ready
     function printDiv(){
-        var printDiv = jQuery("#printDiv").html();
-        var printWindow = window.open('', '', 'height=400,width=800');
-        printWindow.document.write('<html><head><title>Indent Slip :-Support by KenyaEHRS</title>');
-        printWindow.document.write('</head>');
-        printWindow.document.write(printDiv);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.print();
+		jq("#printDiv").print({
+			globalStyles: 	false,
+			mediaPrint: 	false,
+			stylesheet: 	'${ui.resourceLink("pharmacyapp", "styles/print-out.css")}',
+			iframe: 		false,
+			width: 			1000,
+			height:			700
+		});
     }
     function mainPage() {
         window.location.href = emr.pageLink("pharmacyapp", "container", {
@@ -28,6 +29,10 @@
 <style>
 	table{
 		font-size: 14px;
+	}
+	#printDiv,
+	.print-only{
+		display: none;
 	}
 </style>
 
@@ -50,7 +55,7 @@
 				<li>
 					<a href="${ui.pageLink('pharmacyapp', 'container',['rel':'indent-drugs'])}">
 						<i class="icon-chevron-right link"></i>
-						Indent List
+						Order List
 					</a>
 				</li>
 
@@ -64,7 +69,7 @@
 		<div class="patient-header new-patient-header">
 			<div class="demographics" style="margin-bottom: 2px;">
 				<h1 class="name" style="border-bottom: 1px solid #ddd;">
-					<span>&nbsp;INDENT DRUG DETAILS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+					<span>&nbsp;DRUG ORDER DETAILS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
 				</h1>				
 			</div>			
 			
@@ -115,16 +120,21 @@
 	   
 	   
 <!-- PRINT DIV -->
-<div id="printDiv" style="display: none;">
-    <div style="margin: 10px auto; width: 981px; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
-        <br/>
-        <br/>
-        <center style="float:center;font-size: 2.2em">Indent From ${store.name}</center>
-        <br/>
-        <br/>
-        <span style="float:right;font-size: 1.7em">Date: ${date}</span>
-        <br/>
-        <br/>
+<div id="printDiv" class="print-only">
+    <div>
+        <center class="print-only">		
+			<h2>
+				<img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS" src="${ui.resourceLink('billingui', 'images/kenya_logo.bmp')}"><br/>
+				<b>
+					<u>${userLocation}</u>
+				</b>
+			</h2>
+			
+			<h2><b>ORDER FROM: ${store.name}</b></h2>
+		</center>
+		
+		<span class="print-only right" style="margin-right: 20px;">${date}</span>
+		
         <table border="1">
             <tr>
                 <th>S.No</th>
@@ -151,11 +161,15 @@
 
         </table>
 
-        <br/><br/><br/><br/><br/><br/>
-        <span style="float:left;font-size: 1.5em">Signature of sub-store/ Stamp</span><span
-            style="float:right;font-size: 1.5em">Signature of inventory clerk/ Stamp</span>
-        <br/><br/><br/><br/><br/><br/>
-        <span style="margin-left: 13em;font-size: 1.5em">Signature of Medical Superintendent/ Stamp</span>
+        <div style="margin-top: 40px;">
+			<span>Signature of sub-store/ Stamp</span>
+			<span style="float:right;">Signature of inventory clerk/ Stamp</span>		
+		</div>
+        
+        <br/><br/>
+		<center>
+			<span>Signature of Medical Superintendent/ Stamp</span>		
+		</center>
     </div>
 </div>
 <!-- END PRINT DIV -->
@@ -235,16 +249,21 @@
 </div>
 
 <!-- PRINT DIV -->
-<div id="printDiv" style="display: none;">
-    <div style="margin: 10px auto; width: 981px; font-size: 1.0em;font-family:'Dot Matrix Normal',Arial,Helvetica,sans-serif;">
-        <br/>
-        <br/>
-        <center style="float:center;font-size: 2.2em">Indent From ${store.name}</center>
-        <br/>
-        <br/>
-        <span style="float:right;font-size: 1.7em">Date: ${date}</span>
-        <br/>
-        <br/>
+<div id="printDiv" class="print-only">
+    <div>
+        <center class="print-only">		
+			<h2>
+				<img width="100" height="100" align="center" title="OpenMRS" alt="OpenMRS" src="${ui.resourceLink('billingui', 'images/kenya_logo.bmp')}"><br/>
+				<b>
+					<u>${userLocation}</u>
+				</b>
+			</h2>
+			
+			<h2><b>ORDER FROM: ${store.name}</b></h2>
+		</center>
+		
+		<span class="print-only right" style="margin-right: 20px;">${date}</span>
+		
         <table border="1">
             <tr>
 				<thead>
@@ -305,12 +324,16 @@
             } %>
 
         </table>
-
-        <br/><br/><br/><br/><br/><br/>
-        <span style="float:left;font-size: 1.5em">Signature of sub-store/ Stamp</span><span
-            style="float:right;font-size: 1.5em">Signature of inventory clerk/ Stamp</span>
-        <br/><br/><br/><br/><br/><br/>
-        <span style="margin-left: 13em;font-size: 1.5em">Signature of Medical Superintendent/ Stamp</span>
+		
+		<div style="margin-top: 40px;">
+			<span>Signature of sub-store/ Stamp</span>
+			<span style="float:right;">Signature of inventory clerk/ Stamp</span>		
+		</div>
+        
+        <br/><br/>
+		<center>
+			<span>Signature of Medical Superintendent/ Stamp</span>		
+		</center>
     </div>
 </div>
 <!-- END PRINT DIV -->

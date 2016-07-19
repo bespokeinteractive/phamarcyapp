@@ -114,7 +114,7 @@
 	
 	<div id="indent">
 		<i class="icon-retweet"></i><br/>
-		<span>INDENT DRUGS</span>
+		<span>ORDER DRUGS</span>
 	</div>
 </div>
 

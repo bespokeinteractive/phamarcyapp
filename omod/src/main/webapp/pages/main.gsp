@@ -52,7 +52,7 @@
 			<div id="tabs" style="margin-top: 40px!important;">
 				<ul id="inline-tabs">
 					<li><a href="#accountdrug">Issue drug to Account</a></li>
-					<li><a href="#manage">Indent Drugs</a></li>
+					<li><a href="#manage">DRUG ORDERS</a></li>
 				</ul>
 				<div id="accountdrug">
 					<div>${ ui.includeFragment("pharmacyapp", "issueDrugAccountList") }</div>

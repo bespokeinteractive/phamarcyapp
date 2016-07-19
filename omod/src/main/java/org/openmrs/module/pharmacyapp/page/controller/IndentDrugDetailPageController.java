@@ -2,11 +2,15 @@ package org.openmrs.module.pharmacyapp.page.controller;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.hospitalcore.model.InventoryStoreDrugIndent;
 import org.openmrs.module.hospitalcore.model.InventoryStoreDrugTransactionDetail;
 import org.openmrs.module.inventory.InventoryService;
 import org.openmrs.module.inventory.model.InventoryStoreDrugIndentDetail;
+import org.openmrs.module.referenceapplication.ReferenceApplicationWebConstants;
+import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.page.PageModel;
+import org.openmrs.ui.framework.page.PageRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -17,7 +21,14 @@ import java.util.List;
  */
 public class IndentDrugDetailPageController {
     public void get(@RequestParam(value = "indentId", required = false) Integer indentId,
+                    UiSessionContext sessionContext,
+                    PageRequest pageRequest,
+                    UiUtils ui,
                     PageModel pageModel) {
+
+        pageRequest.getSession().setAttribute(ReferenceApplicationWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL,ui.thisUrl());
+        sessionContext.requireAuthentication();
+
         pageModel.addAttribute("listTransactionDetail", "");
         InventoryService inventoryService = (InventoryService) Context
                 .getService(InventoryService.class);
@@ -38,6 +49,7 @@ public class IndentDrugDetailPageController {
                 !CollectionUtils.isEmpty(listIndentDetail) ? listIndentDetail
                         .get(0).getIndent().getCreatedOn() : null);
 
+        pageModel.addAttribute("userLocation", Context.getAdministrationService().getGlobalProperty("hospital.location_user"));
     }
 
 }
