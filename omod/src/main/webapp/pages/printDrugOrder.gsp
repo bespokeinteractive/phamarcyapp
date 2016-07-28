@@ -149,7 +149,7 @@
 
 
             //submit bill
-            self.submitBill = function () {      
+            self.submitBill = function () {  
                 var flag = ${flag};
                 var ids  = ${receiptid};
                 if (flag === 1) {
@@ -160,11 +160,13 @@
                         , async: false
                         , cache: false
                     }).responseText;
+
+                    var savingMessage = jq().toastmessage('showSuccessToast', 'Please wait as Transaction is being Posted');
                 }
 				
 				window.location.href = emr.pageLink ("pharmacyapp", "container", { "rel" : "dispense-drugs"});
             };
-			
+
 			self.printBill = function () {				
 				jq("#printSection").print({
 					globalStyles: 	false,
@@ -181,6 +183,7 @@
 				}
 			};
 
+			
             self.isNonPaying = ko.computed(function () {
                 var cat = "${paymentSubCategory}";
                 var catArray = ["GENERAL", "EXPECTANT MOTHER", "TB PATIENT", "CCC PATIENT"];
