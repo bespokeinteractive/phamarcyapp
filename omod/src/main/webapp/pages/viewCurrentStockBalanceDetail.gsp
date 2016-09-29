@@ -92,7 +92,7 @@ STOCKBALLANCE={
 	<div class="patient-header new-patient-header">
 		<div class="demographics">
             <h1 class="name" style="border-bottom: 1px solid #ddd;">
-                <span>VIEW EXPIRED DRUGS STOCK &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+                <span>VIEW CURRENT DRUGS STOCK &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
             </h1>
         </div>
 		
