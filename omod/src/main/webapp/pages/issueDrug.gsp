@@ -335,8 +335,6 @@
                 jq.getJSON('${ ui.actionLink("pharmacyapp", "addReceiptsToStore", "fetchDrugNames") }', {
                     categoryId: categoryId
                 }).success(function (data) {
-
-
                     for (var key in data) {
                         if (data.hasOwnProperty(key)) {
                             var val = data[key];
