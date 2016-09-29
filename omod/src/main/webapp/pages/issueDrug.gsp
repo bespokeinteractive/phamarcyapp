@@ -267,7 +267,7 @@
         jq("#saveSlip").on("click", function () {
             if (issueList.drugOrder().length === 0) {
                 jq().toastmessage('showErrorToast', "No drugs added to the List!");
-                return false
+                return false;
             } else {
                 //process drug addition to issue list
 				jq().toastmessage({
@@ -484,37 +484,29 @@
 			font-size: 14px;
 		}
 	}
-
 	.toast-item {
 		background-color: #222;
 	}
-
 	.name {
 		color: #f26522;
 	}
-
 	#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
 		text-decoration: none;
 	}
-
 	.new-patient-header .demographics .gender-age {
 		font-size: 14px;
 		margin-left: -55px;
 		margin-top: 12px;
 	}
-
 	.new-patient-header .demographics .gender-age span {
 		border-bottom: 1px none #ddd;
 	}
-
 	.new-patient-header .identifiers {
 		margin-top: 5px;
 	}
-
 	.tag {
 		padding: 2px 10px;
 	}
-
 	.tad {
 		background: #666 none repeat scroll 0 0;
 		border-radius: 1px;
@@ -523,31 +515,25 @@
 		font-size: 0.8em;
 		padding: 2px 10px;
 	}
-
 	.status-container {
 		padding: 5px 10px 5px 5px;
 	}
-
 	.catg {
 		color: #363463;
 		margin: 35px 10px 0 0;
 	}
-
 	.title {
 		border: 1px solid #eee;
 		margin: 3px 0;
 		padding: 5px;
 	}
-
 	.title i {
 		font-size: 1.5em;
 		padding: 0;
 	}
-
 	.title span {
 		font-size: 20px;
 	}
-
 	.title em {
 		border-bottom: 1px solid #ddd;
 		color: #888;
@@ -557,11 +543,9 @@
 		text-transform: lowercase;
 		width: 200px;
 	}
-
 	table {
 		font-size: 14px;
 	}
-
 	th:first-child {
 		width: 5px;
 	}
@@ -569,11 +553,9 @@
 	th:nth-child(4) {
 		min-width: 40px;
 	}
-
 	th:nth-child(5) {
 		width: 85px;
 	}
-
 	th:nth-child(6) {
 		width: 50px;
 	}
@@ -581,7 +563,6 @@
 	th:nth-child(8){
 		width: 75px;
 	}
-
 	th:nth-child(9),
 	th:nth-child(10){
 		width: 55px;
@@ -589,33 +570,27 @@
 	th:last-child {
 		width: 20px;
 	}
-
 	.dialog .dialog-content li {
 		margin-bottom: 0px;
 	}
-
 	.dialog label {
 		display: inline-block;
 		width: 115px;
 	}
-
 	.dialog select option {
 		font-size: 1.0em;
 	}
-
 	.dialog select {
 		display: inline-block;
 		margin: 0;
 		width: 270px;
 	}
-
 	.dialog input {
 		display: inline-block;
 		margin: 0px;
 		min-width: 10%;
-		width: 248px;
+		width: 270px;
 	}
-
 	.dialog textarea {
 		display: inline-block;
 		height: 45px;
@@ -623,7 +598,7 @@
 		margin-top: 2px;
 		min-width: 10%;
 		resize: none;
-		width: 248px;
+		width: 270px;
 	}
 	.dialog td input {
 		display: inline-block;

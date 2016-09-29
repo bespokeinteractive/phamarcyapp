@@ -201,26 +201,18 @@ public class IssuePatientDrugFragmentController {
         InventoryCommonService inventoryCommonService = Context.getService(InventoryCommonService.class);
 
         for (int i = 0; i < jsonArray.length(); i++) {
-            InventoryDrug drug = null;
             JSONObject object = jsonArray.getJSONObject(i);
+
             Integer noOfDays = NumberUtils.toInt(object.getString("noOfDays"), 0);
-            Integer formulation = NumberUtils.toInt(object.getString("drugPatientFormulationId"), 0);
             Integer frequency = NumberUtils.toInt(object.getString("drugPatientFrequencyId"), 0);
-            int drugQuantity = NumberUtils.toInt(object.getString("drugQuantity"), 0);
-            String drugIdStr = object.getString("drugId");
+            Integer drugQuantity = NumberUtils.toInt(object.getString("drugQuantity"), 0);
+            Integer category = NumberUtils.toInt(object.getString("issueDrugCategoryId"), 0);
             String drugName = object.getString("drugPatientName");
             String comments = object.getString("issueComment");
-            int category = NumberUtils.toInt(object.getString("issueDrugCategoryId"), 0);
             Concept freCon = conceptService.getConcept(frequency);
+
             InventoryStoreDrugTransactionDetail transactionDetail = inventoryService.getStoreDrugTransactionDetailById(object.getInt("id"));
 
-            if (!drugName.equalsIgnoreCase("")) {
-                drug = inventoryService.getDrugByName(drugName);
-            } else if (!drugIdStr.equalsIgnoreCase("")) {
-                int drugId = Integer.parseInt(drugIdStr);
-                drug = inventoryService.getDrugById(drugId);
-            }
-            InventoryDrugFormulation formulationO = inventoryService.getDrugFormulationById(formulation);
             transactionDetail.setFrequency(freCon.getName().getConcept());
             transactionDetail.setNoOfDays(noOfDays.intValue());
             transactionDetail.setComments(comments);
@@ -229,6 +221,7 @@ public class IssuePatientDrugFragmentController {
             issueDrugDetail.setQuantity(drugQuantity);
             list.add(issueDrugDetail);
         }
+
         if (issueDrugPatient != null && list != null && list.size() > 0) {
             Date date = new Date();
             // create transaction issue from substore
@@ -242,11 +235,10 @@ public class IssuePatientDrugFragmentController {
             transaction.setPaymentCategory(issueDrugPatient.getPatient().getAttribute(14).getValue());
             transaction.setCreatedBy(Context.getAuthenticatedUser().getGivenName());
             transaction = inventoryService.saveStoreDrugTransaction(transaction);
+
+            //Finally Saved Here
             issueDrugPatient = inventoryService.saveStoreDrugPatient(issueDrugPatient);
-
             receiptId = issueDrugPatient.getId();
-
-            System.out.println(receiptId);
 
             for (InventoryStoreDrugPatientDetail pDetail : list) {
                 Date date1 = new Date();
@@ -256,14 +248,11 @@ public class IssuePatientDrugFragmentController {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                Integer totalQuantity = inventoryService.sumCurrentQuantityDrugOfStore(subStore.getId(), pDetail
-                        .getTransactionDetail().getDrug().getId(), pDetail.getTransactionDetail().getFormulation().getId());
-                int t = totalQuantity;
-                InventoryStoreDrugTransactionDetail drugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(pDetail
-                        .getTransactionDetail().getId());
+                Integer totalQuantity = inventoryService.sumCurrentQuantityDrugOfStore(subStore.getId(), pDetail.getTransactionDetail().getDrug().getId(), pDetail.getTransactionDetail().getFormulation().getId());
+                InventoryStoreDrugTransactionDetail drugTransactionDetail = inventoryService.getStoreDrugTransactionDetailById(pDetail.getTransactionDetail().getId());
+
                 pDetail.getTransactionDetail().setCurrentQuantity(drugTransactionDetail.getCurrentQuantity());
                 inventoryService.saveStoreDrugTransactionDetail(pDetail.getTransactionDetail());
-
 
                 // save transactiondetail first
                 InventoryStoreDrugTransactionDetail transDetail = new InventoryStoreDrugTransactionDetail();
@@ -271,7 +260,7 @@ public class IssuePatientDrugFragmentController {
                 transDetail.setCurrentQuantity(0);
                 transDetail.setIssueQuantity(pDetail.getQuantity());
                 transDetail.setOpeningBalance(totalQuantity);
-                transDetail.setClosingBalance(t);
+                transDetail.setClosingBalance(totalQuantity);
                 transDetail.setQuantity(0);
                 transDetail.setVAT(pDetail.getTransactionDetail().getVAT());
                 transDetail.setCostToPatient(pDetail.getTransactionDetail().getCostToPatient());
@@ -291,8 +280,7 @@ public class IssuePatientDrugFragmentController {
                 transDetail.setFrequency(pDetail.getTransactionDetail().getFrequency());
                 transDetail.setNoOfDays(pDetail.getTransactionDetail().getNoOfDays());
                 transDetail.setComments(pDetail.getTransactionDetail().getComments());
-                BigDecimal moneyUnitPrice = pDetail.getTransactionDetail().getCostToPatient()
-                        .multiply(new BigDecimal(pDetail.getQuantity()));
+                BigDecimal moneyUnitPrice = pDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(pDetail.getQuantity()));
                 transDetail.setTotalPrice(moneyUnitPrice);
                 transDetail.setParent(pDetail.getTransactionDetail());
                 transDetail = inventoryService.saveStoreDrugTransactionDetail(transDetail);
@@ -303,14 +291,12 @@ public class IssuePatientDrugFragmentController {
                 inventoryService.saveStoreDrugPatientDetail(pDetail);
                 // save issues transaction detail
             }
-
         }
 
         if (totalAmount == 0){
             BigDecimal waiverAmount = new BigDecimal("0.00");
 
-            List<InventoryStoreDrugPatientDetail> listDrugIssue = inventoryService
-                    .listStoreDrugPatientDetail(receiptId);
+            List<InventoryStoreDrugPatientDetail> listDrugIssue = inventoryService.listStoreDrugPatientDetail(receiptId);
             InventoryStoreDrugPatient inventoryStoreDrugPatient1 = null;
 
             if (listDrugIssue != null && listDrugIssue.size() > 0) {
@@ -347,28 +333,20 @@ public class IssuePatientDrugFragmentController {
                     transactionDetail.setTransaction(inventoryTransaction);
                     transactionDetail.setCurrentQuantity(0);
 
-
                     transactionDetail.setIssueQuantity(patientDetail.getQuantity());
                     transactionDetail.setOpeningBalance(totalQuantity);
-                    transactionDetail.setClosingBalance(t);
+                    transactionDetail.setClosingBalance(totalQuantity - patientDetail.getQuantity());
                     transactionDetail.setQuantity(0);
                     transactionDetail.setVAT(patientDetail.getTransactionDetail().getVAT());
                     transactionDetail.setCostToPatient(patientDetail.getTransactionDetail().getCostToPatient());
-                    transactionDetail.setUnitPrice(patientDetail.getTransactionDetail()
-                            .getUnitPrice());
+                    transactionDetail.setUnitPrice(patientDetail.getTransactionDetail().getUnitPrice());
                     transactionDetail.setDrug(patientDetail.getTransactionDetail().getDrug());
-                    transactionDetail.setFormulation(patientDetail.getTransactionDetail()
-                            .getFormulation());
-                    transactionDetail.setBatchNo(patientDetail.getTransactionDetail()
-                            .getBatchNo());
-                    transactionDetail.setCompanyName(patientDetail.getTransactionDetail()
-                            .getCompanyName());
-                    transactionDetail.setDateManufacture(patientDetail.getTransactionDetail()
-                            .getDateManufacture());
-                    transactionDetail.setDateExpiry(patientDetail.getTransactionDetail()
-                            .getDateExpiry());
-                    transactionDetail.setReceiptDate(patientDetail.getTransactionDetail()
-                            .getReceiptDate());
+                    transactionDetail.setFormulation(patientDetail.getTransactionDetail().getFormulation());
+                    transactionDetail.setBatchNo(patientDetail.getTransactionDetail().getBatchNo());
+                    transactionDetail.setCompanyName(patientDetail.getTransactionDetail().getCompanyName());
+                    transactionDetail.setDateManufacture(patientDetail.getTransactionDetail().getDateManufacture());
+                    transactionDetail.setDateExpiry(patientDetail.getTransactionDetail().getDateExpiry());
+                    transactionDetail.setReceiptDate(patientDetail.getTransactionDetail().getReceiptDate());
                     transactionDetail.setCreatedOn(date1);
                     transactionDetail.setReorderPoint(patientDetail.getTransactionDetail().getDrug().getReorderQty());
                     transactionDetail.setAttribute(patientDetail.getTransactionDetail().getDrug().getAttributeName());
@@ -377,13 +355,12 @@ public class IssuePatientDrugFragmentController {
                     transactionDetail.setComments(patientDetail.getTransactionDetail().getComments());
                     transactionDetail.setFlag(1);
 
-
                     BigDecimal moneyUnitPrice = patientDetail.getTransactionDetail().getCostToPatient().multiply(new BigDecimal(patientDetail.getQuantity()));
 
                     transactionDetail.setTotalPrice(moneyUnitPrice);
                     transactionDetail.setParent(patientDetail.getTransactionDetail());
-                    transactionDetail = inventoryService
-                            .saveStoreDrugTransactionDetail(transactionDetail);
+                    transactionDetail = inventoryService.saveStoreDrugTransactionDetail(transactionDetail);
+
                     patientDetail.setQuantity(patientDetail.getQuantity());
 
                     patientDetail.setTransactionDetail(transactionDetail);
