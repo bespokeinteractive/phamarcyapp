@@ -92,7 +92,7 @@ STOCKBALLANCE={
 	<div class="patient-header new-patient-header">
 		<div class="demographics">
             <h1 class="name" style="border-bottom: 1px solid #ddd;">
-                <span>VIEW EXPIRED DRUGS STOCK &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+                <span>VIEW CURRENT DRUGS STOCK &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
             </h1>
         </div>
 		
@@ -162,17 +162,19 @@ STOCKBALLANCE={
 		</tr>
 		
 		<% if (listViewStockBalance!=null || listViewStockBalance!="") { %>
-			<% listViewStockBalance.eachWithIndex { pTransaction, index -> %>		
-				<tr>
-					<td>${index+1}</td>
-					<td>${ui.formatDatePretty(pTransaction.receiptDate)}</td>
-					<td>${pTransaction.transaction.typeTransactionName}</td>
-					<td>${pTransaction.openingBalance}</td>
-					<td>${pTransaction.quantity}</td>
-					<td>${pTransaction.issueQuantity}</td>
-					<td>${pTransaction.closingBalance}</td>
-					<td>${ui.formatDatePretty(pTransaction.dateExpiry)}</td>
-				</tr>
+			<% listViewStockBalance.eachWithIndex { pTransaction, index -> %>
+				<% if (pTransaction.openingBalance != pTransaction.closingBalance){ %>
+					<tr>
+						<td>${index+1}</td>
+						<td>${ui.formatDatePretty(pTransaction.receiptDate)}</td>
+						<td>${pTransaction.transaction.typeTransactionName}</td>
+						<td>${pTransaction.openingBalance}</td>
+						<td>${pTransaction.quantity}</td>
+						<td>${pTransaction.issueQuantity}</td>
+						<td>${pTransaction.closingBalance}</td>
+						<td>${ui.formatDatePretty(pTransaction.dateExpiry)}</td>
+					</tr>
+				<% } %>
 			<% } %>
 		<% } else { %>
         <tr align="center" >

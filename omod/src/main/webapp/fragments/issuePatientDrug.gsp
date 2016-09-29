@@ -416,7 +416,7 @@
 	</div>
 
 	<form onsubmit="return false" id="patientSystemSearchForm" method="get" style="margin-top: 5px;">
-		<input autocomplete="off" placeholder="Search by Name / Identifier / Receipt Number" id="searchPhrase" style="float:left; width:70%; padding:6px 10px -1px;" onkeyup="ADVSEARCH.startSearch(event);">
+		<input autocomplete="off" placeholder="Search by Name / Identifier / Receipt Number" id="searchPhrase" style="float:left; width:70%; padding:6px 10px -1px; height: 38px!important" onkeyup="ADVSEARCH.startSearch(event);">
 			   
 		<img id="ajaxLoader" style="display:none; float:left; margin: 3px -4%;"
 			 src="/openmrs/ms/uiframework/resource/registration/images/ajax-loader.gif"/>
