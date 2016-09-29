@@ -162,17 +162,19 @@ STOCKBALLANCE={
 		</tr>
 		
 		<% if (listViewStockBalance!=null || listViewStockBalance!="") { %>
-			<% listViewStockBalance.eachWithIndex { pTransaction, index -> %>		
-				<tr>
-					<td>${index+1}</td>
-					<td>${ui.formatDatePretty(pTransaction.receiptDate)}</td>
-					<td>${pTransaction.transaction.typeTransactionName}</td>
-					<td>${pTransaction.openingBalance}</td>
-					<td>${pTransaction.quantity}</td>
-					<td>${pTransaction.issueQuantity}</td>
-					<td>${pTransaction.closingBalance}</td>
-					<td>${ui.formatDatePretty(pTransaction.dateExpiry)}</td>
-				</tr>
+			<% listViewStockBalance.eachWithIndex { pTransaction, index -> %>
+				<% if (pTransaction.openingBalance != pTransaction.closingBalance){ %>
+					<tr>
+						<td>${index+1}</td>
+						<td>${ui.formatDatePretty(pTransaction.receiptDate)}</td>
+						<td>${pTransaction.transaction.typeTransactionName}</td>
+						<td>${pTransaction.openingBalance}</td>
+						<td>${pTransaction.quantity}</td>
+						<td>${pTransaction.issueQuantity}</td>
+						<td>${pTransaction.closingBalance}</td>
+						<td>${ui.formatDatePretty(pTransaction.dateExpiry)}</td>
+					</tr>
+				<% } %>
 			<% } %>
 		<% } else { %>
         <tr align="center" >
